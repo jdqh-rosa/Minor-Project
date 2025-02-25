@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -17,7 +18,8 @@ public class PlayerController : MonoBehaviour
     private bool isUsingMouse = false;
 
     Vector2 moveDirection = Vector2.zero;
-
+    
+    [SerializeField] AngularStuff angularStuff;
 
     private void Awake() {
         PlayerControls = new GameInput();
@@ -41,9 +43,14 @@ public class PlayerController : MonoBehaviour
         attack.Disable();
     }
 
+    private void Start() {
+    }
+
     void Update() {
         ProcessMoveInput();
 
+        player.AddWeaponOrbital(10f);
+        
         ProcessLookInput();
     }
 
@@ -71,28 +78,44 @@ public class PlayerController : MonoBehaviour
         }
 
         if (isUsingMouse) {
-            Vector2 screenPos = Mouse.current.position.ReadValue();
-
+            Vector2 mousePos = Mouse.current.position.ReadValue();
             float z = Camera.main.WorldToScreenPoint(player.transform.position).z;
-
-            Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(new Vector3(screenPos.x, screenPos.y, z));
-    
+            Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, z));
             worldMousePos.y = player.transform.position.y;
 
             Vector3 directionToMouse = worldMousePos - player.transform.position;
-            directionToMouse.y = 0;
-            
-            if (directionToMouse.sqrMagnitude > 0.1f) {
-                //float angle = Mathf.Atan2(directionToMouse.z, directionToMouse.x) * Mathf.Rad2Deg;
-                //player.SetWeaponOrbit(angle);
-                
-                float _targetAngle = Mathf.Atan2(directionToMouse.z, directionToMouse.x) * Mathf.Rad2Deg;
+            directionToMouse.y = 0; 
 
-                // Apply torque/force to rotate the weapon towards the target angle
-                player.RotateWeaponTowardsAngle(_targetAngle, rotationSpeed);
+            if (directionToMouse.sqrMagnitude > 0.1f) {
+                //float targetAngle = Mathf.Atan2(directionToMouse.z, directionToMouse.x) * Mathf.Rad2Deg;
+                //float currentAngle = player.GetWeaponAngle();
+                //
+                //Debug.DrawRay(player.transform.position, directionToMouse, Color.red);
+                //
+                //// Compute angular velocity needed to turn smoothly
+                //float angularDifference = Mathf.DeltaAngle(currentAngle, targetAngle);
+                //float angularVelocity = angularDifference * rotationSpeed * Time.deltaTime;
+                //
+                //Debug.Log($"TargetAngle: {targetAngle}, CurrentAngle: {currentAngle}");
+                //
+                //// Apply momentum
+                //player.AddWeaponOrbital(angularVelocity);
+                
+                float targetAngle = Mathf.Atan2(directionToMouse.z, directionToMouse.x) * Mathf.Rad2Deg;
+                float currentAngle = angularStuff.GetAngle();
+                
+                Debug.DrawRay(player.transform.position, directionToMouse, Color.red);
+                
+                // Compute angular velocity needed to turn smoothly
+                float angularDifference = Mathf.DeltaAngle(currentAngle, targetAngle);
+                float angularVelocity = angularDifference * rotationSpeed;
+                
+                Debug.Log($"TargetAngle: {targetAngle}, CurrentAngle: {currentAngle}");
+                
+                angularStuff.Accelerate(angularVelocity);
             }
         }
-        else if (lastLookDirection.sqrMagnitude > 0.01f) // Ignore very small inputs
+        else if (lastLookDirection.sqrMagnitude > 0.01f)
         {
             float angle = Mathf.Atan2(lastLookDirection.y, lastLookDirection.x) * Mathf.Rad2Deg;
             player.SetWeaponOrbit(angle);

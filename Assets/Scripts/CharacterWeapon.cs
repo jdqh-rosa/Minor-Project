@@ -1,8 +1,4 @@
-using System.Numerics;
 using UnityEngine;
-using Quaternion = UnityEngine.Quaternion;
-using Vector2 = UnityEngine.Vector2;
-using Vector3 = UnityEngine.Vector3;
 
 public class CharacterWeapon : MonoBehaviour
 {
@@ -16,39 +12,52 @@ public class CharacterWeapon : MonoBehaviour
     
     private Vector2 orbitalVelocity;
     private Vector2 perpendicularVelocity;
-
-    public void AddOrbitalVelocity(float pAddedMomentum) {
-        float angularVelocity = pAddedMomentum / WeaponDistance;  // Angular velocity based on momentum and distance
-        Vector2 direction = new Vector2(-Mathf.Sin(transform.eulerAngles.y * Mathf.Deg2Rad), Mathf.Cos(transform.eulerAngles.y * Mathf.Deg2Rad)); 
-        orbitalVelocity = direction * angularVelocity * WeaponDistance;
+    private float currentAngularVelocity = 0f;
+    private float dampingFactor = 0.98f; // Smooths motion
+    private float acceleration = 0.1f; // Acceleration factor for smooth control
+    private float maxAngularVelocity = 5f; // Limit max speed
+    private float currentAngle = 0f;
+    
+    public void AddOrbitalVelocity(float addedMomentum) {
+        currentAngularVelocity += addedMomentum * acceleration;
+        currentAngularVelocity = Mathf.Clamp(currentAngularVelocity, -maxAngularVelocity, maxAngularVelocity);
+        currentAngle += currentAngularVelocity;
     }
     
-    public void PreAddOrbitalVelocity(float pAddedMomentum) {
-        float _angularVelocity = RotationSpeed;
-        float _tangentialVelocity = _angularVelocity * WeaponDistance;
-        
-        Vector2 direction = new Vector2(-Mathf.Sin(transform.eulerAngles.y), Mathf.Cos(transform.eulerAngles.y));
-        
-        orbitalVelocity = direction.normalized * (_tangentialVelocity+pAddedMomentum);
+    public void AddPerpendicularVelocity(Vector2 addedMomentum) {
+        perpendicularVelocity += addedMomentum * acceleration;
     }
-
-    public void AddPerpendicularVelocity(Vector2 pAddedMomentum) {
-        perpendicularVelocity = pAddedMomentum;
-    }
-
+    
     public void UpdateVelocity() {
-        Velocity = orbitalVelocity + perpendicularVelocity;
-    }
-
-    public void UpdatePositionWithVelocity() {
-        float _velocityAngle = Mathf.Atan2(Velocity.y, Velocity.x) * Mathf.Rad2Deg;
-        
-        SetOrbitPosition(WeaponDistance, _velocityAngle);
+        // Compute new velocity from angular velocity
+        Velocity = new Vector2(
+            -Mathf.Sin(transform.eulerAngles.y * Mathf.Deg2Rad),
+            Mathf.Cos(transform.eulerAngles.y * Mathf.Deg2Rad)
+        ) * (currentAngularVelocity * WeaponDistance);
     }
     
-    public void SetOrbitPosition(float pDistance, float pAngle) {
-        Vector2 _orbitPos = RadialHelper.PolarToCart(pAngle, pDistance);
-        transform.localPosition = new Vector3(_orbitPos.x, transform.localPosition.y, _orbitPos.y);
-        transform.rotation = Quaternion.Euler(0, -pAngle, 0);
+    public void UpdatePosition() {
+        // Compute new angle based on velocity
+        float newAngle = transform.localEulerAngles.y + (currentAngularVelocity * Time.deltaTime);
+        Debug.Log($"New Weapon angle: {newAngle}");
+
+        // Convert angle to position
+        Vector2 orbitPos = RadialHelper.PolarToCart(newAngle, WeaponDistance);
+        transform.localPosition = new Vector3(orbitPos.x, transform.localPosition.y, orbitPos.y);
+        
+        // Rotate to face away from character
+        transform.rotation = Quaternion.Euler(0, -newAngle, 0);
+        
+        // Apply frictional damping
+        currentAngularVelocity *= dampingFactor;
+        if (Mathf.Abs(currentAngularVelocity) < 0.01f) currentAngularVelocity = 0;
+    }
+
+    public float GetAngle() {
+        return transform.eulerAngles.y;
+    }
+
+    public void CalculateAngularVelocity() {
+        
     }
 }

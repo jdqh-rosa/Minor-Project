@@ -28,7 +28,7 @@ public class Character : MonoBehaviour
     }
 
     public void SetWeaponOrbit(float pAngle) {
-        playerWeapon.SetOrbitPosition(weaponDistance, pAngle);
+        //playerWeapon.SetOrbitPosition(weaponDistance, pAngle);
     }
 
     public void AddWeaponOrbital(float pAdditionalMomentum) {
@@ -62,7 +62,12 @@ public class Character : MonoBehaviour
         
         playerWeapon.UpdateVelocity();
         
-        playerWeapon.UpdatePositionWithVelocity();
+        playerWeapon.UpdatePosition();
+    }
+
+
+    public float GetWeaponAngle() {
+        return playerWeapon.GetAngle();
     }
     
 }

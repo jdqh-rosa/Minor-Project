@@ -53,6 +53,5 @@ static class RadialHelper
         point.y = ynew + pivot.y;
         return point;
     }
-
-    private static float NormalizeAngle(float a) => (a + 360) % 360f;
+    public static float NormalizeAngle(float a) => (a + 360) % 360f;
 }

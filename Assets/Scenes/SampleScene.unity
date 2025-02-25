@@ -900,7 +900,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1678238807}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 981268b96e5c7cb4da8dc0499183bef6, type: 3}
   m_Name: 
@@ -916,12 +916,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1678238807}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 03a6838534e9d3845b9315d0dcb18f7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 1678238808}
+  rotationSpeed: 10
+  angularStuff: {fileID: 1740262763}
 --- !u!4 &1678238810
 Transform:
   m_ObjectHideFlags: 0
@@ -976,6 +978,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1740262762}
   - component: {fileID: 1740262761}
+  - component: {fileID: 1740262763}
+  - component: {fileID: 1740262764}
   m_Layer: 0
   m_Name: PlayerWeapon
   m_TagString: Untagged
@@ -990,7 +994,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1740262760}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: abb158e92d67bea4f935934581b6b988, type: 3}
   m_Name: 
@@ -1000,6 +1004,7 @@ MonoBehaviour:
   tip: {fileID: 1481994953}
   Velocity: {x: 0, y: 0}
   RotationSpeed: 1
+  WeaponDistance: 1
 --- !u!4 &1740262762
 Transform:
   m_ObjectHideFlags: 0
@@ -1016,6 +1021,37 @@ Transform:
   - {fileID: 1772386765}
   m_Father: {fileID: 1678238810}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1740262763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740262760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 823419ea8e10a3f4486085e7af1657f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1740262764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1740262760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f13da59f1cdb32b4c94bffe3180707e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mass: 1
+  radius: 1
+  velocity: 0
+  angularDisplacement: 0
+  currentAngle: 0
+  momentum: 0
+  dampingFactor: 0.9
 --- !u!1 &1772386764
 GameObject:
   m_ObjectHideFlags: 0
