@@ -6,8 +6,6 @@ public class Character : MonoBehaviour
     [SerializeField] private CharacterBody playerBody;
     
     [SerializeField] private CharacterWeapon playerWeapon;
-    private float weaponDistance=1f;
-    
     
     public float MoveSpeed = 5f;
     Vector2 moveDirection = Vector2.zero;
