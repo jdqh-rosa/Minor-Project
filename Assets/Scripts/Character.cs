@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Character : MonoBehaviour
@@ -71,5 +72,11 @@ public class Character : MonoBehaviour
     public Vector3 GetWeaponPosition() {
         return playerWeapon.transform.position;
     }
-    
+
+    private void weaponCollision(Character collidedCharacter) {
+        
+    }
+
+    private void bodyCollision(Character collidedCharacter) { }
+
 }
