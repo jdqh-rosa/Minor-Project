@@ -32,7 +32,7 @@ public class Character : MonoBehaviour
     }
 
     public void AddWeaponOrbital(float pAdditionalMomentum) {
-        playerWeapon.AddOrbitalVelocity(pAdditionalMomentum);
+        playerWeapon.OrbitalAccelerate(pAdditionalMomentum, Time.deltaTime);
     }
 
     public void AddWeaponPerpendicular(Vector2 pAdditionalMomentum) {
@@ -60,7 +60,7 @@ public class Character : MonoBehaviour
     {
         RigidBody.linearVelocity = new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed);
         
-        playerWeapon.UpdateVelocity();
+        //playerWeapon.UpdateVelocity();
         
         playerWeapon.UpdatePosition();
     }
@@ -68,6 +68,10 @@ public class Character : MonoBehaviour
 
     public float GetWeaponAngle() {
         return playerWeapon.GetAngle();
+    }
+
+    public Vector3 GetWeaponPosition() {
+        return playerWeapon.transform.position;
     }
     
 }
