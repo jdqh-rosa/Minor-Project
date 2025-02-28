@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class CharacterWeapon : MonoBehaviour
 {
-    [SerializeField] private GameObject hilt;
-    [SerializeField] private GameObject blade;
-    [SerializeField] private GameObject tip;
+    [SerializeField] private WeaponPart hilt;
+    [SerializeField] private WeaponPart blade;
+    [SerializeField] private WeaponPart tip;
 
     public Vector2 Velocity;
     public float WeaponDistance = 1f;
@@ -65,5 +65,9 @@ public class CharacterWeapon : MonoBehaviour
     
     public float GetAngle() {
         return currentAngle;
+    }
+
+    public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, Vector2 pWeaponMomentum, bool pIsClash) {
+        
     }
 }

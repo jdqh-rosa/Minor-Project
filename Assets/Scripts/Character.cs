@@ -73,6 +73,10 @@ public class Character : MonoBehaviour
         return playerWeapon.transform.position;
     }
 
+    private void collisionDetected() {
+        
+    }
+
     private void weaponCollision(Character collidedCharacter) {
         
     }
