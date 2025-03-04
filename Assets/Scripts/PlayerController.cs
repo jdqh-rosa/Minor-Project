@@ -99,7 +99,7 @@ public class PlayerController : MonoBehaviour
         float angularAcceleration = angularDifference * rotationSpeed * dampingFactor;
         angularVelocity = (angularVelocity + angularAcceleration) * velocityDamping;
         
-        Debug.Log($"currentAngle: {currentAngle}, targetAngle: {targetAngle}");
+        //Debug.Log($"currentAngle: {currentAngle}, targetAngle: {targetAngle}");
         
         player.AddWeaponOrbital(Mathf.Clamp(angularVelocity, -maxRotationSpeed, maxRotationSpeed));
 
@@ -107,14 +107,14 @@ public class PlayerController : MonoBehaviour
             Vector2 perpendicularDirection = new Vector2(-lastLookDirection.y, lastLookDirection.x).normalized;
             Vector2 angularDirection = perpendicularDirection * angularVelocity;
             Vector3 worldAngularDirection = new Vector3(angularDirection.x, 0, angularDirection.y).normalized;
-            Debug.DrawRay(player.transform.position, worldAngularDirection * Mathf.Abs(angularVelocity), Color.green);
+            //Debug.DrawRay(player.transform.position, worldAngularDirection * Mathf.Abs(angularVelocity), Color.green);
 
             Vector2 targetDirection = RadialHelper.PolarToCart(targetAngle, 1);
             Vector3 worldTargetDirection = new Vector3(targetDirection.x, 0, targetDirection.y).normalized;
-            Debug.DrawRay(player.transform.position, worldTargetDirection * 2, Color.blue);
+            //Debug.DrawRay(player.transform.position, worldTargetDirection * 2, Color.blue);
 
             Vector3 lastLookDir = new Vector3(lastLookDirection.x, 0, lastLookDirection.y).normalized;
-            Debug.DrawRay(player.GetWeaponPosition(), lastLookDir * 2, Color.red);
+            //Debug.DrawRay(player.GetWeaponPosition(), lastLookDir * 2, Color.red);
         }
 
     }

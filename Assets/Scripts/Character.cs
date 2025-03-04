@@ -1,12 +1,12 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Character : MonoBehaviour
 {
     public Rigidbody RigidBody;
-    [SerializeField] private CharacterBody playerBody;
-    
-    [SerializeField] private CharacterWeapon playerWeapon;
+    public CharacterBody Body;
+    public CharacterWeapon Weapon;
     
     public float MoveSpeed = 5f;
     Vector2 moveDirection = Vector2.zero;
@@ -14,12 +14,20 @@ public class Character : MonoBehaviour
 
     private Vector2 cumulVelocity;
 
+    public CollissionHandler collissionHandler;
+
+    private void Start()
+    {
+        Weapon.Character = this;
+        Body.Character = this;
+    }
+
     public void CumulativeVelocity() {
-        cumulVelocity = playerBody.Velocity + playerWeapon.Velocity;
+        cumulVelocity = Body.Velocity + Weapon.Velocity;
     }
     
     public void SetBodyRotation(float angle) {
-        playerBody.transform.rotation = Quaternion.Euler(0, angle, 0);
+        Body.transform.rotation = Quaternion.Euler(0, angle, 0);
     }
 
     public void SetCharacterPosition(Vector2 pos) {
@@ -31,16 +39,16 @@ public class Character : MonoBehaviour
     }
 
     public void AddWeaponOrbital(float pAdditionalMomentum) {
-        playerWeapon.OrbitalAccelerate(pAdditionalMomentum, Time.deltaTime);
+        Weapon.OrbitalAccelerate(pAdditionalMomentum, Time.deltaTime);
     }
 
     public void AddWeaponPerpendicular(Vector2 pAdditionalMomentum) {
-        playerWeapon.AddPerpendicularVelocity(pAdditionalMomentum);
+        Weapon.AddPerpendicularVelocity(pAdditionalMomentum);
     }
     
     public void RotateWeaponTowardsAngle(float targetAngle, float rotationSpeed) {
         // Get the current rotation of the weapon (in degrees)
-        float currentAngle = playerWeapon.transform.rotation.eulerAngles.y;
+        float currentAngle = Weapon.transform.rotation.eulerAngles.y;
 
         // Calculate the shortest way to rotate towards the target angle
         float angleDiff = Mathf.DeltaAngle(currentAngle, targetAngle);
@@ -51,36 +59,78 @@ public class Character : MonoBehaviour
         float newAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, step);
 
         // Update the weapon's rotation based on the calculated angle
-        playerWeapon.transform.rotation = Quaternion.Euler(0, newAngle, 0);
+        Weapon.transform.rotation = Quaternion.Euler(0, newAngle, 0);
     }
 
     
     void FixedUpdate()
     {
-        RigidBody.linearVelocity = new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed);
+        BodyFunctions();
+        WeaponFunctions();
         
-        //playerWeapon.UpdateVelocity();
-        
-        playerWeapon.UpdatePosition();
+        CumulativeVelocity();
     }
 
+    private void BodyFunctions()
+    {
+        RigidBody.linearVelocity = new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed);
 
+    }
+    
+    private void WeaponFunctions()
+    {
+        Weapon.UpdatePosition();
+    }
+    
     public float GetWeaponAngle() {
-        return playerWeapon.GetAngle();
+        return Weapon.GetAngle();
     }
 
     public Vector3 GetWeaponPosition() {
-        return playerWeapon.transform.position;
+        return Weapon.transform.position;
     }
 
-    private void collisionDetected() {
+    public void CollisionDetected(Character pCharacterHit, bool pIsClash, float pMomentum) {
+        if (pIsClash)
+        {
+            weaponHit(pCharacterHit, pMomentum);
+        }
+        else
+        {
+            bodyHit(pCharacterHit);
+        }
+
+    }
+
+    private void weaponHit(Character pCollidedCharacter, float pMomentum)
+    {
+        Vector2 _otherMomentum = pCollidedCharacter.getHitMomentum();
         
-    }
+        Vector2 _momentumDifference = cumulVelocity - _otherMomentum;
 
-    private void weaponCollision(Character collidedCharacter) {
+        Vector2 impactDirection = (cumulVelocity - _otherMomentum).normalized;
+
+        float v1 = Vector2.Dot(cumulVelocity, impactDirection);
+        float v2 = Vector2.Dot(_otherMomentum, impactDirection);
+
+        float m1 = Weapon.Mass;
+        float m2 = pCollidedCharacter.Weapon.Mass;
+
+        float newV1 = ((m1 - m2) / (m1 + m2)) * v1 + ((2 * m2) / (m1 + m2)) * v2;
+        float newV2 = ((2 * m1) / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
+
+        Vector2 newVelocity1 = cumulVelocity + (newV1 - v1) * impactDirection;
+        Vector2 newVelocity2 = _otherMomentum + (newV2 - v2) * impactDirection;
         
+        AddWeaponOrbital(newVelocity1.magnitude);
+        pCollidedCharacter.AddWeaponOrbital(newVelocity2.magnitude);
     }
 
-    private void bodyCollision(Character collidedCharacter) { }
+    private void bodyHit(Character collidedCharacter) { }
+
+    private Vector2 getHitMomentum()
+    {
+        return cumulVelocity;
+    }
 
 }
