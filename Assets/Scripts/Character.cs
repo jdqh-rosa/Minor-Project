@@ -65,19 +65,19 @@ public class Character : MonoBehaviour
     
     void FixedUpdate()
     {
-        BodyFunctions();
-        WeaponFunctions();
+        bodyFunctions();
+        weaponFunctions();
         
         CumulativeVelocity();
     }
 
-    private void BodyFunctions()
+    private void bodyFunctions()
     {
-        RigidBody.linearVelocity = new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed);
-
+        Body.Move(moveDirection.normalized);
+        //RigidBody.MovePosition(transform.position + new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed));
     }
     
-    private void WeaponFunctions()
+    private void weaponFunctions()
     {
         Weapon.UpdatePosition();
     }
@@ -102,9 +102,9 @@ public class Character : MonoBehaviour
 
     }
 
-    private void weaponHit(Character pCollidedCharacter, float pMomentum)
+    private void weaponHit(Character pCharacterHit, float pMomentum)
     {
-        Vector2 _otherMomentum = pCollidedCharacter.getHitMomentum();
+        Vector2 _otherMomentum = pCharacterHit.getHitMomentum();
         
         Vector2 _momentumDifference = cumulVelocity - _otherMomentum;
 
@@ -114,7 +114,7 @@ public class Character : MonoBehaviour
         float v2 = Vector2.Dot(_otherMomentum, impactDirection);
 
         float m1 = Weapon.Mass;
-        float m2 = pCollidedCharacter.Weapon.Mass;
+        float m2 = pCharacterHit.Weapon.Mass;
 
         float newV1 = ((m1 - m2) / (m1 + m2)) * v1 + ((2 * m2) / (m1 + m2)) * v2;
         float newV2 = ((2 * m1) / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
@@ -123,13 +123,13 @@ public class Character : MonoBehaviour
         Vector2 newVelocity2 = _otherMomentum + (newV2 - v2) * impactDirection;
         
         AddWeaponOrbital(newVelocity1.magnitude);
-        pCollidedCharacter.AddWeaponOrbital(newVelocity2.magnitude);
+        pCharacterHit.AddWeaponOrbital(newVelocity2.magnitude);
     }
 
-    private void bodyHit(Character collidedCharacter) { }
+    private void bodyHit(Character pCharacterHit) { }
 
-    private Vector2 getHitMomentum()
-    {
+    private Vector2 getHitMomentum() {
+        CumulativeVelocity();
         return cumulVelocity;
     }
 

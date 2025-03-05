@@ -1,5 +1,7 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.Composites;
 
 public class CharacterBody : MonoBehaviour
 {
@@ -8,36 +10,55 @@ public class CharacterBody : MonoBehaviour
     private bool isStepping;
     private bool isWalking;
 
-    [SerializeField] private float moveSpeed =10f;
-    private float stepLength = 1;
+    [SerializeField] private float stepLength = 1f;
+    [SerializeField] private float stepDuration = 0.3f;
+
+    private Vector3 targetPosition;
 
     public void TurnToAngle(float angle) {
         transform.localRotation = Quaternion.Euler(0, angle, 0);
     }
 
-    public void Move(Vector2 dir)
-    {
-        if (isStepping)
-        {
-            isWalking = true;
-            return;
-        }
+
+    public void Move(Vector2 pDir) {
+        if (pDir == Vector2.zero) return;
         
-        if (isStepping || !isStepping && isWalking)
+        if (isStepping) {
+            targetPosition += new Vector3(pDir.x, 0, pDir.y)*stepLength;
+            isWalking = true;
+        }else
         {
-            StartCoroutine(Step());
+            targetPosition = Character.transform.position + new Vector3(pDir.x, 0, pDir.y)*stepLength;
+            StartCoroutine(step());
         }
     }
 
-    IEnumerator Step()
+    private IEnumerator step()
     {
         isStepping = true;
+        Vector3 _startPosition = Character.transform.position;
+        float _elapsedTime = 0;
 
-        while (false)
-        {
-            yield return new WaitForSeconds(0.1f);
+        while (_elapsedTime < stepDuration) {
+            _elapsedTime += Time.deltaTime;
+            float _t = _elapsedTime / stepDuration;
+            float _easedT = EaseInOutQuad(_t);
+            
+            Character.transform.position = Vector3.Lerp(_startPosition, targetPosition, _easedT);
+            yield return null;
         }
-
+        
+        Character.transform.position = targetPosition;
         isStepping = false;
+
+        while (isWalking)
+        {
+            isWalking = false;
+            StartCoroutine(step());
+        }
+    }
+
+    private float EaseInOutQuad(float pT) {
+        return (pT < 0.5f) ? (2 * pT * pT) : (1 - Mathf.Pow(-2 * pT+2, 2) / 2);
     }
 }

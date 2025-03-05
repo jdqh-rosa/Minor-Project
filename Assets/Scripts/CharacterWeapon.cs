@@ -9,6 +9,7 @@ public class CharacterWeapon : MonoBehaviour
     public Character Character;
 
     public Vector2 Velocity;
+    public float Mass = 1f;
     public float WeaponDistance = 0f;
 
     private float orbitalVelocity = 0f;
@@ -18,7 +19,6 @@ public class CharacterWeapon : MonoBehaviour
     [SerializeField] private float maxOrbitalVelocity = 5f; // Limit max speed
     private float currentAngle = 0f;
 
-    public float Mass = 1f;
     [SerializeField] private float momentum = 0f;
 
     private void Start()
@@ -43,17 +43,6 @@ public class CharacterWeapon : MonoBehaviour
         float _angularAcceleration =
             Mathf.Clamp(pAcceleration / WeaponDistance, -maxOrbitalVelocity, maxOrbitalVelocity);
         orbitalVelocity += _angularAcceleration * pTime;
-        orbitalVelocity = Mathf.Clamp(orbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
-
-        return orbitalVelocity;
-    }
-
-    public float OrbitalAccelerate2(float pAcceleration, float pTime)
-    {
-        if (WeaponDistance <= 0.01f) return orbitalVelocity;
-
-        float _angularAcceleration = pAcceleration / WeaponDistance;
-        orbitalVelocity = Mathf.Lerp(orbitalVelocity, orbitalVelocity + _angularAcceleration * pTime, acceleration);
         orbitalVelocity = Mathf.Clamp(orbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
 
         return orbitalVelocity;

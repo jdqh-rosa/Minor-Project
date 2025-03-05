@@ -4,14 +4,14 @@ using System.Collections.Generic;
 
 static class RadialHelper
 {
-    public static float CalculateCircm(float pRadius)
+    public static float CalculateCircumference(float pRadius)
     {
         return (2 * Mathf.PI * pRadius);
     }
 
-    public static float CalculateCircmDeg(float pRadius)
+    public static float CalculateCircumferenceDeg(float pRadius)
     {
-        return 360 / CalculateCircm(pRadius);
+        return 360 / CalculateCircumference(pRadius);
     }
 
     public static Vector2 PolarToCart(float deg, float pRadius)

@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float rotationSpeed = 10f;
     private Vector2 lastLookDirection = Vector2.zero; // Stores last used input direction
-    float targetAngle;
+    private float targetAngle;
     private bool isUsingMouse = false;
 
     Vector2 moveDirection = Vector2.zero;
@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour
 
         attack = PlayerControls.Player.Attack;
         attack.Enable();
-        attack.performed += Attack;
+        attack.performed += attackInput;
     }
 
     private void OnDisable() {
@@ -42,17 +42,17 @@ public class PlayerController : MonoBehaviour
     }
 
     void Update() {
-        ProcessMoveInput();
+        processMoveInput();
 
-        ProcessLookInput();
+        processLookInput();
     }
 
-    void ProcessMoveInput() {
+    private void processMoveInput() {
         moveDirection = move.ReadValue<Vector2>();
         player.SetCharacterPosition(moveDirection);
     }
 
-    void ProcessLookInput() {
+    private void processLookInput() {
         Vector2 mouseInput = Mouse.current.position.ReadValue();
         Vector2 gamepadInput = look.ReadValue<Vector2>();
         
@@ -104,22 +104,22 @@ public class PlayerController : MonoBehaviour
         player.AddWeaponOrbital(Mathf.Clamp(angularVelocity, -maxRotationSpeed, maxRotationSpeed));
 
         {
-            Vector2 perpendicularDirection = new Vector2(-lastLookDirection.y, lastLookDirection.x).normalized;
-            Vector2 angularDirection = perpendicularDirection * angularVelocity;
-            Vector3 worldAngularDirection = new Vector3(angularDirection.x, 0, angularDirection.y).normalized;
+            //Vector2 perpendicularDirection = new Vector2(-lastLookDirection.y, lastLookDirection.x).normalized;
+            //Vector2 angularDirection = perpendicularDirection * angularVelocity;
+            //Vector3 worldAngularDirection = new Vector3(angularDirection.x, 0, angularDirection.y).normalized;
             //Debug.DrawRay(player.transform.position, worldAngularDirection * Mathf.Abs(angularVelocity), Color.green);
 
             Vector2 targetDirection = RadialHelper.PolarToCart(targetAngle, 1);
             Vector3 worldTargetDirection = new Vector3(targetDirection.x, 0, targetDirection.y).normalized;
-            //Debug.DrawRay(player.transform.position, worldTargetDirection * 2, Color.blue);
+            Debug.DrawRay(player.transform.position, worldTargetDirection * 2, Color.blue);
 
             Vector3 lastLookDir = new Vector3(lastLookDirection.x, 0, lastLookDirection.y).normalized;
-            //Debug.DrawRay(player.GetWeaponPosition(), lastLookDir * 2, Color.red);
+            Debug.DrawRay(player.GetWeaponPosition(), lastLookDir * 2, Color.red);
         }
 
     }
 
-    private void Attack(InputAction.CallbackContext context) {
-        ProcessLookInput();
+    private void attackInput(InputAction.CallbackContext context) {
+        processLookInput();
     }
 }
