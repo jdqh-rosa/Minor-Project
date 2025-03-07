@@ -21,8 +21,7 @@ public class CharacterWeapon : MonoBehaviour
 
     [SerializeField] private float momentum = 0f;
 
-    private void Start()
-    {
+    private void Start() {
         hilt.Weapon = this;
         blade.Weapon = this;
         tip.Weapon = this;
@@ -30,44 +29,41 @@ public class CharacterWeapon : MonoBehaviour
         WeaponDistance = Mathf.Max(0.01f, WeaponDistance);
     }
 
-    public void AddOrbitalVelocity(float addedMomentum)
-    {
+    public void AddOrbitalVelocity(float addedMomentum) {
         orbitalVelocity += addedMomentum * acceleration;
         orbitalVelocity = Mathf.Clamp(orbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
     }
 
-    public float OrbitalAccelerate(float pAcceleration, float pTime)
-    {
+    public float OrbitalAccelerate(float pAcceleration, float pTime) {
         if (WeaponDistance <= 0.001f) return orbitalVelocity;
 
         float _angularAcceleration =
             Mathf.Clamp(pAcceleration / WeaponDistance, -maxOrbitalVelocity, maxOrbitalVelocity);
-        orbitalVelocity += _angularAcceleration * pTime;
+        orbitalVelocity += _angularAcceleration;// * pTime;
         orbitalVelocity = Mathf.Clamp(orbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
+
+        if (Character.transform.name != "Player")
+            Debug.Log($"Acceleration: {_angularAcceleration}, Velocity: {orbitalVelocity}", this);
 
         return orbitalVelocity;
     }
 
-    public void AddPerpendicularVelocity(Vector2 pAddedMomentum)
-    {
+    public void AddPerpendicularVelocity(Vector2 pAddedMomentum) {
         perpendicularVelocity += pAddedMomentum * acceleration;
     }
 
-    public void UpdateVelocity()
-    {
+    public void UpdateVelocity() {
         Velocity = CalculateVelocity(orbitalVelocity);
     }
 
-    public Vector2 CalculateVelocity(float pAngularDifference)
-    {
+    public Vector2 CalculateVelocity(float pAngularDifference) {
         return new Vector2(
             -Mathf.Sin(currentAngle * Mathf.Deg2Rad),
             Mathf.Cos(currentAngle * Mathf.Deg2Rad)
         ) * (pAngularDifference * WeaponDistance);
     }
 
-    public void UpdatePosition()
-    {
+    public void UpdatePosition() {
         //float newAngle = Mathf.MoveTowardsAngle(currentAngle, currentAngle + angularDisplacement, RotationSpeed * Time.deltaTime);
         currentAngle = RadialHelper.NormalizeAngle(currentAngle + (orbitalVelocity * Time.deltaTime));
 
@@ -83,23 +79,20 @@ public class CharacterWeapon : MonoBehaviour
         momentum = VelocityToMomentum(orbitalVelocity, WeaponDistance);
     }
 
-    public float VelocityToMomentum(float pOrbitalVelocity, float pDistance)
-    {
+    public float VelocityToMomentum(float pOrbitalVelocity, float pDistance) {
         return Mathf.Abs(Mass * pOrbitalVelocity * pDistance * pDistance);
     }
-    
+
     public float MomentumToVelocity(float angularMomentum, float pDistance) {
         if (Mass <= 0 || pDistance <= 0) return 0; // Avoid division by zero
         return angularMomentum / (Mass * pDistance * pDistance);
     }
 
-    public float GetAngle()
-    {
+    public float GetAngle() {
         return currentAngle;
     }
 
-    public void CollisionDetected(WeaponPart pPart, Character pCharacter, bool pIsClash, Vector3 pPointHit)
-    {
+    public void CollisionDetected(WeaponPart pPart, Character pCharacter, bool pIsClash, Vector3 pPointHit) {
         //get momentum from PoC 
         Vector3 _hitVector = pPointHit - Character.transform.position;
         Vector3 _weaponVector = pPart.transform.position - Character.transform.position;
@@ -107,11 +100,10 @@ public class CharacterWeapon : MonoBehaviour
         float _vectorDistance = Vector3.Dot(_weaponVector.normalized, _hitVector);
         float _pointMomentum = VelocityToMomentum(orbitalVelocity, _vectorDistance);
 
-        if (transform.parent.name == "Player")
-        {
-            Debug.Log($"impact point: {pPointHit}, vector distance: {_vectorDistance}");
+        if (transform.parent.name == "Player") {
+            //Debug.Log($"impact point: {pPointHit}, vector distance: {_vectorDistance}");
         }
-        
+
         Character.CollisionDetected(pCharacter, pIsClash, _pointMomentum);
     }
 }

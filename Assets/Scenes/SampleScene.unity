@@ -605,6 +605,10 @@ PrefabInstance:
       propertyPath: m_ProvidesContacts
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 481571113627501530, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 1153490375796642830, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -649,24 +653,56 @@ PrefabInstance:
       propertyPath: WeaponDistance
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 2517044769756556409, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2574040923126669557, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 119363d4d09046d44b60c7e1e898c1d8, type: 2}
+    - target: {fileID: 2655684603532515884, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_CollisionDetection
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3373323006643438957, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 3492627115589704103, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4006202490134827707, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_CollisionDetection
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: moveSpeed
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: stepLength
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 6499306806959964476, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_UseGravity
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6740544807709641376, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 7025280683950333044, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_ProvidesContacts
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7162037853379347601, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7345489875525593680, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_CollisionDetection
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7559539973242311158, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}

@@ -11,6 +11,8 @@ public class Character : MonoBehaviour
     public float MoveSpeed = 5f;
     Vector2 moveDirection = Vector2.zero;
     Vector2 lookDirection;
+    
+    float elasticity = 0.8f;
 
     private Vector2 cumulVelocity;
 
@@ -104,32 +106,65 @@ public class Character : MonoBehaviour
 
     private void weaponHit(Character pCharacterHit, float pMomentum)
     {
+        
+        
         Vector2 _otherMomentum = pCharacterHit.getHitMomentum();
+
+        //Vector2 _impactDirection = (cumulVelocity - _otherMomentum).normalized;
         
-        Vector2 _momentumDifference = cumulVelocity - _otherMomentum;
+        Vector2 _impactDirection;
+        if (cumulVelocity.magnitude < 0.01f) // This weapon is stationary
+        {
+            _impactDirection = _otherMomentum.normalized; // Use the other weapon's motion
+        }
+        else if (_otherMomentum.magnitude < 0.01f) // Other weapon is stationary
+        {
+            _impactDirection = cumulVelocity.normalized;
+        }
+        else
+        {
+            _impactDirection = (cumulVelocity - _otherMomentum).normalized;
+        }
 
-        Vector2 impactDirection = (cumulVelocity - _otherMomentum).normalized;
+        float _v1 = Vector2.Dot(cumulVelocity, _impactDirection);
+        float _v2 = Vector2.Dot(_otherMomentum, _impactDirection);
 
-        float v1 = Vector2.Dot(cumulVelocity, impactDirection);
-        float v2 = Vector2.Dot(_otherMomentum, impactDirection);
+        float _m1 = Weapon.Mass;
+        float _m2 = pCharacterHit.Weapon.Mass;
 
-        float m1 = Weapon.Mass;
-        float m2 = pCharacterHit.Weapon.Mass;
+        float _newV1 = ((_m1 - _m2) / (_m1 + _m2)) * _v1 + ((2 * _m2) / (_m1 + _m2)) * _v2;
+        float _newV2 = ((2 * _m1) / (_m1 + _m2)) * _v1 + ((_m2 - _m1) / (_m1 + _m2)) * _v2;
 
-        float newV1 = ((m1 - m2) / (m1 + m2)) * v1 + ((2 * m2) / (m1 + m2)) * v2;
-        float newV2 = ((2 * m1) / (m1 + m2)) * v1 + ((m2 - m1) / (m1 + m2)) * v2;
-
-        Vector2 newVelocity1 = cumulVelocity + (newV1 - v1) * impactDirection;
-        Vector2 newVelocity2 = _otherMomentum + (newV2 - v2) * impactDirection;
+        Vector2 _newVelocity1 = cumulVelocity + (_newV1 - _v1) * _impactDirection;
+        Vector2 _newVelocity2 = _otherMomentum + (_newV2 - _v2) * _impactDirection;
         
-        AddWeaponOrbital(newVelocity1.magnitude);
-        pCharacterHit.AddWeaponOrbital(newVelocity2.magnitude);
+        _newVelocity1 *= elasticity;
+        _newVelocity2 *= elasticity;
+        
+        Vector2 _relativePosition1 = (GetWeaponPosition() - pCharacterHit.GetWeaponPosition()).normalized;
+        Vector2 _relativePosition2 = -_relativePosition1;
+
+
+        float _sign1 = Mathf.Sign(Vector3.Cross(new Vector3(_relativePosition1.x, 0, _relativePosition1.y), new Vector3(_newVelocity1.x, 0, _newVelocity1.y)).y);
+        float _sign2 = Mathf.Sign(Vector3.Cross(new Vector3(_relativePosition2.x, 0, _relativePosition2.y), new Vector3(_newVelocity2.x, 0, _newVelocity2.y)).y);
+        
+        float angularFactor = 0.5f;
+        float _angularMomentum1 = _sign1 * _newVelocity1.magnitude *angularFactor;
+        float _angularMomentum2 = _sign2 * _newVelocity2.magnitude *angularFactor;
+        
+        //Debug.Log($"Old Velocity1: {cumulVelocity}, Old Velocity2: {_otherMomentum}");
+        //Debug.Log($"New Velocity1: {_newVelocity1}, New Velocity2: {_newVelocity2}");
+        //Debug.Log($"Relative Position1: {_relativePosition1}, Sign1: {_sign1}");
+        //Debug.Log($"Relative Position2: {_relativePosition2}, Sign2: {_sign2}");
+        //Debug.Log($"Corrected Angular Momentum1: {_angularMomentum1*pMomentum}, Angular Momentum2: {_angularMomentum2*pMomentum}");
+        
+        AddWeaponOrbital(_angularMomentum1);
+        pCharacterHit.AddWeaponOrbital(_angularMomentum2);
     }
 
     private void bodyHit(Character pCharacterHit) { }
 
     private Vector2 getHitMomentum() {
-        CumulativeVelocity();
         return cumulVelocity;
     }
 

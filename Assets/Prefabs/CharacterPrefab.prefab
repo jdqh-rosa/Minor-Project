@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2574040923126669557}
   - component: {fileID: 3492627115589704103}
   - component: {fileID: 4064070902432672261}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: CharacterBody
   m_TagString: CharacterBody
   m_Icon: {fileID: 0}
@@ -125,7 +125,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Character: {fileID: 0}
   Velocity: {x: 0, y: 0}
-  moveSpeed: 10
+  stepLength: 0.2
+  stepDuration: 0.3
 --- !u!1 &2517044769756556409
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,7 +141,7 @@ GameObject:
   - component: {fileID: 7827102051968118992}
   - component: {fileID: 2655684603532515884}
   - component: {fileID: 3003620771216153611}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Blade
   m_TagString: WeaponPart
   m_Icon: {fileID: 0}
@@ -293,7 +294,7 @@ GameObject:
   - component: {fileID: 77755469248542536}
   - component: {fileID: 7345489875525593680}
   - component: {fileID: 9150468459623298957}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Tip
   m_TagString: WeaponPart
   m_Icon: {fileID: 0}
@@ -446,7 +447,7 @@ GameObject:
   - component: {fileID: 7025280683950333044}
   - component: {fileID: 4006202490134827707}
   - component: {fileID: 5214730600425310135}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Hilt
   m_TagString: WeaponPart
   m_Icon: {fileID: 0}
@@ -595,7 +596,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5596188102292499679}
   - component: {fileID: 1986152834130756565}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: CharacterWeapon
   m_TagString: CharacterWeapon
   m_Icon: {fileID: 0}
@@ -637,9 +638,9 @@ MonoBehaviour:
   tip: {fileID: 9150468459623298957}
   Character: {fileID: 0}
   Velocity: {x: 0, y: 0}
+  Mass: 1
   WeaponDistance: 1
   maxOrbitalVelocity: 200
-  mass: 1
   momentum: 0
 --- !u!1 &7559539973242311158
 GameObject:
