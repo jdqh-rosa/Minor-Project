@@ -16,10 +16,13 @@ public class Character : MonoBehaviour
 
     private Vector2 cumulVelocity;
 
-    public CollissionHandler collissionHandler;
-
     private void Start()
     {
+        if (Weapon == null || Body == null) {
+            Debug.LogError("Weapon or Body is not assigned.");
+            return;
+        }
+        
         Weapon.Character = this;
         Body.Character = this;
     }
@@ -49,18 +52,13 @@ public class Character : MonoBehaviour
     }
     
     public void RotateWeaponTowardsAngle(float targetAngle, float rotationSpeed) {
-        // Get the current rotation of the weapon (in degrees)
         float currentAngle = Weapon.transform.rotation.eulerAngles.y;
 
-        // Calculate the shortest way to rotate towards the target angle
         float angleDiff = Mathf.DeltaAngle(currentAngle, targetAngle);
 
-        // Apply a rotation force (or torque) to rotate the weapon
-        // Ensure the rotation speed is applied gradually
         float step = rotationSpeed * Time.deltaTime;
-        float newAngle = Mathf.MoveTowardsAngle(currentAngle, targetAngle, step);
+        float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, step);
 
-        // Update the weapon's rotation based on the calculated angle
         Weapon.transform.rotation = Quaternion.Euler(0, newAngle, 0);
     }
 
@@ -73,14 +71,14 @@ public class Character : MonoBehaviour
         CumulativeVelocity();
     }
 
-    private void bodyFunctions()
-    {
-        Body.Move(moveDirection.normalized);
-        //RigidBody.MovePosition(transform.position + new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed));
+    private void bodyFunctions(){
+        //Body.Move(moveDirection.normalized);
+        //take movement from Body and apply it in here
+        
+        RigidBody.MovePosition(transform.position + new Vector3(moveDirection.x * MoveSpeed, 0, moveDirection.y * MoveSpeed));
     }
     
-    private void weaponFunctions()
-    {
+    private void weaponFunctions(){
         Weapon.UpdatePosition();
     }
     
@@ -90,6 +88,10 @@ public class Character : MonoBehaviour
 
     public Vector3 GetWeaponPosition() {
         return Weapon.transform.position;
+    }
+
+    public float GetWeaponOrbital() {
+        return Weapon.OrbitalVelocity;
     }
 
     public void CollisionDetected(Character pCharacterHit, bool pIsClash, float pMomentum) {
@@ -104,20 +106,15 @@ public class Character : MonoBehaviour
 
     }
 
-    private void weaponHit(Character pCharacterHit, float pMomentum)
-    {
-        
-        
+    private void weaponHit(Character pCharacterHit, float pMomentum){
         Vector2 _otherMomentum = pCharacterHit.getHitMomentum();
-
-        //Vector2 _impactDirection = (cumulVelocity - _otherMomentum).normalized;
         
         Vector2 _impactDirection;
-        if (cumulVelocity.magnitude < 0.01f) // This weapon is stationary
+        if (cumulVelocity.magnitude < 0.01f)
         {
-            _impactDirection = _otherMomentum.normalized; // Use the other weapon's motion
+            _impactDirection = _otherMomentum.normalized;
         }
-        else if (_otherMomentum.magnitude < 0.01f) // Other weapon is stationary
+        else if (_otherMomentum.magnitude < 0.01f)
         {
             _impactDirection = cumulVelocity.normalized;
         }

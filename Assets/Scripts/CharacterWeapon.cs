@@ -12,8 +12,8 @@ public class CharacterWeapon : MonoBehaviour
     public float Mass = 1f;
     public float WeaponDistance = 0f;
 
-    private float orbitalVelocity = 0f;
-    private Vector2 perpendicularVelocity;
+    public float OrbitalVelocity = 0f;
+    public Vector2 LinearVelocity;
     private float dampingFactor = 0.98f; // Smooths motion
     private float acceleration = 0.1f; // Acceleration factor for smooth control
     [SerializeField] private float maxOrbitalVelocity = 5f; // Limit max speed
@@ -30,30 +30,30 @@ public class CharacterWeapon : MonoBehaviour
     }
 
     public void AddOrbitalVelocity(float addedMomentum) {
-        orbitalVelocity += addedMomentum * acceleration;
-        orbitalVelocity = Mathf.Clamp(orbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
+        OrbitalVelocity += addedMomentum * acceleration;
+        OrbitalVelocity = Mathf.Clamp(OrbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
     }
 
     public float OrbitalAccelerate(float pAcceleration, float pTime) {
-        if (WeaponDistance <= 0.001f) return orbitalVelocity;
+        if (WeaponDistance <= 0.001f) return OrbitalVelocity;
 
-        float _angularAcceleration =
-            Mathf.Clamp(pAcceleration / WeaponDistance, -maxOrbitalVelocity, maxOrbitalVelocity);
-        orbitalVelocity += _angularAcceleration;// * pTime;
-        orbitalVelocity = Mathf.Clamp(orbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
+        float _angularAcceleration = Mathf.Clamp(pAcceleration / WeaponDistance, -maxOrbitalVelocity, maxOrbitalVelocity);
+        
+        OrbitalVelocity += _angularAcceleration; // * pTime;
+        OrbitalVelocity = Mathf.Clamp(OrbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
 
         if (Character.transform.name != "Player")
-            Debug.Log($"Acceleration: {_angularAcceleration}, Velocity: {orbitalVelocity}", this);
+            Debug.Log($"Acceleration: {_angularAcceleration}, Velocity: {OrbitalVelocity}", this);
 
-        return orbitalVelocity;
+        return OrbitalVelocity;
     }
 
     public void AddPerpendicularVelocity(Vector2 pAddedMomentum) {
-        perpendicularVelocity += pAddedMomentum * acceleration;
+        LinearVelocity += pAddedMomentum * acceleration;
     }
 
     public void UpdateVelocity() {
-        Velocity = CalculateVelocity(orbitalVelocity);
+        Velocity = CalculateVelocity(OrbitalVelocity);
     }
 
     public Vector2 CalculateVelocity(float pAngularDifference) {
@@ -65,18 +65,18 @@ public class CharacterWeapon : MonoBehaviour
 
     public void UpdatePosition() {
         //float newAngle = Mathf.MoveTowardsAngle(currentAngle, currentAngle + angularDisplacement, RotationSpeed * Time.deltaTime);
-        currentAngle = RadialHelper.NormalizeAngle(currentAngle + (orbitalVelocity * Time.deltaTime));
+        currentAngle = RadialHelper.NormalizeAngle(currentAngle + (OrbitalVelocity * Time.deltaTime));
 
         Vector2 orbitPos = RadialHelper.PolarToCart(currentAngle, WeaponDistance);
 
         transform.localPosition = new Vector3(orbitPos.x, transform.localPosition.y, orbitPos.y);
         transform.rotation = Quaternion.Euler(0, -currentAngle + 90, 0);
 
-        orbitalVelocity *= dampingFactor;
-        if (Mathf.Abs(orbitalVelocity) < 0.01f) orbitalVelocity = 0;
+        OrbitalVelocity *= dampingFactor;
+        if (Mathf.Abs(OrbitalVelocity) < 0.01f) OrbitalVelocity = 0;
 
         UpdateVelocity();
-        momentum = VelocityToMomentum(orbitalVelocity, WeaponDistance);
+        momentum = VelocityToMomentum(OrbitalVelocity, WeaponDistance);
     }
 
     public float VelocityToMomentum(float pOrbitalVelocity, float pDistance) {
@@ -98,7 +98,7 @@ public class CharacterWeapon : MonoBehaviour
         Vector3 _weaponVector = pPart.transform.position - Character.transform.position;
 
         float _vectorDistance = Vector3.Dot(_weaponVector.normalized, _hitVector);
-        float _pointMomentum = VelocityToMomentum(orbitalVelocity, _vectorDistance);
+        float _pointMomentum = VelocityToMomentum(OrbitalVelocity, _vectorDistance);
 
         if (transform.parent.name == "Player") {
             //Debug.Log($"impact point: {pPointHit}, vector distance: {_vectorDistance}");

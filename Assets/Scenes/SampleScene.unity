@@ -609,13 +609,17 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
+    - target: {fileID: 791417117847432164, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: MoveSpeed
+      value: 0.1
+      objectReference: {fileID: 0}
     - target: {fileID: 1153490375796642830, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1153490375796642830, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.74
+      value: 1.18
       objectReference: {fileID: 0}
     - target: {fileID: 1153490375796642830, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -653,6 +657,10 @@ PrefabInstance:
       propertyPath: WeaponDistance
       value: 0.1
       objectReference: {fileID: 0}
+    - target: {fileID: 1986152834130756565, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: maxOrbitalVelocity
+      value: 300
+      objectReference: {fileID: 0}
     - target: {fileID: 2517044769756556409, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_Layer
       value: 7
@@ -683,6 +691,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: stepLength
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: walkBottom
       value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6499306806959964476, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
@@ -752,6 +764,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 778415247}
   rotationSpeed: 100
+  maxRotationSpeed: 180
+  dampingFactor: 0.2
+  velocityDamping: 0.2
+  deadZoneThreshold: 5
 --- !u!114 &778415247 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 791417117847432164, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
@@ -826,7 +842,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1153490375796642830, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.74
+      value: 1.18
       objectReference: {fileID: 0}
     - target: {fileID: 1153490375796642830, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -863,6 +879,10 @@ PrefabInstance:
     - target: {fileID: 1986152834130756565, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: WeaponDistance
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1986152834130756565, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: maxOrbitalVelocity
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 2517044769756556409, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_TagString
