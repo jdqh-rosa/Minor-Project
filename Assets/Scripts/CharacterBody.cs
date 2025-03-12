@@ -1,5 +1,4 @@
 using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.Composites;
@@ -63,7 +62,7 @@ public class CharacterBody : MonoBehaviour
 
         Character.transform.position = targetPosition;
         Debug.Log($"lastStepVelocity: {lastStepVelocity}");
-        lastStepVelocity = Mathf.Max(lastStepVelocity, stepLength * walkBottomFactor);
+        lastStepVelocity = 0;//Mathf.Max(lastStepVelocity, stepLength * walkBottomFactor);
         Debug.Log($"lastStepVelocity: {lastStepVelocity}");
 
         if (movementInput.sqrMagnitude > Mathf.Epsilon) {

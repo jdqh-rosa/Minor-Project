@@ -93,21 +93,20 @@ public class PlayerController : MonoBehaviour
             }
         }
         else if (lastLookDirection.sqrMagnitude > 0.01f) {
-            // Optionally smooth gamepad input.
             Vector2 smoothedDirection = Vector2.Lerp(lastLookDirection, gamepadInput, Time.deltaTime * rotationSpeed);
             targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(smoothedDirection).y);
         }
 
-        // Calculate the angular error between the current angle and target angle.
+        
         float angularDifference = Mathf.DeltaAngle(currentAngle, targetAngle);
 
-        // If within a dead zone, stop applying further rotation.
+        
         if (Mathf.Abs(angularDifference) < deadZoneThreshold) {
             player.AddWeaponOrbital(0);
             return;
         }
 
-        // Get the current angular velocity from the weapon.
+        
         float currentAngularVelocity = player.GetWeaponOrbital();
 
         // --- PD Controller for angular motion ---
@@ -118,15 +117,15 @@ public class PlayerController : MonoBehaviour
         // The control signal calculates the "torque" needed:
         float controlSignal = kp * angularDifference - kd * currentAngularVelocity;
 
-        // Compute the new angular velocity based on the control signal.
+        
         float newAngularVelocity = currentAngularVelocity + controlSignal * Time.deltaTime;
         newAngularVelocity = Mathf.Clamp(newAngularVelocity, -maxRotationSpeed, maxRotationSpeed);
 
-        // Determine the momentum change to be applied.
+        
         float addedMomentum = newAngularVelocity - currentAngularVelocity;
         player.AddWeaponOrbital(addedMomentum);
 
-        // Debug: visualize target direction (blue) and current look direction (red).
+        
         Vector2 targetDirection = RadialHelper.PolarToCart(targetAngle, 1);
         Vector3 worldTargetDirection = new Vector3(targetDirection.x, 0, targetDirection.y).normalized;
         Debug.DrawRay(player.transform.position, worldTargetDirection * 2, Color.blue);

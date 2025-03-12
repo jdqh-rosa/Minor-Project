@@ -671,7 +671,7 @@ PrefabInstance:
       objectReference: {fileID: 2100000, guid: 119363d4d09046d44b60c7e1e898c1d8, type: 2}
     - target: {fileID: 2655684603532515884, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_CollisionDetection
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3373323006643438957, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_Layer
@@ -683,7 +683,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4006202490134827707, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_CollisionDetection
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: moveSpeed
@@ -715,7 +715,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7345489875525593680, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_CollisionDetection
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7559539973242311158, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_Name
@@ -763,11 +763,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 778415247}
-  rotationSpeed: 100
-  maxRotationSpeed: 180
+  rotationSpeed: 50
+  maxRotationSpeed: 300
   dampingFactor: 0.2
-  velocityDamping: 0.2
-  deadZoneThreshold: 5
+  velocityDamping: 0.9
+  deadZoneThreshold: 0
 --- !u!114 &778415247 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 791417117847432164, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
@@ -882,7 +882,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1986152834130756565, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: maxOrbitalVelocity
-      value: 500
+      value: 400
       objectReference: {fileID: 0}
     - target: {fileID: 2517044769756556409, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_TagString

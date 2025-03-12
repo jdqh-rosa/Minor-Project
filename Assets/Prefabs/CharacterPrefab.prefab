@@ -125,7 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Character: {fileID: 0}
   Velocity: {x: 0, y: 0}
-  stepLength: 0.2
+  stepLength: 1
   stepDuration: 0.3
 --- !u!1 &2517044769756556409
 GameObject:
@@ -416,7 +416,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &9150468459623298957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -569,7 +569,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 126
-  m_CollisionDetection: 0
+  m_CollisionDetection: 2
 --- !u!114 &5214730600425310135
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -640,7 +640,9 @@ MonoBehaviour:
   Velocity: {x: 0, y: 0}
   Mass: 1
   WeaponDistance: 1
-  maxOrbitalVelocity: 200
+  OrbitalVelocity: 0
+  LinearVelocity: {x: 0, y: 0}
+  maxOrbitalVelocity: 300
   momentum: 0
 --- !u!1 &7559539973242311158
 GameObject:
@@ -720,4 +722,3 @@ MonoBehaviour:
   Body: {fileID: 4064070902432672261}
   Weapon: {fileID: 1986152834130756565}
   MoveSpeed: 5
-  collissionHandler: {fileID: 0}
