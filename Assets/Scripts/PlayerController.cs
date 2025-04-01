@@ -1,14 +1,18 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Interactions;
 
 public class PlayerController : MonoBehaviour
 {
     public GameInput PlayerControls;
 
+    [SerializeField] private InputActionReference actionReference;
+
     private InputAction move;
     private InputAction look;
     private InputAction attack;
+    private InputAction swing;
 
     [SerializeField] private Character player;
 
@@ -18,11 +22,8 @@ public class PlayerController : MonoBehaviour
     private bool isUsingMouse = false;
 
     Vector2 moveDirection = Vector2.zero;
-
-    [SerializeField] float maxRotationSpeed = 180f;
-    [SerializeField] float dampingFactor = 0.2f;
-    [SerializeField] float velocityDamping = 0.9f;
-    [SerializeField] float deadZoneThreshold = 5f;
+    
+    bool isAttacking = false;
 
     private void Awake() {
         PlayerControls = new GameInput();
@@ -37,7 +38,11 @@ public class PlayerController : MonoBehaviour
 
         attack = PlayerControls.Player.Attack;
         attack.Enable();
-        attack.performed += attackInput;
+        attack.performed += context => attackInput(context);
+        
+        swing = PlayerControls.Player.Swing;
+        swing.Enable();
+        swing.performed += context => rotateWeapon();
     }
 
     private void OnDisable() {
@@ -76,8 +81,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        float currentAngle = player.GetWeaponAngle();
-
         if (isUsingMouse) {
             Vector2 mousePos = Mouse.current.position.ReadValue();
             float z = Camera.main.WorldToScreenPoint(player.transform.position).z;
@@ -91,50 +94,29 @@ public class PlayerController : MonoBehaviour
                 lastLookDirection = new Vector2(directionToMouse.x, directionToMouse.z);
                 targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(lastLookDirection).y);
             }
+            player.SetLookDirection(lastLookDirection.normalized);
         }
         else if (lastLookDirection.sqrMagnitude > 0.01f) {
             Vector2 smoothedDirection = Vector2.Lerp(lastLookDirection, gamepadInput, Time.deltaTime * rotationSpeed);
             targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(smoothedDirection).y);
+            player.SetLookDirection(smoothedDirection.normalized);
         }
-
         
-        float angularDifference = Mathf.DeltaAngle(currentAngle, targetAngle);
+        player.RotateWeaponTowardsAngle(targetAngle);
+    }
 
-        
-        if (Mathf.Abs(angularDifference) < deadZoneThreshold) {
-            player.AddWeaponOrbital(0);
-            return;
-        }
-
-        
-        float currentAngularVelocity = player.GetWeaponOrbital();
-
-        // --- PD Controller for angular motion ---
-        // kp: proportional gain (affects how strongly the error is corrected)
-        // kd: derivative gain (affects how strongly current angular velocity is damped)
-        float kp = rotationSpeed * dampingFactor;
-        float kd = velocityDamping;
-        // The control signal calculates the "torque" needed:
-        float controlSignal = kp * angularDifference - kd * currentAngularVelocity;
-
-        
-        float newAngularVelocity = currentAngularVelocity + controlSignal * Time.deltaTime;
-        newAngularVelocity = Mathf.Clamp(newAngularVelocity, -maxRotationSpeed, maxRotationSpeed);
-
-        
-        float addedMomentum = newAngularVelocity - currentAngularVelocity;
-        player.AddWeaponOrbital(addedMomentum);
-
-        
-        Vector2 targetDirection = RadialHelper.PolarToCart(targetAngle, 1);
-        Vector3 worldTargetDirection = new Vector3(targetDirection.x, 0, targetDirection.y).normalized;
-        Debug.DrawRay(player.transform.position, worldTargetDirection * 2, Color.blue);
-
-        Vector3 lastLookDir = new Vector3(lastLookDirection.x, 0, lastLookDirection.y).normalized;
-        Debug.DrawRay(player.GetWeaponPosition(), lastLookDir * 2, Color.red);
+    private void rotateWeapon() {
+        player.RotateWeaponTowardsAngle(targetAngle);
     }
 
     private void attackInput(InputAction.CallbackContext context) {
-        processLookInput();
+        if (context.interaction is HoldInteraction) {
+            Debug.Log($"Hold Attack");
+            player.Attack(ActionInput.Hold, targetAngle);
+        }
+        if (context.interaction is PressInteraction) {
+            Debug.Log($"Press Attack");
+            player.Attack(ActionInput.Press, targetAngle);
+        }
     }
 }

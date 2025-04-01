@@ -641,8 +641,9 @@ MonoBehaviour:
   Mass: 1
   WeaponDistance: 1
   OrbitalVelocity: 0
-  LinearVelocity: {x: 0, y: 0}
+  ThrustVelocity: 0
   maxOrbitalVelocity: 300
+  maxReach: 0.5
   momentum: 0
 --- !u!1 &7559539973242311158
 GameObject:
@@ -655,6 +656,7 @@ GameObject:
   - component: {fileID: 1153490375796642830}
   - component: {fileID: 8276641798847181612}
   - component: {fileID: 791417117847432164}
+  - component: {fileID: 7287280391059010363}
   m_Layer: 0
   m_Name: CharacterPrefab
   m_TagString: Character
@@ -705,7 +707,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 112
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &791417117847432164
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -721,4 +723,28 @@ MonoBehaviour:
   RigidBody: {fileID: 8276641798847181612}
   Body: {fileID: 4064070902432672261}
   Weapon: {fileID: 1986152834130756565}
+  CombatSM: {fileID: 7287280391059010363}
   MoveSpeed: 5
+  lookDirection: {x: 0, y: 0}
+  rotationSpeed: 10
+  maxRotationSpeed: 180
+  dampingFactor: 0.2
+  velocityDamping: 0.9
+  deadZoneThreshold: 5
+  linearAttackZone: 30
+  shortAttackDuration: 1
+--- !u!114 &7287280391059010363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559539973242311158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d42a6e83ed50237449bad413f68fb3b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customName: CombatSM
+  Character: {fileID: 791417117847432164}
+  Weapon: {fileID: 1986152834130756565}

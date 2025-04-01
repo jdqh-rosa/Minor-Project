@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class CharacterWeapon : MonoBehaviour
@@ -13,13 +14,18 @@ public class CharacterWeapon : MonoBehaviour
     public float WeaponDistance = 0f;
 
     public float OrbitalVelocity = 0f;
-    public Vector2 LinearVelocity;
-    private float dampingFactor = 0.98f; // Smooths motion
+    public float ThrustVelocity = 0;
+    private float swingDampingFactor = 0.98f;
+    private float thrustDampingFactor = 0.98f;
     private float acceleration = 0.1f; // Acceleration factor for smooth control
     [SerializeField] private float maxOrbitalVelocity = 5f; // Limit max speed
     private float currentAngle = 0f;
+    private float currentDistance = 0;
+    [SerializeField] private float maxReach = 0.5f;
 
     [SerializeField] private float momentum = 0f;
+    
+    private WeaponState state;
 
     private void Start() {
         hilt.Weapon = this;
@@ -27,6 +33,20 @@ public class CharacterWeapon : MonoBehaviour
         tip.Weapon = this;
 
         WeaponDistance = Mathf.Max(0.01f, WeaponDistance);
+        currentDistance = WeaponDistance;
+    }
+
+    private void Update() {
+        switch (state) {
+            case WeaponState.Idle:
+                break;
+            case WeaponState.Active:
+                break;
+            case WeaponState.Interruptable:
+                break;
+            case WeaponState.Reset: Retract();
+                break;
+        }
     }
 
     public void AddOrbitalVelocity(float addedMomentum) {
@@ -34,12 +54,12 @@ public class CharacterWeapon : MonoBehaviour
         OrbitalVelocity = Mathf.Clamp(OrbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
     }
 
-    public float OrbitalAccelerate(float pAcceleration, float pTime) {
-        if (WeaponDistance <= 0.001f) return OrbitalVelocity;
+    public float OrbitalAccelerate(float pAcceleration) {
+        if (currentDistance <= 0.001f) return OrbitalVelocity;
 
-        float _angularAcceleration = Mathf.Clamp(pAcceleration / WeaponDistance, -maxOrbitalVelocity, maxOrbitalVelocity);
+        float _angularAcceleration = Mathf.Clamp(pAcceleration / currentDistance, -maxOrbitalVelocity, maxOrbitalVelocity);
         
-        OrbitalVelocity += _angularAcceleration; // * pTime;
+        OrbitalVelocity += _angularAcceleration;
         OrbitalVelocity = Mathf.Clamp(OrbitalVelocity, -maxOrbitalVelocity, maxOrbitalVelocity);
 
         if (Character.transform.name != "Player")
@@ -48,35 +68,52 @@ public class CharacterWeapon : MonoBehaviour
         return OrbitalVelocity;
     }
 
-    public void AddPerpendicularVelocity(Vector2 pAddedMomentum) {
-        LinearVelocity += pAddedMomentum * acceleration;
+    public void ApplyThrust(float pTargetOffset, float pDuration) {
+        StartCoroutine(ThrustRoutine(pTargetOffset, pDuration));
+    }
+    
+    private IEnumerator ThrustRoutine(float targetOffset, float duration) {
+        float elapsed = 0;
+        float initialOffset = ThrustVelocity;
+        while (elapsed < duration) {
+            elapsed += Time.deltaTime;
+            ThrustVelocity = Mathf.Lerp(initialOffset, targetOffset, elapsed / duration);
+            yield return null;
+        }
+        ThrustVelocity = targetOffset;
     }
 
-    public void UpdateVelocity() {
-        Velocity = CalculateVelocity(OrbitalVelocity);
+    private void updateVelocity() {
+        Velocity = CalculateOrbitalVelocity(OrbitalVelocity);
     }
 
-    public Vector2 CalculateVelocity(float pAngularDifference) {
+    public Vector2 CalculateOrbitalVelocity(float pAngularDifference) {
         return new Vector2(
             -Mathf.Sin(currentAngle * Mathf.Deg2Rad),
             Mathf.Cos(currentAngle * Mathf.Deg2Rad)
-        ) * (pAngularDifference * WeaponDistance);
+        ) * (pAngularDifference * currentDistance);
     }
 
     public void UpdatePosition() {
         //float newAngle = Mathf.MoveTowardsAngle(currentAngle, currentAngle + angularDisplacement, RotationSpeed * Time.deltaTime);
         currentAngle = RadialHelper.NormalizeAngle(currentAngle + (OrbitalVelocity * Time.deltaTime));
+        currentDistance = WeaponDistance + ThrustVelocity;
+        currentDistance = Mathf.Clamp(currentDistance, WeaponDistance, maxReach);
 
-        Vector2 orbitPos = RadialHelper.PolarToCart(currentAngle, WeaponDistance);
-
+        Vector2 orbitPos = RadialHelper.PolarToCart(currentAngle, currentDistance);
+        
         transform.localPosition = new Vector3(orbitPos.x, transform.localPosition.y, orbitPos.y);
         transform.rotation = Quaternion.Euler(0, -currentAngle + 90, 0);
 
-        OrbitalVelocity *= dampingFactor;
+        OrbitalVelocity *= swingDampingFactor;
+        ThrustVelocity *= thrustDampingFactor;
+        
         if (Mathf.Abs(OrbitalVelocity) < 0.01f) OrbitalVelocity = 0;
+        //if (Mathf.Abs(ThrustVelocity) < 0.01f) ThrustVelocity = 0;
 
-        UpdateVelocity();
-        momentum = VelocityToMomentum(OrbitalVelocity, WeaponDistance);
+        updateVelocity();
+        
+        momentum = VelocityToMomentum(OrbitalVelocity, currentDistance);
     }
 
     public float VelocityToMomentum(float pOrbitalVelocity, float pDistance) {
@@ -86,6 +123,18 @@ public class CharacterWeapon : MonoBehaviour
     public float MomentumToVelocity(float angularMomentum, float pDistance) {
         if (Mass <= 0 || pDistance <= 0) return 0; // Avoid division by zero
         return angularMomentum / (Mass * pDistance * pDistance);
+    }
+
+    private float retractClock=0;
+    private void Retract() {
+        if (currentDistance > WeaponDistance) {
+            retractClock+=Time.deltaTime;
+            currentDistance = Mathf.Lerp(currentDistance, WeaponDistance, retractClock);
+        }
+        else {
+            retractClock = 0;
+            currentDistance = WeaponDistance;
+        }
     }
 
     public float GetAngle() {
@@ -106,4 +155,12 @@ public class CharacterWeapon : MonoBehaviour
 
         Character.CollisionDetected(pCharacter, pIsClash, _pointMomentum);
     }
+}
+
+public enum WeaponState
+{
+    Idle,
+    Active,
+    Interruptable,
+    Reset
 }

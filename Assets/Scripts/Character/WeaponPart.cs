@@ -20,6 +20,7 @@ public class WeaponPart : MonoBehaviour
         
         Vector3 _contact = pOther.GetContact(0).point;
         var _collisionTag = pOther.gameObject.tag;
+        
         switch (_collisionTag)
         {
             case "WeaponPart":
