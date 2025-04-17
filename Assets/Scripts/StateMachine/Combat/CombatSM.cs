@@ -64,13 +64,40 @@ public class CombatSM : BaseStateMachine<CombatSM>
         TransitionToState(inputState, attackAngle);
         inputState = null;
     }
+    
+    public void Attack(ActionInput pAttackInput, float pTargetAngle, bool linearAttack) {
+        ActionType _actionType = ActionType.None;
+        if (pAttackInput == ActionInput.Press) {
+            _actionType = linearAttack ? ActionType.Jab : ActionType.Swipe;
+        }
+
+        if (pAttackInput == ActionInput.Hold) {
+            _actionType = linearAttack ? ActionType.Thrust : ActionType.Swing;
+        }
+
+        Debug.Log($"Attack Action Type: {_actionType}");
+
+        switch (_actionType) {
+            case ActionType.Jab:
+                InputState("Jab", pTargetAngle);
+                break;
+            case ActionType.Thrust:
+                InputState("Thrust", pTargetAngle);
+                break;
+            case ActionType.Swipe:
+                InputState("Swipe", pTargetAngle);
+                break;
+            case ActionType.Swing:
+                InputState("Swing", pTargetAngle);
+                break;
+        }
+    }
 
     public new CombatState GetCurrentState() {
         return (CombatState)base.GetCurrentState();
     }
 
     public override void EndCurrentState() {
-        //base.EndCurrentState();
         TransitionToState(InitialState.Name);
     }
 }
