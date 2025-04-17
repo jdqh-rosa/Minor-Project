@@ -124,9 +124,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Character: {fileID: 0}
+  data: {fileID: 11400000, guid: c4e818d33cf5bc4449f25c87a0129bb5, type: 2}
   Velocity: {x: 0, y: 0}
-  stepLength: 1
-  stepDuration: 0.3
 --- !u!1 &2517044769756556409
 GameObject:
   m_ObjectHideFlags: 0
@@ -633,17 +632,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abb158e92d67bea4f935934581b6b988, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Character: {fileID: 0}
   hilt: {fileID: 5214730600425310135}
   blade: {fileID: 3003620771216153611}
   tip: {fileID: 9150468459623298957}
-  Character: {fileID: 0}
+  data: {fileID: 11400000, guid: d52c6f45048aa464da808a836bebca8a, type: 2}
   Velocity: {x: 0, y: 0}
-  Mass: 1
-  WeaponDistance: 1
   OrbitalVelocity: 0
   ThrustVelocity: 0
-  maxOrbitalVelocity: 300
-  maxReach: 0.5
   momentum: 0
 --- !u!1 &7559539973242311158
 GameObject:
@@ -724,15 +720,9 @@ MonoBehaviour:
   Body: {fileID: 4064070902432672261}
   Weapon: {fileID: 1986152834130756565}
   CombatSM: {fileID: 7287280391059010363}
-  MoveSpeed: 5
+  data: {fileID: 11400000, guid: 789eca7fb4a38ed428fcd93f22094032, type: 2}
   lookDirection: {x: 0, y: 0}
-  rotationSpeed: 10
-  maxRotationSpeed: 180
-  dampingFactor: 0.2
-  velocityDamping: 0.9
-  deadZoneThreshold: 5
   linearAttackZone: 30
-  shortAttackDuration: 1
 --- !u!114 &7287280391059010363
 MonoBehaviour:
   m_ObjectHideFlags: 0

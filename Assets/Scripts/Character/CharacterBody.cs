@@ -6,16 +6,14 @@ using UnityEngine.InputSystem.Composites;
 public class CharacterBody : MonoBehaviour
 {
     public Character Character;
+    [SerializeField] private BodyData data;
 
     public Vector2 Velocity;
     private Vector2 movementInput;
     private bool isStepping;
     private bool isWalking;
 
-    [SerializeField] private float stepLength = 1f;
-    [SerializeField] private float stepDuration = 0.3f;
     private float lastStepVelocity = 0f;
-    private float walkBottomFactor = 0.4f;
 
     private Vector3 targetPosition;
 
@@ -23,17 +21,41 @@ public class CharacterBody : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, angle, 0);
     }
 
-    public void Move(Vector2 pDir) {
+    float elapsedTime = 0;
+    public Vector2 Move(Vector2 pDir) {
         if (pDir.sqrMagnitude < Mathf.Epsilon) {
             movementInput = Vector2.zero;
-            return;
+            return movementInput;
         }
 
-        movementInput = pDir.normalized * stepLength;
+        movementInput = pDir.normalized * data.StepLength;
 
+        float _minFraction;
+        
         if (!isStepping) {
-            StartCoroutine(step());
+            _minFraction = 0f;
+            isStepping = true;
         }
+        else {
+            _minFraction = data.StepFraction;
+        }
+        
+        elapsedTime += Time.deltaTime;
+        float _t = elapsedTime / data.StepDuration;
+        
+        if (_t >= 1) {
+            isStepping = false;
+            elapsedTime = 0;
+            return Vector2.zero;
+        }
+        
+        float _sineWave = Mathf.Sin(_t * Mathf.PI * 2);
+        float _normalizedMagnitude = (_sineWave + 1) * 0.5f;
+        float _dynamicMagnitude = Mathf.Lerp(_minFraction * data.StepLength, data.StepLength, _normalizedMagnitude);
+        
+        Velocity = pDir.normalized * _dynamicMagnitude;
+        
+        return Velocity;
     }
     
     private IEnumerator step() {
@@ -44,9 +66,9 @@ public class CharacterBody : MonoBehaviour
         targetPosition = _startPosition + new Vector3(movementInput.x, 0, movementInput.y);
 
         float _elapsedTime = 0;
-        while (_elapsedTime < stepDuration) {
+        while (_elapsedTime < data.StepDuration) {
             _elapsedTime += Time.deltaTime;
-            float _t = _elapsedTime / stepDuration;
+            float _t = _elapsedTime / data.StepDuration;
             float _baseEasing = EaseInOutStep(_t);
             _baseEasing = Mathf.Max(_baseEasing, lastStepVelocity);
             float _easedT = _baseEasing;
@@ -62,7 +84,7 @@ public class CharacterBody : MonoBehaviour
 
         Character.transform.position = targetPosition;
         Debug.Log($"lastStepVelocity: {lastStepVelocity}");
-        lastStepVelocity = 0;//Mathf.Max(lastStepVelocity, stepLength * walkBottomFactor);
+        lastStepVelocity = 0;//Mathf.Max(lastStepVelocity, stepLength * data.StepFraction);
         Debug.Log($"lastStepVelocity: {lastStepVelocity}");
 
         if (movementInput.sqrMagnitude > Mathf.Epsilon) {

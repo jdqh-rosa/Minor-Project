@@ -610,6 +610,10 @@ PrefabInstance:
       value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 791417117847432164, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: 158d07c9a67008a4292f7b37d2c193dd, type: 2}
+    - target: {fileID: 791417117847432164, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: CombatSM
       value: 
       objectReference: {fileID: 778415248}
@@ -674,6 +678,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1986152834130756565, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: e2bd80bf50c99c74a81686866eaa4210, type: 2}
+    - target: {fileID: 1986152834130756565, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: maxReach
       value: 1
       objectReference: {fileID: 0}
@@ -710,12 +718,16 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: data
+      value: 
+      objectReference: {fileID: 11400000, guid: d4d4390f3cee1aa45928d9f7b7ee9b87, type: 2}
+    - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: moveSpeed
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: stepLength
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4064070902432672261, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: walkBottom

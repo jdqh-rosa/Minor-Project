@@ -17,13 +17,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Character player;
 
     [SerializeField] private float rotationSpeed = 10f;
-    private Vector2 lastLookDirection = Vector2.zero; // Stores last used input direction
+    private Vector2 lastLookDirection = Vector2.zero;
     private float targetAngle;
     private bool isUsingMouse = false;
 
     Vector2 moveDirection = Vector2.zero;
-    
-    bool isAttacking = false;
 
     private void Awake() {
         PlayerControls = new GameInput();
@@ -82,24 +80,24 @@ public class PlayerController : MonoBehaviour
         }
 
         if (isUsingMouse) {
-            Vector2 mousePos = Mouse.current.position.ReadValue();
-            float z = Camera.main.WorldToScreenPoint(player.transform.position).z;
-            Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(new Vector3(mousePos.x, mousePos.y, z));
-            worldMousePos.y = player.transform.position.y;
+            Vector2 _mousePos = Mouse.current.position.ReadValue();
+            float _z = Camera.main.WorldToScreenPoint(player.transform.position).z;
+            Vector3 _worldMousePos = Camera.main.ScreenToWorldPoint(new Vector3(_mousePos.x, _mousePos.y, _z));
+            _worldMousePos.y = player.transform.position.y;
 
-            Vector3 directionToMouse = worldMousePos - player.transform.position;
-            directionToMouse.y = 0;
+            Vector3 _directionToMouse = _worldMousePos - player.transform.position;
+            _directionToMouse.y = 0;
 
-            if (directionToMouse.sqrMagnitude > 0.1f) {
-                lastLookDirection = new Vector2(directionToMouse.x, directionToMouse.z);
+            if (_directionToMouse.sqrMagnitude > 0.1f) {
+                lastLookDirection = new Vector2(_directionToMouse.x, _directionToMouse.z);
                 targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(lastLookDirection).y);
             }
             player.SetLookDirection(lastLookDirection.normalized);
         }
         else if (lastLookDirection.sqrMagnitude > 0.01f) {
-            Vector2 smoothedDirection = Vector2.Lerp(lastLookDirection, gamepadInput, Time.deltaTime * rotationSpeed);
-            targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(smoothedDirection).y);
-            player.SetLookDirection(smoothedDirection.normalized);
+            Vector2 _smoothedDirection = Vector2.Lerp(lastLookDirection, gamepadInput, Time.deltaTime * rotationSpeed);
+            targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(_smoothedDirection).y);
+            player.SetLookDirection(_smoothedDirection.normalized);
         }
         
         player.RotateWeaponTowardsAngle(targetAngle);
@@ -109,12 +107,12 @@ public class PlayerController : MonoBehaviour
         player.RotateWeaponTowardsAngle(targetAngle);
     }
 
-    private void attackInput(InputAction.CallbackContext context) {
-        if (context.interaction is HoldInteraction) {
+    private void attackInput(InputAction.CallbackContext pContext) {
+        if (pContext.interaction is HoldInteraction) {
             Debug.Log($"Hold Attack");
             player.Attack(ActionInput.Hold, targetAngle);
         }
-        if (context.interaction is PressInteraction) {
+        if (pContext.interaction is PressInteraction) {
             Debug.Log($"Press Attack");
             player.Attack(ActionInput.Press, targetAngle);
         }
