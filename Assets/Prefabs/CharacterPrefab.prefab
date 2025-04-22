@@ -653,6 +653,7 @@ GameObject:
   - component: {fileID: 8276641798847181612}
   - component: {fileID: 791417117847432164}
   - component: {fileID: 7287280391059010363}
+  - component: {fileID: 7336856281401438087}
   m_Layer: 0
   m_Name: CharacterPrefab
   m_TagString: Character
@@ -722,7 +723,6 @@ MonoBehaviour:
   CombatSM: {fileID: 7287280391059010363}
   data: {fileID: 11400000, guid: 789eca7fb4a38ed428fcd93f22094032, type: 2}
   lookDirection: {x: 0, y: 0}
-  linearAttackZone: 30
 --- !u!114 &7287280391059010363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -738,3 +738,24 @@ MonoBehaviour:
   customName: CombatSM
   Character: {fileID: 791417117847432164}
   Weapon: {fileID: 1986152834130756565}
+--- !u!65 &7336856281401438087
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559539973242311158}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 1536
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.1, y: 0.1, z: 0.1}
+  m_Center: {x: 0, y: 0, z: 0}

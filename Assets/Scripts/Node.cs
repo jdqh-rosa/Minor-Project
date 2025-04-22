@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Diagnostics;
 
-public class Node : ScriptableObject
+public class Node
 {
     public enum NodeStatus
     {
@@ -13,15 +12,15 @@ public class Node : ScriptableObject
         Running
     }
 
-    public readonly string name;
-    public readonly int priority;
+    public readonly string Name;
+    public readonly int Priority;
 
-    public readonly List<Node> children;
+    public readonly List<Node> children = new();
     protected int currentChild;
 
-    public Node(string name = "Node", int pPriotity = 0) {
-        this.name = name;
-        priority = pPriotity;
+    public Node(string pName = "Node", int pPriotity = 0) {
+        Name = pName;
+        Priority = pPriotity;
     }
 
     public void AddChild(Node child) => children.Add(child);
@@ -55,12 +54,33 @@ public class Inverter : Node
 public class UntilFail : Node
 {
     public UntilFail(string pName = "UntilFail") : base(pName) { }
-    
+
     public override NodeStatus Process() {
         if (children[0].Process() == NodeStatus.Failure) {
             Reset();
             return NodeStatus.Failure;
         }
+
+        return NodeStatus.Running;
+    }
+}
+
+public class Parallel : Node
+{
+    private int succesThreshold;
+    public Parallel(string name, int pSuccesThreshold, int pPriority = 0) : base(name, pPriority) {
+        succesThreshold = pSuccesThreshold;
+    }
+
+    public override NodeStatus Process() {
+        int succesCount = 0;
+        foreach (Node child in children) {
+            if (child.Process() == NodeStatus.Success) {
+                succesCount++;
+            }
+        }
+
+        if (succesCount >= succesThreshold) return NodeStatus.Success;
         
         return NodeStatus.Running;
     }
@@ -69,7 +89,7 @@ public class UntilFail : Node
 public class Repeater : Node //0 goes on forever
 {
     private int repetitions;
-    int repeats=0;
+    int repeats = 0;
 
     public Repeater(string pName = "Repeater", int pRepetitions = 0) : base(pName) {
         repetitions = pRepetitions;
@@ -89,9 +109,10 @@ public class Repeater : Node //0 goes on forever
         repeats = 0;
     }
 }
+
 public class Selector : Node
 {
-    public Selector(string name, int pPriority=0) : base(name, pPriority) { }
+    public Selector(string name, int pPriority = 0) : base(name, pPriority) { }
 
     public override NodeStatus Process() {
         if (currentChild < children.Count) {
@@ -117,9 +138,9 @@ public class PrioritySelector : Selector
     List<Node> sortedChildren;
     List<Node> SortedChildren => sortedChildren ??= SortChildren();
 
-    protected virtual List<Node> SortChildren() => children.OrderByDescending(child => child.priority).ToList();
+    protected virtual List<Node> SortChildren() => children.OrderByDescending(child => child.Priority).ToList();
 
-    public PrioritySelector(string name = "PrioritySelector", int pPriority=0) : base(name, pPriority) { }
+    public PrioritySelector(string name = "PrioritySelector", int pPriority = 0) : base(name, pPriority) { }
 
     public override void Reset() {
         base.Reset();
@@ -145,14 +166,15 @@ public class PrioritySelector : Selector
 
 public class RandomSelector : PrioritySelector
 {
-    protected override List<Node> SortChildren() => children.OrderBy(i => Guid.NewGuid()).ToList(); //idk about this check fisher yates icof
-    
+    protected override List<Node> SortChildren() =>
+        children.OrderBy(i => Guid.NewGuid()).ToList(); //idk about this check fisher yates icof
+
     public RandomSelector(string name) : base(name) { }
 }
 
 public class Sequence : Node
 {
-    public Sequence(string pName = "Sequence", int pPriority=0) : base(pName, pPriority) { }
+    public Sequence(string pName = "Sequence", int pPriority = 0) : base(pName, pPriority) { }
 
     public override NodeStatus Process() {
         if (currentChild < children.Count) {
@@ -176,10 +198,11 @@ public class Sequence : Node
 public class Leaf : Node
 {
     readonly IStrategy strategy;
-
-    public Leaf(string pName, IStrategy pStrategy, int pPriority=0) : base(pName, pPriority) {
+    public Leaf(string pName, IStrategy pStrategy, int pPriority = 0) : base(pName, pPriority) {
         strategy = pStrategy;
     }
+    public override NodeStatus Process() => strategy.Process();
+    public override void Reset() => strategy.Reset();
 }
 
 public class BehaviourTree : Node
@@ -189,41 +212,12 @@ public class BehaviourTree : Node
     public override NodeStatus Process() {
         while (currentChild < children.Count) {
             var status = children[currentChild].Process();
-            if (status != NodeStatus.Running) {
+            if (status != NodeStatus.Success) {
                 return status;
             }
-
             currentChild++;
         }
 
         return NodeStatus.Success;
-    }
-}
-
-
-public interface IStrategy
-{
-    Node.NodeStatus Process();
-    void Reset() { }
-}
-
-public class ConditionStrategy : IStrategy
-{
-    readonly Func<bool> condition;
-
-    public ConditionStrategy(Func<bool> condition) => this.condition = condition;
-
-    public Node.NodeStatus Process() => condition() ? Node.NodeStatus.Success : Node.NodeStatus.Failure;
-}
-
-public class ActionStrategy : IStrategy
-{
-    readonly Action action;
-
-    public ActionStrategy(Action action) => this.action = action;
-
-    public Node.NodeStatus Process() {
-        action();
-        return Node.NodeStatus.Success;
     }
 }
