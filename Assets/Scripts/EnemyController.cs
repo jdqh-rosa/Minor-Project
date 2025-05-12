@@ -7,26 +7,46 @@ public class EnemyController : MonoBehaviour
     [SerializeField] BlackboardData blackboardData;
     
     private BehaviourTree tree;
-    readonly Blackboard blackboard = new Blackboard();
+    readonly Blackboard blackboard = new();
+    private CombatTree combatTree;
+    IdleTree idleTree;
+    
 
-    private void Awake() {
+    [SerializeField] private Character enemyCharacter;
+
+    private float findRadius = 10;
+
+    private void Awake()
+    {
+
+        if (!enemyCharacter) enemyCharacter = GetComponent<Character>();
         
         blackboardData.SetValuesOnBlackboard(blackboard);
         
-        BlackboardKey allies = blackboard.GetOrRegisterKey("Allies");
-        blackboard.SetValue(allies, new List<GameObject>());
-        BlackboardKey targets = blackboard.GetOrRegisterKey("Targets");
-        blackboard.SetValue(targets, new List<GameObject>());
+        blackboard.SetKeyValue(CommonKeys.ChosenPosition, enemyCharacter.transform.position);
+        blackboard.SetKeyValue(CommonKeys.VisibleAllies, new List<GameObject>());
+        blackboard.SetKeyValue(CommonKeys.VisibleTargets, new List<GameObject>());
+        blackboard.SetKeyValue(CommonKeys.AgentSelf, this); 
+        blackboard.SetKeyValue(CommonKeys.FindRadius, findRadius);
         
         tree = new BehaviourTree("Enemy");
 
         Repeater _repeater = new Repeater("BaseLogic");
-        PrioritySelector _prioritySelector = new PrioritySelector("BaseLogic");
-        _repeater.AddChild(_prioritySelector);
+        Parallel _parallel = new("BaseLogic/Parallel", 2);
+        Parallel _actionParallel = new("BaseLogic/ActionParallel",2);
+        PrioritySelector _prioritySelector = new PrioritySelector("BaseLogic//Selector");
+        Leaf _moveToPosition = new("BaseLogic//MoveToPosition", new ActionStrategy(() => enemyCharacter.SetCharacterPosition(movePosition())));
+        Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
         
-        
-        _prioritySelector.AddChild(SetupIdleTree());
-        _prioritySelector.AddChild(SetupCombatTree());
+        _repeater.AddChild(_parallel);
+        _repeater.AddChild(_actionParallel);
+        _parallel.AddChild(_prioritySelector);
+        _actionParallel.AddChild(_moveToPosition);
+        _actionParallel.AddChild(_positionWeapon);
+        _prioritySelector.AddChild(combatTree = new CombatTree(blackboard, 2));
+        _prioritySelector.AddChild(idleTree = new(blackboard));
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
+        _prioritySelector.AddChild(new AssembleTree(blackboard, agent));
         
         tree.AddChild(_repeater);
         tree.Reset();
@@ -36,81 +56,39 @@ public class EnemyController : MonoBehaviour
         tree.Process();
     }
 
-
-    private BehaviourTree SetupIdleTree() {
-        BehaviourTree _idleTree = new BehaviourTree("Idle");
-        
-        Inverter _inverter = new Inverter("IdleBaseInv");
-        Parallel _idleParallelNode = new Parallel("IdleBaseParallel", 2);
-        
-        Parallel _idleParallelAction = new Parallel("IdleParallelAction",2);
-        Leaf _findTargetsAction = new Leaf("IdleParallelAction/FindTargets", new FindTargetsStrategy(blackboard, this.transform, 10f, "Character"));
-        Leaf _findAlliesAction = new Leaf("IdleParallelAction/FindAllies", new FindTargetsStrategy(blackboard, this.transform, 10f, "Enemy"));
-        _idleParallelNode.AddChild(_findTargetsAction);
-        _idleParallelNode.AddChild(_findAlliesAction);
-        
-        PrioritySelector _IdleParallelCheck = new PrioritySelector("IdleParallelCheck");
-        
-        
-        
-        _idleParallelNode.AddChild(_idleParallelAction);
-        _idleParallelNode.AddChild(_IdleParallelCheck);
-        _inverter.AddChild(_idleParallelNode);
-        
-        _idleTree.AddChild(_inverter);
-        
-        return _idleTree;
+    private Vector2 moveDirection()
+    {
+        blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
+        Vector3 moveDir = (_targetPosition - enemyCharacter.transform.position).normalized;
+        return new Vector2(moveDir.x, moveDir.z);
+    }
+    
+    private Vector3 movePosition()
+    {
+        blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
+        return _targetPosition;
     }
 
-    private BehaviourTree SetupCombatTree() {
-        BehaviourTree _combatTree = new BehaviourTree("Combat");
-        Repeater _repeater = new Repeater("CombatBase");
-        Sequence _sequence = new Sequence("CombatBaseSeq");
-        Leaf _findTargetsAction = new Leaf("Combat/FindTargets", new FindTargetsStrategy(blackboard, this.transform, 10f, "Character"));
-        Leaf _obtainTarget = new Leaf("Combat/ObtainTarget", new ObtainTargetStrategy(blackboard));
-        Sequence _targetedSequence = new Sequence("Combat/TargetSeq");
-        //Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(blackboard.TryGetValue()));
-        RandomSelector _randomSelector = new RandomSelector("Combat/TargetSeq/RandSel");
-        //BehaviourTree _attackTarget = new BehaviourTree("Combat/TargetSeq/RandSel/AtkTarget");
-        //BehaviourTree _defendSelf = new BehaviourTree("Combat/TargetSeq/RandSel/DefTarget");
-        Leaf _findAllies = new Leaf("Combat/TargetSeq/RandSel/FindAllies", new FindTargetsStrategy(blackboard, this.transform, 10f, "Enemy"));
-        
-        _repeater.AddChild(_sequence);
-        _sequence.AddChild(_findTargetsAction);
-        _sequence.AddChild(_obtainTarget);
-        _sequence.AddChild(_targetedSequence);
-        //_targetedSequence.AddChild(_healthCheck);
-        _targetedSequence.AddChild(_randomSelector);
-        //_randomSelector.AddChild(_attackTarget);
-        //_randomSelector.AddChild(_defendSelf);
-        _randomSelector.AddChild(_findAllies);
-        
-        _combatTree.AddChild(_repeater);
-        return _combatTree;
+
+    private float weaponAngle()
+    {
+        blackboard.TryGetValue(CommonKeys.ChosenWeaponAngle, out float _weaponAngle);
+        return _weaponAngle;
     }
 
-    private BehaviourTree SetupAssembleTree() {
-        BehaviourTree _assembleTree = new BehaviourTree("Assemble");
-        
-        Parallel _parallel = new Parallel("AssembleParallel", 2);
-        
-        Selector _selector = new Selector("Assemble//Selector");
-        Sequence _sequence = new Sequence("Assemble//Sequence");
-        //Leaf _allyCheck = new Leaf("Assemble//Selector/AllyCheck", new ConditionStrategy());
-        Leaf _findAllies = new Leaf("Assemble//Selector/FindAllies", new FindTargetsStrategy(blackboard, this.transform, 10f, "Enemy"));
-        //Leaf _allyPositionCheck = new Leaf("Assemble//Sequence/AllyPositionCheck", new ConditionStrategy());
-        //BehaviourTree _enterAllyRange = new BehaviourTree("Assemble//Sequence/EnterRange", lastAllyPosition);
-        
-        
-        _parallel.AddChild(_selector);
-        _parallel.AddChild(_sequence);
-        //_selector.AddChild(_allyCheck);
-        _selector.AddChild(_findAllies);
-        //_sequence.AddChild(_allyPositionCheck);
-        //_sequence.AddChild(_enterAllyRange);
-        
-        _assembleTree.AddChild(_parallel);
-        return _assembleTree;
+    public float GetWeaponRange()
+    {
+        return enemyCharacter.GetWeaponRange();
+    }
+
+    public float GetWeaponAngle()
+    {
+        return enemyCharacter.GetWeaponAngle();
+    }
+
+    public void ChooseAttack(ActionType pActionType, float pAttackAngle)
+    {
+        enemyCharacter.Attack(pActionType, pAttackAngle);
     }
 
 }

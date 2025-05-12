@@ -20,7 +20,6 @@ public class JabState : CombatState
     }
 
     public override void UpdateLogic(float delta) {
-        Debug.Log($"Jabbing {elapsedTime}", StateMachine);
         if (elapsedTime < duration) {
             if (elapsedTime >= duration * 0.8f) {
                 Interruptible = true;

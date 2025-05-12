@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
 
     private void processMoveInput() {
         moveDirection = move.ReadValue<Vector2>();
-        player.SetCharacterPosition(moveDirection);
+        player.SetCharacterDirection(MiscHelper.Vec2ToVec3Pos(moveDirection));
     }
 
     private void processLookInput() {

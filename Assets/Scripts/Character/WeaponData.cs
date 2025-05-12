@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Character/Weapon")]

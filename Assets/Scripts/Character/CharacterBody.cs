@@ -8,8 +8,8 @@ public class CharacterBody : MonoBehaviour
     public Character Character;
     [SerializeField] private BodyData data;
 
-    public Vector2 Velocity;
-    private Vector2 movementInput;
+    public Vector3 Velocity;
+    private Vector3 movementInput;
     private bool isStepping;
     private bool isWalking;
 
@@ -22,9 +22,9 @@ public class CharacterBody : MonoBehaviour
     }
 
     float elapsedTime = 0;
-    public Vector2 Move(Vector2 pDir) {
+    public Vector3 Move(Vector3 pDir) {
         if (pDir.sqrMagnitude < Mathf.Epsilon) {
-            movementInput = Vector2.zero;
+            movementInput = Vector3.zero;
             return movementInput;
         }
 
@@ -46,7 +46,7 @@ public class CharacterBody : MonoBehaviour
         if (_t >= 1) {
             isStepping = false;
             elapsedTime = 0;
-            return Vector2.zero;
+            return Vector3.zero;
         }
         
         float _sineWave = Mathf.Sin(_t * Mathf.PI * 2);
@@ -99,5 +99,10 @@ public class CharacterBody : MonoBehaviour
 
     private float EaseInOutStep(float pT) {
         return (pT < 0.5f) ? (2 * pT * pT) : (1 - Mathf.Pow(-2 * pT + 2, 2) / 2);
+    }
+
+    public float GetStepLength()
+    {
+        return data.StepLength;
     }
 }

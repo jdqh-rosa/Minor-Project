@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class CombatSM : BaseStateMachine<CombatSM>
@@ -77,7 +76,12 @@ public class CombatSM : BaseStateMachine<CombatSM>
 
         Debug.Log($"Attack Action Type: {_actionType}");
 
-        switch (_actionType) {
+        Attack(_actionType, pTargetAngle);
+    }
+
+    public void Attack(ActionType pActionType, float pTargetAngle)
+    {
+        switch (pActionType) {
             case ActionType.Jab:
                 InputState("Jab", pTargetAngle);
                 break;

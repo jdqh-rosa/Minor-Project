@@ -18,14 +18,19 @@ public class Node
     public readonly List<Node> children = new();
     protected int currentChild;
 
-    public Node(string pName = "Node", int pPriotity = 0) {
+    public Node(string pName = "Node", int pPriority = 0) {
         Name = pName;
-        Priority = pPriotity;
+        Priority = pPriority;
     }
 
     public void AddChild(Node child) => children.Add(child);
 
-    public virtual NodeStatus Process() => children[currentChild].Process();
+    public virtual NodeStatus Process()
+    {
+        NodeStatus status = children[currentChild].Process();
+        Debug.Log($"{Name} => {status}");
+        return status;
+    } 
 
     public virtual void Reset() {
         currentChild = 0;
@@ -207,17 +212,18 @@ public class Leaf : Node
 
 public class BehaviourTree : Node
 {
-    public BehaviourTree(string pName) : base(pName) { }
+    public BehaviourTree(string pName, int pPriority =0) : base(pName, pPriority) { }
 
     public override NodeStatus Process() {
         while (currentChild < children.Count) {
             var status = children[currentChild].Process();
             if (status != NodeStatus.Success) {
+                Debug.Log($"{Name} : {children[currentChild].Name}=>{status}");
                 return status;
             }
             currentChild++;
         }
-
+        Debug.Log($"{Name} =>{NodeStatus.Success}");
         return NodeStatus.Success;
     }
 }

@@ -20,7 +20,6 @@ public class ThrustState : CombatState
     }
 
     public override void UpdateLogic(float delta) {
-        Debug.Log($"Thrusting {elapsedTime:F3}", StateMachine);
         if (elapsedTime < duration) {
             if (elapsedTime >= duration * 0.8f) {
                 Interruptible = true;

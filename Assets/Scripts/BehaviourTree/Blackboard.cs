@@ -72,7 +72,12 @@ public class Blackboard
         }
     }
     
-    public bool TryGetValue<T>(BlackboardKey pKey, out T pValue) {
+    public bool TryGetValue<T>(CommonKeys pKeyNum, out T pValue)
+    {
+        return TryGetValue(GetOrRegisterKey(pKeyNum), out pValue);
+    }
+    public bool TryGetValue<T>(BlackboardKey pKey, out T pValue)
+    {
         if (entries.TryGetValue(pKey, out var entry) && entry is BlackboardEntry<T> castedEntry) {
             pValue = castedEntry.Value;
             return true;
@@ -86,6 +91,10 @@ public class Blackboard
         entries[pKey] = new BlackboardEntry<T>(pKey, pValue);
     }
 
+    public BlackboardKey GetOrRegisterKey(CommonKeys pKeyNum) {
+        return GetOrRegisterKey(pKeyNum.ToString());
+    }
+    
     public BlackboardKey GetOrRegisterKey(string pKeyName) {
         //todo: check for null, empty pKeyName or empty value
 
@@ -95,6 +104,12 @@ public class Blackboard
         }
         
         return pKey;
+    }
+
+    public void SetKeyValue<T>(CommonKeys pKeyNum, T pValue)
+    {
+        BlackboardKey _key = GetOrRegisterKey(pKeyNum);
+        SetValue(_key, pValue);
     }
     
     public bool ContainsKey(BlackboardKey key) => entries.ContainsKey(key);
@@ -174,4 +189,35 @@ public struct AnyValue
     T AsFloat <T>(float value) => typeof(T) == typeof(float) && value is T correctType ? correctType : default;
     T AsBool <T>(bool value) => typeof(T) == typeof(bool) && value is T correctType ? correctType : default;
 
+}
+
+
+public enum CommonKeys
+{
+    Error,
+    AgentSelf,
+    AttackActions,
+    ChosenAction,
+    ChosenAttack,
+    ChosenFaceAngle,
+    ChosenPosition,
+    ChosenTarget,
+    ChosenWeaponAngle,
+    DetectedAttack,
+    FindRadius,
+    KnownAllies,
+    KnownEnemies,
+    KnownTargets,
+    LastAllyPosition,
+    PatrolCoolDown,
+    PatrolPoints,
+    SelfHealth,
+    TargetAlly,
+    TargetEnemy,
+    TargetObject,
+    TargetPosition,
+    VisibleAllies,
+    VisibleEnemies,
+    VisibleTargets,
+    
 }

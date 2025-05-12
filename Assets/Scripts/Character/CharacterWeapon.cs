@@ -10,7 +10,7 @@ public class CharacterWeapon : MonoBehaviour
     [SerializeField] private WeaponPart tip;
     [SerializeField] private WeaponData data;
 
-    public Vector2 Velocity;
+    public Vector3 Velocity;
     
     private float acceleration = 0.1f; // Acceleration factor for smooth control
     private float currentAngle = 0f;
@@ -77,7 +77,7 @@ public class CharacterWeapon : MonoBehaviour
     }
 
     private void updateVelocity() {
-        Velocity = CalculateOrbitalVelocity(OrbitalVelocity);
+        Velocity = MiscHelper.Vec2ToVec3Pos(CalculateOrbitalVelocity(OrbitalVelocity));
     }
 
     public Vector2 CalculateOrbitalVelocity(float pAngularDifference) {
@@ -135,6 +135,11 @@ public class CharacterWeapon : MonoBehaviour
 
     public float GetMass() {
         return data.Mass;
+    }
+
+    public float GetRange()
+    {
+        return currentDistance + tip.PartDistance + data.MaxReach;
     }
 
     public void CollisionDetected(WeaponPart pPart, Character pCharacter, bool pIsClash, Vector3 pPointHit) {

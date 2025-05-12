@@ -11,7 +11,9 @@ public class Character : MonoBehaviour
     public CombatSM CombatSM;
     [SerializeField] private CharacterData data;
 
-    Vector2 moveDirection = Vector2.zero;
+    Vector3 moveDirection = Vector3.zero;
+    Vector3 movePosition = Vector3.zero;
+    private bool usePosition = false;
     [SerializeField] Vector2 lookDirection;
 
     private Vector2 cumulVelocity;
@@ -54,8 +56,15 @@ public class Character : MonoBehaviour
         lookDirection = pLookDirection;
     }
 
-    public void SetCharacterPosition(Vector2 pPos) {
-        moveDirection = pPos;
+    public void SetCharacterDirection(Vector3 pDir)
+    {
+        moveDirection = pDir;
+    }
+
+    public void SetCharacterPosition(Vector3 pPos)
+    {
+        movePosition = pPos;
+        usePosition = true;
     }
 
     public void AddWeaponOrbital(float pAdditionalMomentum) {
@@ -108,13 +117,29 @@ public class Character : MonoBehaviour
     }
 
     private void bodyFunctions() {
-        //take movement from Body and apply it in here
-        Vector2 _moveVelocity= Body.Move(moveDirection.normalized);
 
-        transform.position += new Vector3(_moveVelocity.x, 0, _moveVelocity.y);
-        
-        //RigidBody.MovePosition(transform.position +
-        //                       new Vector3(_moveVelocity.x, 0, _moveVelocity.y));
+        if (usePosition)
+        {
+            moveToPoint(movePosition);
+        }
+        else
+        {
+            moveInDirection(moveDirection.normalized);
+        }
+        usePosition = false;
+    }
+
+    private void moveToPoint(Vector3 pPoint)
+    {
+        Vector3 diffVec = pPoint - transform.position;
+        transform.position += Body.Move(diffVec.normalized) * Mathf.Min(diffVec.magnitude, Body.GetStepLength());
+    }
+
+    private void moveInDirection(Vector3 pDirection)
+    {
+        Vector3 _moveVelocity= Body.Move(pDirection);
+
+        transform.position += _moveVelocity;
     }
 
     private void weaponFunctions() {
@@ -123,6 +148,11 @@ public class Character : MonoBehaviour
 
     public float GetWeaponAngle() {
         return Weapon.GetAngle();
+    }
+
+    public float GetWeaponRange()
+    {
+        return Weapon.GetRange();
     }
 
     public Vector3 GetWeaponPosition() {
@@ -135,6 +165,11 @@ public class Character : MonoBehaviour
 
     public void Attack(ActionInput pAttackInput, float pTargetAngle) {
         CombatSM.Attack(pAttackInput, pTargetAngle, checkLinearAttack(pTargetAngle));
+    }
+
+    public void Attack(ActionType pAttackType, float pTargetAngle)
+    {
+        CombatSM.Attack(pAttackType, pTargetAngle);
     }
 
     private bool checkLinearAttack(float pTargetAngle) {

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
@@ -46,7 +45,7 @@ public abstract class BaseStateMachine<TStateMachine> : MonoBehaviour
     }
     
     public virtual void TransitionToState(string pNewState) {
-        Debug.Log($"Switching States from current state {currentState.Name} to {pNewState}");
+        Debug.Log($"Switching States from current state {currentState.Name} to {pNewState}", this);
         if (!states.ContainsKey(pNewState)) return;
         currentState?.Exit();
         
