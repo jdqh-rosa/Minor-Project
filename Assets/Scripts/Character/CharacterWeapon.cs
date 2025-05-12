@@ -13,7 +13,7 @@ public class CharacterWeapon : MonoBehaviour
     public Vector3 Velocity;
     
     private float acceleration = 0.1f; // Acceleration factor for smooth control
-    private float currentAngle = 0f;
+    [SerializeField] private float currentAngle = 0f;
     private float currentDistance = 0;
     
     public float OrbitalVelocity = 0f;
@@ -54,9 +54,6 @@ public class CharacterWeapon : MonoBehaviour
         
         OrbitalVelocity += _angularAcceleration;
         OrbitalVelocity = Mathf.Clamp(OrbitalVelocity, -data.MaxOrbitalVelocity, data.MaxOrbitalVelocity);
-
-        if (Character.transform.name != "Player")
-            Debug.Log($"Acceleration: {_angularAcceleration}, Velocity: {OrbitalVelocity}", this);
 
         return OrbitalVelocity;
     }
@@ -139,7 +136,7 @@ public class CharacterWeapon : MonoBehaviour
 
     public float GetRange()
     {
-        return currentDistance + tip.PartDistance + data.MaxReach;
+        return  data.MaxReach + tip.PartDistance;
     }
 
     public void CollisionDetected(WeaponPart pPart, Character pCharacter, bool pIsClash, Vector3 pPointHit) {

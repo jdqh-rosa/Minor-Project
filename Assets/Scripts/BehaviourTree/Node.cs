@@ -28,7 +28,6 @@ public class Node
     public virtual NodeStatus Process()
     {
         NodeStatus status = children[currentChild].Process();
-        Debug.Log($"{Name} => {status}");
         return status;
     } 
 
@@ -73,21 +72,28 @@ public class UntilFail : Node
 public class Parallel : Node
 {
     private int succesThreshold;
-    public Parallel(string name, int pSuccesThreshold, int pPriority = 0) : base(name, pPriority) {
+    private int failureThreshold;
+    public Parallel(string name, int pSuccesThreshold, int pFailureThreshold =0, int pPriority = 0) : base(name, pPriority) {
         succesThreshold = pSuccesThreshold;
+        failureThreshold = pFailureThreshold;
     }
 
     public override NodeStatus Process() {
         int succesCount = 0;
+        int failureCount = 0;
+        if (failureThreshold == 0) failureThreshold = children.Count;
         foreach (Node child in children) {
-            if (child.Process() == NodeStatus.Success) {
+            var status = child.Process();
+            if (status == NodeStatus.Success) {
                 succesCount++;
+            }else if (status == NodeStatus.Failure) {
+                failureCount++;
             }
         }
 
         if (succesCount >= succesThreshold) return NodeStatus.Success;
         
-        return NodeStatus.Running;
+        return failureCount >= failureThreshold ? NodeStatus.Failure : NodeStatus.Running;
     }
 }
 

@@ -201,7 +201,7 @@ public enum CommonKeys
     ChosenAttack,
     ChosenFaceAngle,
     ChosenPosition,
-    ChosenTarget,
+    ChosenTarget, //
     ChosenWeaponAngle,
     DetectedAttack,
     FindRadius,

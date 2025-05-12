@@ -19,7 +19,7 @@ public class EnterRangeTree : BehaviourTree
 
     private void setup()
     {
-        Parallel _parallel = new("EnterRange/Parallel", 1);
+        Parallel _parallel = new("EnterRange/Parallel", 2, 1);
         Leaf _withinRange = new Leaf("EnterRange///RangeCheck", new ConditionStrategy(rangeCheck));
         Leaf _prefPosition = new Leaf("EnterRange///PreferredPosition", new ActionStrategy(calcPrefPos));
 
@@ -32,20 +32,22 @@ public class EnterRangeTree : BehaviourTree
     private void calcPrefPos()
     {
         Vector3 _difVector = getTargetDifVector();
-        Vector3 _prefDif = _difVector - _difVector.normalized * agent.GetWeaponRange();
-
+        Vector3 _prefDif = _difVector - _difVector.normalized * (agent.GetWeaponRange() -0.1f);
+        
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, _prefDif + agent.transform.position);
     }
 
     private bool rangeCheck()
     {
         blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 targetPosition);
+        
         return (targetPosition - agent.transform.position).magnitude < preferredRange;
     }
     
     private Vector3 getTargetDifVector()
     {
         blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 targetPosition);
+        
         Vector3 _agentPos = agent.transform.position;
         Vector3 _difVector = targetPosition - _agentPos;
         return _difVector;

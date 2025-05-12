@@ -8,8 +8,6 @@ public class EnemyController : MonoBehaviour
     
     private BehaviourTree tree;
     readonly Blackboard blackboard = new();
-    private CombatTree combatTree;
-    IdleTree idleTree;
     
 
     [SerializeField] private Character enemyCharacter;
@@ -39,12 +37,12 @@ public class EnemyController : MonoBehaviour
         Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
         
         _repeater.AddChild(_parallel);
-        _repeater.AddChild(_actionParallel);
         _parallel.AddChild(_prioritySelector);
+        _parallel.AddChild(_actionParallel);
         _actionParallel.AddChild(_moveToPosition);
         _actionParallel.AddChild(_positionWeapon);
-        _prioritySelector.AddChild(combatTree = new CombatTree(blackboard, 2));
-        _prioritySelector.AddChild(idleTree = new(blackboard));
+        _prioritySelector.AddChild(new CombatTree(blackboard, 2));
+        _prioritySelector.AddChild(new IdleTree(blackboard));
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
         _prioritySelector.AddChild(new AssembleTree(blackboard, agent));
         

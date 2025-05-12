@@ -18,20 +18,20 @@ public class AttackTree : BehaviourTree
         Sequence _attackSequence = new("AttackSequence");
         Parallel _attackParallel = new("Attack//Parallel", 1);
         Leaf _atkRangeCheck = new("Attack//RangeCheck", new ConditionStrategy(attackRangeCheck));
-        Selector _selector = new("AttackSelector");
+        Parallel _parallel = new("Attack///AttackParallel", 2);
         Leaf _executeAttack = new("ExecuteAttack", new ActionStrategy(attack));
-        Leaf _angleCheck = new("DoAttack//AngleCheck", new ConditionStrategy(() => Mathf.DeltaAngle(agent.GetWeaponAngle(),targetAngle()) <= 90 ));
+        Leaf _angleCheck = new("DoAttack//AngleCheck", new ConditionStrategy(attackAngleCheck));
         RandomSelector _randomSelector = new("DoAttack//RandomSelector");
         Leaf _adjustAngle = new("DoAttack//RandSelector/AdjustAngle", new ActionStrategy(alignAttackAngle));
-        Leaf _adjustPosition = new("DoAttack//RandSelector/AdjustAngle", new ActionStrategy(alignAttackPosition));
+        Leaf _adjustPosition = new("DoAttack//RandSelector/AdjustPosition", new ActionStrategy(alignAttackPosition));
 
         AddChild(_attackSequence);
         _attackSequence.AddChild(_attackParallel);
         _attackSequence.AddChild(_executeAttack);
-        //_attackParallel.AddChild(_atkRangeCheck);
-        _attackParallel.AddChild(_selector);
-        _selector.AddChild(_angleCheck);
-        _selector.AddChild(_randomSelector);
+        _attackParallel.AddChild(_atkRangeCheck);
+        _attackParallel.AddChild(_parallel);
+        _parallel.AddChild(_angleCheck);
+        _parallel.AddChild(_randomSelector);
         _randomSelector.AddChild(_adjustAngle);
         _randomSelector.AddChild(_adjustPosition);
     }
@@ -41,6 +41,14 @@ public class AttackTree : BehaviourTree
         return (getTarget().transform.position - agent.transform.position).magnitude < agent.GetWeaponRange();
     }
 
+    bool attackAngleCheck()
+    {
+        float weaponAngle = agent.GetWeaponAngle();
+        float targetAngle = this.targetAngle();
+        float deltaAngle = Mathf.DeltaAngle(weaponAngle, targetAngle);
+        return deltaAngle is >= -90 and <= 90 ;
+    }
+    
     float targetAngle()
     {
         Vector3 _targetAngleVector = getTargetDifVector();
