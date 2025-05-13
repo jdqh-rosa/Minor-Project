@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Jab
   m_EditorClassIdentifier: 
   ActionType: 1
-  Duration: 0
-  AttackAngle: 0
-  AttackRange: 0
-  Interruptible: 0
+  Duration: 0.5
+  InteruptTime: 0.4
+  AttackRange: 2
+  IdealAttackAngle: 20
   HoldAction: 0

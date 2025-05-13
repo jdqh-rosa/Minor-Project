@@ -11,11 +11,6 @@ public class SwingState : CombatState
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
-        duration = 2f;
-        actionType = ActionType.Swing;
-        attackRange = 2f;
-        elapsedTime = 0f;
-        HoldAction = true;
 
         StateMachine.Weapon.ApplyThrust(attackRange, 0.5f);
     }
@@ -23,7 +18,7 @@ public class SwingState : CombatState
     public override void UpdateLogic(float delta) {
         //Debug.Log($"Swinging {elapsedTime}", StateMachine);
         if (elapsedTime < duration) {
-            if (elapsedTime >= duration * 0.5f) {
+            if (elapsedTime >= interruptTime) {
                 Interruptible = true;
             }
         }

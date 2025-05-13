@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class AttackTree : BehaviourTree
@@ -43,10 +44,16 @@ public class AttackTree : BehaviourTree
 
     bool attackAngleCheck()
     {
+        float _deltaAngle = deltaAngle();
+        float _attackAngle = idealAttackAngle();
+        return _deltaAngle >= -_attackAngle && _deltaAngle <= _attackAngle ;
+    }
+
+    float deltaAngle()
+    {
         float weaponAngle = agent.GetWeaponAngle();
         float targetAngle = this.targetAngle();
-        float deltaAngle = Mathf.DeltaAngle(weaponAngle, targetAngle);
-        return deltaAngle is >= -90 and <= 90 ;
+        return Mathf.DeltaAngle(weaponAngle, targetAngle);
     }
     
     float targetAngle()
@@ -78,7 +85,19 @@ public class AttackTree : BehaviourTree
     void alignAttackAngle()
     {
         //todo: get weapon attack angle and align with that
-        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, targetAngle());
+        
+        float _attackAngle = agent.GetWeaponAngle();;
+        _attackAngle += (deltaAngle() >= 0) ? deltaAngle() : -deltaAngle();
+        
+        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, _attackAngle);
+    }
+
+    float idealAttackAngle()
+    {
+        blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType _attackType);
+        blackboard.TryGetValue(CommonKeys.Actions, out Dictionary<ActionType, CombatStateData> _actions);
+        float _attackAngle = _actions[_attackType].IdealAttackAngle;
+        return _attackAngle;
     }
 
     void alignAttackPosition()

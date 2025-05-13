@@ -6,6 +6,7 @@ public abstract class CombatState : BaseState<CombatSM>
     protected float duration;
     protected float attackAngle;
     protected float attackRange;
+    protected float interruptTime;
     public bool Interruptible;
     public bool HoldAction;
     protected float elapsedTime = 0f;
@@ -29,6 +30,7 @@ public abstract class CombatState : BaseState<CombatSM>
         duration = stateData.Duration;
         actionType = stateData.ActionType;
         attackRange = stateData.AttackRange;
+        interruptTime = stateData.InteruptTime;
         HoldAction = stateData.HoldAction;
     }
 

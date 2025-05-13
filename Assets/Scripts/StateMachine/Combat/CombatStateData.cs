@@ -7,5 +7,6 @@ public class CombatStateData : ScriptableObject
     public float Duration;
     public float InteruptTime;
     public float AttackRange;
+    public float IdealAttackAngle;
     public bool HoldAction;
 }

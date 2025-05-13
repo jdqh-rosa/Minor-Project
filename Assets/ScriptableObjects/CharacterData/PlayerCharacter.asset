@@ -18,3 +18,8 @@ MonoBehaviour:
   VelocityDamping: 0.9
   DeadZoneThreshold: 0
   LinearAttackZone: 30
+  CollisionElasticity: 0.8
+  JabState: {fileID: 11400000, guid: 93b09fbb01dd1694f9cda6f074b154ba, type: 2}
+  ThrustState: {fileID: 11400000, guid: 98283c60453b3724e8485518fa31bcfc, type: 2}
+  SwipeState: {fileID: 11400000, guid: 94059a4d53710c947aba1f1e8044736a, type: 2}
+  SwingState: {fileID: 11400000, guid: cc86a5631c469b142a139b714927e634, type: 2}

@@ -11,10 +11,6 @@ public class SwipeState : CombatState
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
-        duration = 0.1f;
-        actionType = ActionType.Swipe;
-        attackRange = 1.5f;
-        elapsedTime = 0f;
 
         StateMachine.Weapon.ApplyThrust(attackRange, 0.5f);
     }
@@ -22,7 +18,7 @@ public class SwipeState : CombatState
     public override void UpdateLogic(float delta) {
         Debug.Log($"Swiping {elapsedTime}", StateMachine);
         if (elapsedTime < duration) {
-            if (elapsedTime >= duration * 0.5f) {
+            if (elapsedTime >= interruptTime) {
                 Interruptible = true;
             }
         }

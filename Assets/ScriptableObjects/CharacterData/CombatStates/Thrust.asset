@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Thrust
   m_EditorClassIdentifier: 
   ActionType: 2
-  Duration: 0
-  AttackAngle: 0
-  AttackRange: 0
-  Interruptible: 0
-  HoldAction: 0
+  Duration: 1.5
+  InteruptTime: 1.3
+  AttackRange: 3
+  IdealAttackAngle: 30
+  HoldAction: 1

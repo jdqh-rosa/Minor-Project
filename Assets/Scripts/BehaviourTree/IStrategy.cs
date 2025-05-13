@@ -210,9 +210,14 @@ public class DetectAttackStrategy : IStrategy
     {
         blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> enemies);
 
-        foreach (var ally in enemies)
+        foreach (var enemy in enemies)
         {
-            //todo: see if enemy is attacking and if enemy attack makes contact 
+            if (!enemy.TryGetComponent(out Character _character)) continue;
+
+            if (_character.IsAttacking())
+            {
+                //todo: see if enemy attack makes contact 
+            }
         }
         
         return Node.NodeStatus.Success;

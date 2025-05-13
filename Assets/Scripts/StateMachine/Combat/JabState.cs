@@ -11,17 +11,13 @@ public class JabState : CombatState
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
-        duration = 0.5f;
-        actionType = ActionType.Jab;
-        attackRange = 2f;
-        elapsedTime = 0f;
 
         StateMachine.Weapon.ApplyThrust(attackRange, 0.1f);
     }
 
     public override void UpdateLogic(float delta) {
         if (elapsedTime < duration) {
-            if (elapsedTime >= duration * 0.8f) {
+            if (elapsedTime >= interruptTime) {
                 Interruptible = true;
             }
         }
