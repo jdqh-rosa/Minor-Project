@@ -19,8 +19,10 @@ public class Character : MonoBehaviour
     private Vector2 cumulVelocity;
     private bool isAttacking = false;
 
-    private void Awake() {
-        if (Weapon == null || Body == null) {
+    private void Awake()
+    {
+        if (Weapon == null || Body == null)
+        {
             Debug.LogError("Weapon or Body is not assigned.");
             return;
         }
@@ -29,30 +31,33 @@ public class Character : MonoBehaviour
         Body.Character = this;
 
         CombatSM = GetComponent<CombatSM>();
-        if (!CombatSM) {
+        if (!CombatSM)
+        {
             CombatSM = gameObject.AddComponent<CombatSM>();
         }
 
         CombatSM.Character = this;
         var _idle = new IdleCombatState("Idle");
         CombatSM.AddState(_idle);
-        CombatSM.AddState(new JabState("Jab"));
-        CombatSM.AddState(new SwipeState("Swipe"));
-        CombatSM.AddState(new ThrustState("Thrust"));
-        CombatSM.AddState(new SwingState("Swing"));
+        CombatSM.AddState(new JabState("Jab"), data.JabState);
+        CombatSM.AddState(new SwipeState("Swipe"), data.SwipeState);
+        CombatSM.AddState(new ThrustState("Thrust"), data.ThrustState);
+        CombatSM.AddState(new SwingState("Swing"), data.SwingState);
         CombatSM.InitialState = _idle;
-
     }
 
-    private void Update() {
+    private void Update()
+    {
         isAttacking = CombatSM.GetCurrentState().actionType != ActionType.None;
     }
 
-    public void CumulativeVelocity() {
+    public void CumulativeVelocity()
+    {
         cumulVelocity = Body.Velocity + Weapon.Velocity;
     }
 
-    public void SetLookDirection(Vector2 pLookDirection) {
+    public void SetLookDirection(Vector2 pLookDirection)
+    {
         lookDirection = pLookDirection;
     }
 
@@ -67,57 +72,60 @@ public class Character : MonoBehaviour
         usePosition = true;
     }
 
-    public void AddWeaponOrbital(float pAdditionalMomentum) {
+    public void AddWeaponOrbital(float pAdditionalMomentum)
+    {
         Weapon.OrbitalAccelerate(pAdditionalMomentum);
     }
 
-    public void RotateWeaponTowardsAngle(float pTargetAngle) {
-        if (!isAttacking) {
-            float _angularDifference = Mathf.DeltaAngle(GetWeaponAngle(), pTargetAngle);
-
-            if (Mathf.Abs(_angularDifference) < data.DeadZoneThreshold) {
-                AddWeaponOrbital(0);
-                return;
-            }
-
-            float _currentAngularVelocity = GetWeaponOrbital();
-
-            // --- PD Controller for angular motion ---
-            // kp: proportional gain (affects how strongly the error is corrected)
-            // kd: derivative gain (affects how strongly current angular velocity is damped)
-            float _kp = data.RotationSpeed * data.DampingFactor;
-            float _kd = data.VelocityDamping;
-            // The control signal calculates the "torque" needed:
-            float _controlSignal = _kp * _angularDifference - _kd * _currentAngularVelocity;
-
-            float _newAngularVelocity = _currentAngularVelocity + _controlSignal * Time.deltaTime;
-            _newAngularVelocity = Mathf.Clamp(_newAngularVelocity, -data.MaxRotationSpeed, data.MaxRotationSpeed);
-
-            float addedMomentum = _newAngularVelocity - _currentAngularVelocity;
-            AddWeaponOrbital(addedMomentum);
-        }
-    }
-
-    public void RotateWeaponWithForce(float pTargetAngle, float pForce) {
+    public void RotateWeaponTowardsAngle(float pTargetAngle)
+    {
         float _angularDifference = Mathf.DeltaAngle(GetWeaponAngle(), pTargetAngle);
+
         if (Mathf.Abs(_angularDifference) < data.DeadZoneThreshold) {
             AddWeaponOrbital(0);
             return;
         }
-        
+
+        float _currentAngularVelocity = GetWeaponOrbital();
+
+        // --- PD Controller for angular motion ---
+        // kp: proportional gain (affects how strongly the error is corrected)
+        // kd: derivative gain (affects how strongly current angular velocity is damped)
+        float _kp = data.RotationSpeed * data.DampingFactor;
+        float _kd = data.VelocityDamping;
+        // The control signal calculates the "torque" needed:
+        float _controlSignal = _kp * _angularDifference - _kd * _currentAngularVelocity;
+
+        float _newAngularVelocity = _currentAngularVelocity + _controlSignal * Time.deltaTime;
+        _newAngularVelocity = Mathf.Clamp(_newAngularVelocity, -data.MaxRotationSpeed, data.MaxRotationSpeed);
+
+        float addedMomentum = _newAngularVelocity - _currentAngularVelocity;
+        AddWeaponOrbital(addedMomentum);
+    }
+
+    public void RotateWeaponWithForce(float pTargetAngle, float pForce)
+    {
+        float _angularDifference = Mathf.DeltaAngle(GetWeaponAngle(), pTargetAngle);
+        if (Mathf.Abs(_angularDifference) < data.DeadZoneThreshold)
+        {
+            AddWeaponOrbital(0);
+            return;
+        }
+
         float _sign = (_angularDifference < 0) ? -1 : 1;
         AddWeaponOrbital(pForce * _sign);
     }
 
-    void FixedUpdate() {
+    void FixedUpdate()
+    {
         bodyFunctions();
         weaponFunctions();
 
         CumulativeVelocity();
     }
 
-    private void bodyFunctions() {
-
+    private void bodyFunctions()
+    {
         if (usePosition)
         {
             moveToPoint(movePosition);
@@ -126,6 +134,7 @@ public class Character : MonoBehaviour
         {
             moveInDirection(moveDirection.normalized);
         }
+
         usePosition = false;
     }
 
@@ -137,16 +146,18 @@ public class Character : MonoBehaviour
 
     private void moveInDirection(Vector3 pDirection)
     {
-        Vector3 _moveVelocity= Body.Move(pDirection);
+        Vector3 _moveVelocity = Body.Move(pDirection);
 
         transform.position += _moveVelocity;
     }
 
-    private void weaponFunctions() {
+    private void weaponFunctions()
+    {
         Weapon.UpdatePosition();
     }
 
-    public float GetWeaponAngle() {
+    public float GetWeaponAngle()
+    {
         return Weapon.GetAngle();
     }
 
@@ -155,15 +166,28 @@ public class Character : MonoBehaviour
         return Weapon.GetRange();
     }
 
-    public Vector3 GetWeaponPosition() {
+    public Vector3 GetWeaponPosition()
+    {
         return Weapon.transform.position;
     }
 
-    public float GetWeaponOrbital() {
+    public float GetWeaponOrbital()
+    {
         return Weapon.OrbitalVelocity;
     }
 
-    public void Attack(ActionInput pAttackInput, float pTargetAngle) {
+    public CharacterData GetData()
+    {
+        return data;
+    }
+
+    public bool IsAttacking()
+    {
+        return isAttacking;
+    }
+
+    public void Attack(ActionInput pAttackInput, float pTargetAngle)
+    {
         CombatSM.Attack(pAttackInput, pTargetAngle, checkLinearAttack(pTargetAngle));
     }
 
@@ -172,42 +196,53 @@ public class Character : MonoBehaviour
         CombatSM.Attack(pAttackType, pTargetAngle);
     }
 
-    private bool checkLinearAttack(float pTargetAngle) {
+    private bool checkLinearAttack(float pTargetAngle)
+    {
         return Mathf.Abs(Mathf.DeltaAngle(GetWeaponAngle(), pTargetAngle)) < data.LinearAttackZone;
     }
 
-    public void Defend(ActionInput pAttackInput, float pTargetAngle) {
+    public void Defend(ActionInput pAttackInput, float pTargetAngle)
+    {
         ActionType _actionType = ActionType.None;
-        if (pAttackInput == ActionInput.Press) {
+        if (pAttackInput == ActionInput.Press)
+        {
             _actionType = ActionType.Parry;
         }
-        else {
+        else
+        {
             _actionType = ActionType.Block;
         }
 
         Debug.Log($"Defend action type: {_actionType}");
     }
-    
-    public void CollisionDetected(Character pCharacterHit, bool pIsClash, float pMomentum) {
-        if (pIsClash) {
+
+    public void CollisionDetected(Character pCharacterHit, bool pIsClash, float pMomentum)
+    {
+        if (pIsClash)
+        {
             weaponHit(pCharacterHit, pMomentum);
         }
-        else {
+        else
+        {
             bodyHit(pCharacterHit);
         }
     }
 
-    private void weaponHit(Character pCharacterHit, float pMomentum) {
+    private void weaponHit(Character pCharacterHit, float pMomentum)
+    {
         Vector2 _otherMomentum = pCharacterHit.getHitMomentum();
 
         Vector2 _impactDirection;
-        if (cumulVelocity.magnitude < 0.01f) {
+        if (cumulVelocity.magnitude < 0.01f)
+        {
             _impactDirection = _otherMomentum.normalized;
         }
-        else if (_otherMomentum.magnitude < 0.01f) {
+        else if (_otherMomentum.magnitude < 0.01f)
+        {
             _impactDirection = cumulVelocity.normalized;
         }
-        else {
+        else
+        {
             _impactDirection = (cumulVelocity - _otherMomentum).normalized;
         }
 
@@ -243,9 +278,12 @@ public class Character : MonoBehaviour
         pCharacterHit.AddWeaponOrbital(_angularMomentum2);
     }
 
-    private void bodyHit(Character pCharacterHit) { }
+    private void bodyHit(Character pCharacterHit)
+    {
+    }
 
-    private Vector2 getHitMomentum() {
+    private Vector2 getHitMomentum()
+    {
         return cumulVelocity;
     }
 }

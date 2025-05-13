@@ -9,6 +9,8 @@ public abstract class CombatState : BaseState<CombatSM>
     public bool Interruptible;
     public bool HoldAction;
     protected float elapsedTime = 0f;
+    
+    CombatStateData stateData;
 
     public CombatState(string pName) : base(pName){}
     public virtual void Enter(CombatSM pStateMachine, float pAttackAngle)
@@ -16,9 +18,18 @@ public abstract class CombatState : BaseState<CombatSM>
         base.Enter(pStateMachine);
         attackAngle = pAttackAngle;
         Interruptible = false;
-        HoldAction = false;
         
         Debug.Log($"Player Attack Jab Activated");
+    }
+
+    public virtual void AddStateData(CombatStateData pData)
+    {
+        stateData = pData;
+        actionType = stateData.ActionType;
+        duration = stateData.Duration;
+        actionType = stateData.ActionType;
+        attackRange = stateData.AttackRange;
+        HoldAction = stateData.HoldAction;
     }
 
     public override void UpdateLogic(float delta)

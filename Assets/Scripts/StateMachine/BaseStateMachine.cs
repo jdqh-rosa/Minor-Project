@@ -63,12 +63,12 @@ public abstract class BaseStateMachine<TStateMachine> : MonoBehaviour
         return state;
     }
 
-    public virtual void AddState(BaseState<TStateMachine> newState) {
-        if (GetState(newState.Name) != null) {
-            Debug.LogWarning("Duplicate state: " + newState.Name + ". Previous state overwritten.");
+    public virtual void AddState(BaseState<TStateMachine> pNewState) {
+        if (GetState(pNewState.Name) != null) {
+            Debug.LogWarning("Duplicate state: " + pNewState.Name + ". Previous state overwritten.");
         }
         
-        states[newState.Name] = newState;
+        states[pNewState.Name] = pNewState;
     }
 
     public virtual BaseState<TStateMachine> GetCurrentState() {

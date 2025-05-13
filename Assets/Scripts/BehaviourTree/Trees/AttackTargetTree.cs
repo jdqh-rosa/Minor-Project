@@ -17,7 +17,7 @@ public class AttackTargetTree : BehaviourTree
     {
         Parallel _parallel = new("AttackTarget/Parallel", 1);
         _parallel.AddChild(new EnterRangeTree(blackboard, agent.GetWeaponRange()));
-        _parallel.AddChild(new Leaf("AttackTarget//PointWeapon",  new ActionStrategy(pointWeapon)));
+        //_parallel.AddChild(new Leaf("AttackTarget//PointWeapon",  new ActionStrategy(pointWeapon)));
         
         AddChild(_parallel);
         AddChild(new ChooseAttackTree(blackboard));

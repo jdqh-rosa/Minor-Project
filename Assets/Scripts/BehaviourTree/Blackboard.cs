@@ -190,34 +190,3 @@ public struct AnyValue
     T AsBool <T>(bool value) => typeof(T) == typeof(bool) && value is T correctType ? correctType : default;
 
 }
-
-
-public enum CommonKeys
-{
-    Error,
-    AgentSelf,
-    AttackActions,
-    ChosenAction,
-    ChosenAttack,
-    ChosenFaceAngle,
-    ChosenPosition,
-    ChosenTarget, //
-    ChosenWeaponAngle,
-    DetectedAttack,
-    FindRadius,
-    KnownAllies,
-    KnownEnemies,
-    KnownTargets,
-    LastAllyPosition,
-    PatrolCoolDown,
-    PatrolPoints,
-    SelfHealth,
-    TargetAlly,
-    TargetEnemy,
-    TargetObject,
-    TargetPosition,
-    VisibleAllies,
-    VisibleEnemies,
-    VisibleTargets,
-    
-}

@@ -7,8 +7,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] BlackboardData blackboardData;
     
     private BehaviourTree tree;
-    readonly Blackboard blackboard = new();
-    
+    readonly EnemyBlackboard blackboard = new();
 
     [SerializeField] private Character enemyCharacter;
 
@@ -18,6 +17,8 @@ public class EnemyController : MonoBehaviour
     {
 
         if (!enemyCharacter) enemyCharacter = GetComponent<Character>();
+        
+        blackboard.AddCharacterData(enemyCharacter.GetData());
         
         blackboardData.SetValuesOnBlackboard(blackboard);
         

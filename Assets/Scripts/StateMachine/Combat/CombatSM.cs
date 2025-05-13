@@ -96,6 +96,11 @@ public class CombatSM : BaseStateMachine<CombatSM>
                 break;
         }
     }
+    
+    public void AddState(CombatState newState, CombatStateData pData) {
+        newState.AddStateData(pData);
+        AddState(newState);
+    }
 
     public new CombatState GetCurrentState() {
         return (CombatState)base.GetCurrentState();

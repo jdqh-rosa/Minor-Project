@@ -103,7 +103,10 @@ public class PlayerController : MonoBehaviour
         player.RotateWeaponTowardsAngle(targetAngle);
     }
 
-    private void rotateWeapon() {
+    private void rotateWeapon()
+    {
+        if (player.IsAttacking()) return;
+        
         player.RotateWeaponTowardsAngle(targetAngle);
     }
 
