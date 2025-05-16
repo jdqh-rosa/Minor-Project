@@ -209,6 +209,7 @@ public class DetectAttackStrategy : IStrategy
     public Node.NodeStatus Process()
     {
         blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> enemies);
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
 
         foreach (var enemy in enemies)
         {
@@ -216,7 +217,16 @@ public class DetectAttackStrategy : IStrategy
 
             if (_character.IsAttacking())
             {
-                //todo: see if enemy attack makes contact 
+                //todo: see if enemy attack makes contact
+                Vector3 _diffVec = MiscHelper.DifferenceVector(_agent.transform.position, _character.transform.position);
+
+                if (_diffVec.magnitude > _character.GetWeaponRange()) continue;
+
+                float _angle = RadialHelper.CartesianToPol(_diffVec.normalized).y;
+
+                if (Mathf.Abs(_angle - _character.GetWeaponAngle()) > 180f) continue;
+                
+                //todo: deal with attack
             }
         }
         
@@ -309,51 +319,6 @@ public class MessageAllyStrategy : IStrategy
     }
 }
 
-// public class Strategy : IStrategy
-// {
-//     private Blackboard blackboard;
-//     
-//     public Strategy(Blackboard pBlackboard)
-//     {
-//         blackboard = pBlackboard;
-//     }
-//     public Node.NodeStatus Process()
-//     {
-//         
-//         return Node.NodeStatus.Success;
-//     }
-// }
-//
-// public class Strategy : IStrategy
-// {
-//     private Blackboard blackboard;
-//     
-//     public Strategy(Blackboard pBlackboard)
-//     {
-//         blackboard = pBlackboard;
-//     }
-//     public Node.NodeStatus Process()
-//     {
-//         
-//         return Node.NodeStatus.Success;
-//     }
-// }
-//
-// public class Strategy : IStrategy
-// {
-//     private Blackboard blackboard;
-//     
-//     public Strategy(Blackboard pBlackboard)
-//     {
-//         blackboard = pBlackboard;
-//     }
-//     public Node.NodeStatus Process()
-//     {
-//         
-//         return Node.NodeStatus.Success;
-//     }
-// }
-//
 // public class Strategy : IStrategy
 // {
 //     private Blackboard blackboard;
