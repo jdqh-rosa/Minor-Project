@@ -18,6 +18,7 @@ public class CharacterWeapon : MonoBehaviour
     
     public float OrbitalVelocity = 0f;
     public float ThrustVelocity = 0;
+    public float KnockbackVelocity = 0;
     [SerializeField] private float momentum = 0f;
     
     private WeaponState state;
@@ -57,6 +58,14 @@ public class CharacterWeapon : MonoBehaviour
 
         return OrbitalVelocity;
     }
+    
+    public float OrbitalKnockback(float pKnockbackForce) {
+        if (currentDistance <= 0.001f) return OrbitalVelocity;
+
+        KnockbackVelocity += pKnockbackForce;
+
+        return KnockbackVelocity;
+    }
 
     public void ApplyThrust(float pTargetOffset, float pDuration) {
         StartCoroutine(ThrustRoutine(pTargetOffset, pDuration));
@@ -85,7 +94,8 @@ public class CharacterWeapon : MonoBehaviour
     }
 
     public void UpdatePosition() {
-        currentAngle = RadialHelper.NormalizeAngle(currentAngle + (OrbitalVelocity * Time.deltaTime));
+        float _adjustedVelocity = OrbitalVelocity + KnockbackVelocity;
+        currentAngle = RadialHelper.NormalizeAngle(currentAngle + (_adjustedVelocity * Time.deltaTime));
         currentDistance = data.WeaponDistance + ThrustVelocity;
         currentDistance = Mathf.Clamp(currentDistance, data.WeaponDistance, data.MaxReach);
 
@@ -96,8 +106,10 @@ public class CharacterWeapon : MonoBehaviour
 
         OrbitalVelocity *= data.SwingDampingFactor;
         ThrustVelocity *= data.ThrustDampingFactor;
+        KnockbackVelocity *= data.SwingDampingFactor;
         
         if (Mathf.Abs(OrbitalVelocity) < 0.01f) OrbitalVelocity = 0;
+        if (Mathf.Abs(KnockbackVelocity) < 0.01f) KnockbackVelocity = 0;
         //if (Mathf.Abs(ThrustVelocity) < 0.01f) ThrustVelocity = 0;
 
         updateVelocity();
@@ -146,10 +158,6 @@ public class CharacterWeapon : MonoBehaviour
 
         float _vectorDistance = Vector3.Dot(_weaponVector.normalized, _hitVector);
         float _pointMomentum = VelocityToMomentum(OrbitalVelocity, _vectorDistance);
-
-        if (transform.parent.name == "Player") {
-            //Debug.Log($"impact point: {pPointHit}, vector distance: {_vectorDistance}");
-        }
 
         Character.CollisionDetected(pCharacter, pIsClash, _pointMomentum);
     }

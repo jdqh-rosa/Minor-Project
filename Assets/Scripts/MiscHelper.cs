@@ -11,5 +11,14 @@ static class MiscHelper
     {
         return new Vector2(vec3.x, vec3.z);
     }
+
+    public static Vector3 DifferenceVector(Vector3 vecA, Vector3 vecB) {
+        return vecA - vecB;
+        
+    }
+    
+    public static Vector2 DifferenceVector(Vector2 vecA, Vector2 vecB) {
+        return vecA - vecB;
+    }
     
 }

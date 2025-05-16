@@ -76,6 +76,10 @@ public class Character : MonoBehaviour
     {
         Weapon.OrbitalAccelerate(pAdditionalMomentum);
     }
+    
+    public void AddWeaponKnockback(float pAdditionalMomentum) {
+        Weapon.OrbitalKnockback(pAdditionalMomentum);
+    }
 
     public void RotateWeaponTowardsAngle(float pTargetAngle)
     {
@@ -274,8 +278,8 @@ public class Character : MonoBehaviour
         float _angularMomentum1 = _sign1 * _newVelocity1.magnitude * _angularFactor;
         float _angularMomentum2 = _sign2 * _newVelocity2.magnitude * _angularFactor;
 
-        AddWeaponOrbital(_angularMomentum1);
-        pCharacterHit.AddWeaponOrbital(_angularMomentum2);
+        AddWeaponKnockback(_angularMomentum1);
+        pCharacterHit.AddWeaponKnockback(_angularMomentum2);
     }
 
     private void bodyHit(Character pCharacterHit)
