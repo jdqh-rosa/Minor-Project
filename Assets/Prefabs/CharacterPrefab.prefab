@@ -125,7 +125,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Character: {fileID: 0}
   data: {fileID: 11400000, guid: c4e818d33cf5bc4449f25c87a0129bb5, type: 2}
-  Velocity: {x: 0, y: 0}
+  Velocity: {x: 0, y: 0, z: 0}
 --- !u!1 &2517044769756556409
 GameObject:
   m_ObjectHideFlags: 0
@@ -637,9 +637,11 @@ MonoBehaviour:
   blade: {fileID: 3003620771216153611}
   tip: {fileID: 9150468459623298957}
   data: {fileID: 11400000, guid: d52c6f45048aa464da808a836bebca8a, type: 2}
-  Velocity: {x: 0, y: 0}
+  Velocity: {x: 0, y: 0, z: 0}
+  currentAngle: 0
   OrbitalVelocity: 0
   ThrustVelocity: 0
+  KnockbackVelocity: 0
   momentum: 0
 --- !u!1 &7559539973242311158
 GameObject:

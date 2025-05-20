@@ -3,6 +3,8 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Character", menuName = "Character/Character")]
 public class CharacterData : ScriptableObject
 {
+    public string CharacterName;
+    public CharacterTeam CharacterTeam;
     public float RotationSpeed = 10f;
     public float MaxRotationSpeed = 500f;
     public float DampingFactor = 0.2f;
@@ -15,4 +17,13 @@ public class CharacterData : ScriptableObject
     public CombatStateData ThrustState;
     public CombatStateData SwipeState;
     public CombatStateData SwingState;
+}
+
+public enum CharacterTeam
+{
+    Any,
+    Player,
+    Enemy,
+    Neutral,
+    Blembd
 }

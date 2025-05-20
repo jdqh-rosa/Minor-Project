@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a65377a2b4a2cae4f895d5721db2892a, type: 3}
   m_Name: DummyCharacter
   m_EditorClassIdentifier: 
+  CharacterName: Dummy
+  CharacterTeam: 3
   RotationSpeed: 10
   MaxRotationSpeed: 500
   DampingFactor: 0.2

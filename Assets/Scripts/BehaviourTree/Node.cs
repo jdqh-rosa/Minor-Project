@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Rendering.Universal;
 
 public class Node
 {
@@ -16,30 +17,65 @@ public class Node
     public readonly int Priority;
 
     public readonly List<Node> children = new();
+    public Node Parent;
+    public string Path;
     protected int currentChild;
+    public bool IsActive;
+    private NodeStatus status;
 
     public Node(string pName = "Node", int pPriority = 0) {
         Name = pName;
         Priority = pPriority;
     }
 
-    public void AddChild(Node child) => children.Add(child);
+    public virtual void AddChild(Node child) {
+        child.Parent = this;
+        child.Path = $"{Path} > {child.Name}";
+        children.Add(child);
+    } 
 
     public virtual NodeStatus Process()
     {
-        NodeStatus status = children[currentChild].Process();
+        IsActive = true;
+        status = children[currentChild].Process();
+        IsActive = false;
         return status;
-    } 
+    }
 
     public virtual void Reset() {
         currentChild = 0;
         foreach (var child in children) {
             child.Reset();
         }
+        IsActive = false;
+    }
+
+    public int GetCurrentChildIndex() {
+        return currentChild;
+    }
+
+    public NodeStatus GetStatus() {
+        return status;
     }
 }
 
-public class Inverter : Node
+public class DecoratorNode : Node
+{
+    public DecoratorNode(string pName = "Decorator") : base(pName) { }
+    
+    public override void AddChild(Node child) {
+        child.Parent = this;
+        child.Path = $"{Path} > {child.Name}";
+        if (children.Count > 0) {
+            children[0] = child;
+        }
+        else {
+            children.Add(child);
+        }
+    }
+}
+
+public class Inverter : DecoratorNode
 {
     public Inverter(string pName = "Inverter") : base(pName) { }
 
@@ -55,16 +91,16 @@ public class Inverter : Node
     }
 }
 
-public class UntilFail : Node
+public class UntilFail : DecoratorNode
 {
     public UntilFail(string pName = "UntilFail") : base(pName) { }
 
     public override NodeStatus Process() {
         if (children[0].Process() == NodeStatus.Failure) {
             Reset();
-            return NodeStatus.Failure;
+            return NodeStatus.Success;
         }
-
+        IsActive = true;
         return NodeStatus.Running;
     }
 }
@@ -92,12 +128,12 @@ public class Parallel : Node
         }
 
         if (succesCount >= succesThreshold) return NodeStatus.Success;
-        
+        IsActive = true;
         return failureCount >= failureThreshold ? NodeStatus.Failure : NodeStatus.Running;
     }
 }
 
-public class Repeater : Node //0 goes on forever
+public class Repeater : DecoratorNode //0 goes on forever
 {
     private int repetitions;
     int repeats = 0;
@@ -109,6 +145,7 @@ public class Repeater : Node //0 goes on forever
     public override NodeStatus Process() {
         if (repetitions == 0 || (repetitions != 0 && repeats < repetitions)) {
             base.Process();
+            IsActive = true;
             return NodeStatus.Running;
         }
 
@@ -129,12 +166,14 @@ public class Selector : Node
         if (currentChild < children.Count) {
             switch (children[currentChild].Process()) {
                 case NodeStatus.Running:
+                    IsActive = true;
                     return NodeStatus.Running;
                 case NodeStatus.Success:
                     Reset();
                     return NodeStatus.Success;
                 default:
                     currentChild++;
+                    IsActive = true;
                     return NodeStatus.Running;
             }
         }
@@ -159,8 +198,9 @@ public class PrioritySelector : Selector
     }
 
     public override NodeStatus Process() {
+        IsActive = true;
         foreach (var child in SortedChildren) {
-            switch (children[currentChild].Process()) {
+            switch (child.Process()) {
                 case NodeStatus.Running:
                     return NodeStatus.Running;
                 case NodeStatus.Success:
@@ -188,6 +228,7 @@ public class Sequence : Node
     public Sequence(string pName = "Sequence", int pPriority = 0) : base(pName, pPriority) { }
 
     public override NodeStatus Process() {
+        IsActive = true;
         if (currentChild < children.Count) {
             switch (children[currentChild].Process()) {
                 case NodeStatus.Running:
@@ -221,10 +262,11 @@ public class BehaviourTree : Node
     public BehaviourTree(string pName, int pPriority =0) : base(pName, pPriority) { }
 
     public override NodeStatus Process() {
+        IsActive = true;
         while (currentChild < children.Count) {
             var status = children[currentChild].Process();
             if (status != NodeStatus.Success) {
-                Debug.Log($"{Name} : {children[currentChild].Name}=>{status}");
+                Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
                 return status;
             }
             currentChild++;

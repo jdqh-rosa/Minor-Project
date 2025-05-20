@@ -9,7 +9,6 @@ public class DefendSelfTree : BehaviourTree
     {
         blackboard = pBlackboard;
         
-        
         setup();
     }
 

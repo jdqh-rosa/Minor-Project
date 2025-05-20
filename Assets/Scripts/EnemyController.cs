@@ -15,13 +15,10 @@ public class EnemyController : MonoBehaviour
 
     private void Awake()
     {
-
         if (!enemyCharacter) enemyCharacter = GetComponent<Character>();
         
         blackboard.AddCharacterData(enemyCharacter.GetData());
-        
         blackboardData.SetValuesOnBlackboard(blackboard);
-        
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, enemyCharacter.transform.position);
         blackboard.SetKeyValue(CommonKeys.VisibleAllies, new List<GameObject>());
         blackboard.SetKeyValue(CommonKeys.VisibleTargets, new List<GameObject>());
@@ -32,8 +29,8 @@ public class EnemyController : MonoBehaviour
 
         Repeater _repeater = new Repeater("BaseLogic");
         Parallel _parallel = new("BaseLogic/Parallel", 2);
+        PrioritySelector _prioritySelector = new PrioritySelector("BaseLogic//BranchSelector");
         Parallel _actionParallel = new("BaseLogic/ActionParallel",2);
-        PrioritySelector _prioritySelector = new PrioritySelector("BaseLogic//Selector");
         Leaf _moveToPosition = new("BaseLogic//MoveToPosition", new ActionStrategy(() => enemyCharacter.SetCharacterPosition(movePosition())));
         Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
         
@@ -42,13 +39,33 @@ public class EnemyController : MonoBehaviour
         _parallel.AddChild(_actionParallel);
         _actionParallel.AddChild(_moveToPosition);
         _actionParallel.AddChild(_positionWeapon);
-        _prioritySelector.AddChild(new CombatTree(blackboard, 2));
-        _prioritySelector.AddChild(new IdleTree(blackboard));
+
+        Sequence _combatBranch = new("Base//CombatSequence");
+        _combatBranch.AddChild(new Leaf("CheckCombat", new ConditionStrategy(() =>
+        {
+            blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> targets);
+            return targets is { Count: > 0 };
+        })));
+        _combatBranch.AddChild(new CombatTree(blackboard));
+        
+        Sequence _assembleBranch = new("Base//AssembleSequence");
+        _assembleBranch.AddChild(new Leaf("CheckAssemble", new ConditionStrategy(() =>
+        {
+            blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> targets);
+            return targets is { Count: > 0 };
+        })));
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
-        _prioritySelector.AddChild(new AssembleTree(blackboard, agent));
+
+        _assembleBranch.AddChild(new AssembleTree(blackboard, agent));
+        
+        _prioritySelector.AddChild(_combatBranch);
+        _prioritySelector.AddChild(_assembleBranch);
+        _prioritySelector.AddChild(new IdleTree(blackboard));
         
         tree.AddChild(_repeater);
         tree.Reset();
+        
+        AddBTDebugHUD();
     }
 
     private void Update() {
@@ -88,6 +105,25 @@ public class EnemyController : MonoBehaviour
     public void ChooseAttack(ActionType pActionType, float pAttackAngle)
     {
         enemyCharacter.Attack(pActionType, pAttackAngle);
+    }
+    
+    void OnDrawGizmos() {
+        if (tree == null) return;
+        DrawNodeGizmo(tree, Vector3.up * 2);
+    }
+
+    void DrawNodeGizmo(Node node, Vector3 pos) {
+        Gizmos.color = node.IsActive ? Color.green : Color.gray;
+        Gizmos.DrawSphere(pos, 0.1f);
+        for (int i = 0; i < node.children.Count; i++) {
+            Vector3 childPos = pos + new Vector3((i - node.children.Count/2f)*0.5f, -0.5f, 0);
+            Gizmos.DrawLine(pos, childPos);
+            DrawNodeGizmo(node.children[i], childPos);
+        }
+    }
+
+    private void AddBTDebugHUD() {
+        GetComponent<BTDebugHUD>().tree = tree;
     }
 
 }

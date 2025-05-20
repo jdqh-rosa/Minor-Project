@@ -69,6 +69,7 @@ public class Character : MonoBehaviour
     public void SetCharacterPosition(Vector3 pPos)
     {
         movePosition = pPos;
+        movePosition.y = transform.position.y;
         usePosition = true;
     }
 

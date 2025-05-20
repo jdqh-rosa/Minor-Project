@@ -17,11 +17,10 @@ public class EnemyBlackboard : Blackboard
         SetKeyValue(CommonKeys.LinearAttackZone, pData.LinearAttackZone);
         SetKeyValue(CommonKeys.RotationSpeed, pData.RotationSpeed);
         SetKeyValue(CommonKeys.MaxRotationSpeed, pData.MaxRotationSpeed);
+        SetKeyValue(CommonKeys.TeamSelf, pData.CharacterTeam);
         SetKeyValue(CommonKeys.Actions, _actionDictionary);
         
     }
-    
-    
 }
 
 public enum CommonKeys
@@ -51,10 +50,10 @@ public enum CommonKeys
     TargetEnemy,
     TargetObject,
     TargetPosition,
+    TeamSelf,
     VisibleAllies,
     VisibleEnemies,
     VisibleTargets,
     WeaponReach,
-    
     
 }

@@ -16,7 +16,6 @@ public class SwipeState : CombatState
     }
 
     public override void UpdateLogic(float delta) {
-        Debug.Log($"Swiping {elapsedTime}", StateMachine);
         if (elapsedTime < duration) {
             if (elapsedTime >= interruptTime) {
                 Interruptible = true;

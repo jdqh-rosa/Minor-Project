@@ -32,7 +32,7 @@ public class SwingState : CombatState
     private void ThrustAttack(bool pHoldAttack, float pTargetAngle) { }
 
     public override void UpdatePhysics(float delta) {
-        Debug.Log($"Swing attackAngle {attackAngle}", StateMachine);
+        //Debug.Log($"Swing attackAngle {attackAngle}", StateMachine);
         StateMachine.Character.RotateWeaponWithForce(attackAngle, attackForce);
     }
 
