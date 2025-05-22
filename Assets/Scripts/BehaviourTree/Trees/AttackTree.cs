@@ -23,7 +23,7 @@ public class AttackTree : BehaviourTree
         Leaf _executeAttack = new("ExecuteAttack", new ActionStrategy(()=>
         {
             blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType _attackType);
-            agent.ChooseAttack(_attackType, targetAngle());
+            agent.ChooseAttackAction(_attackType, targetAngle());
         }));
         Leaf _angleCheck = new("DoAttack//AngleCheck", new ConditionStrategy(()=> { 
             float _deltaAngle = deltaAngle();

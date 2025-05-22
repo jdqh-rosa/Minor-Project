@@ -13,6 +13,8 @@ public class PlayerController : MonoBehaviour
     private InputAction look;
     private InputAction attack;
     private InputAction swing;
+    private InputAction movementAction;
+    
 
     [SerializeField] private Character player;
 
@@ -36,7 +38,11 @@ public class PlayerController : MonoBehaviour
 
         attack = PlayerControls.Player.Attack;
         attack.Enable();
-        attack.performed += context => attackInput(context);
+        attack.performed += attackInput;
+        
+        movementAction = PlayerControls.Player.MovementAction;
+        movementAction.Enable();
+        movementAction.performed += moveActionInput;
         
         swing = PlayerControls.Player.Swing;
         swing.Enable();
@@ -47,6 +53,7 @@ public class PlayerController : MonoBehaviour
         move.Disable();
         look.Disable();
         attack.Disable();
+        swing.Disable();
     }
 
     void Update() {
@@ -119,6 +126,17 @@ public class PlayerController : MonoBehaviour
         if (pContext.interaction is PressInteraction) {
             Debug.Log($"Press Attack");
             player.Attack(ActionInput.Press, targetAngle);
+        }
+    }
+    
+    private void moveActionInput(InputAction.CallbackContext pContext) {
+        if (pContext.interaction is HoldInteraction) {
+            Debug.Log($"Hold MoveAction");
+            player.Attack(ActionType.Dodge, 0);
+        }
+        if (pContext.interaction is PressInteraction) {
+            Debug.Log($"Press MoveAction");
+            player.Attack(ActionType.Stride, 0);
         }
     }
 }

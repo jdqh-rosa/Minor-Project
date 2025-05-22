@@ -25,3 +25,7 @@ MonoBehaviour:
   ThrustState: {fileID: 11400000, guid: 98283c60453b3724e8485518fa31bcfc, type: 2}
   SwipeState: {fileID: 11400000, guid: 94059a4d53710c947aba1f1e8044736a, type: 2}
   SwingState: {fileID: 11400000, guid: cc86a5631c469b142a139b714927e634, type: 2}
+  StrideState: {fileID: 11400000, guid: 8fb901d241880d447a606669edbddf08, type: 2}
+  DodgeState: {fileID: 11400000, guid: cd1999bbc1d4ce445bb31aedcd1741ae, type: 2}
+  ParryState: {fileID: 0}
+  BlockState: {fileID: 0}

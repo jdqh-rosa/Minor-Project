@@ -17,6 +17,10 @@ public class CharacterData : ScriptableObject
     public CombatStateData ThrustState;
     public CombatStateData SwipeState;
     public CombatStateData SwingState;
+    public CombatStateData StrideState;
+    public CombatStateData DodgeState;
+    public CombatStateData ParryState;
+    public CombatStateData BlockState;
 }
 
 public enum CharacterTeam

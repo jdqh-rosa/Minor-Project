@@ -10,7 +10,9 @@ public class EnemyBlackboard : Blackboard
             { ActionType.Jab, pData.JabState },
             { ActionType.Thrust, pData.ThrustState },
             { ActionType.Swipe, pData.SwipeState },
-            { ActionType.Swing, pData.SwingState }
+            { ActionType.Swing, pData.SwingState },
+            { ActionType.Stride, pData.StrideState},
+            { ActionType.Dodge , pData.DodgeState },
         };
         
         

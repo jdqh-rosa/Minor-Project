@@ -19,8 +19,6 @@ public abstract class CombatState : BaseState<CombatSM>
         base.Enter(pStateMachine);
         attackAngle = pAttackAngle;
         Interruptible = false;
-        
-        Debug.Log($"Player Attack Jab Activated");
     }
 
     public virtual void AddStateData(CombatStateData pData)

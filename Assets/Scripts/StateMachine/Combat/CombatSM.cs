@@ -46,7 +46,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
         attackAngle = pAttackAngle;
     }
 
-    public void InputState(string pInput, float pAttackAngle) {
+    public void InputState(string pInput, float pAttackAngle=0f) {
         inputState = (CombatState)GetState(pInput);
         attackAngle = pAttackAngle;
         
@@ -93,6 +93,12 @@ public class CombatSM : BaseStateMachine<CombatSM>
                 break;
             case ActionType.Swing:
                 InputState("Swing", pTargetAngle);
+                break;
+            case ActionType.Stride:
+                InputState("Stride");
+                break;
+            case ActionType.Dodge:
+                InputState("Dodge");
                 break;
         }
     }

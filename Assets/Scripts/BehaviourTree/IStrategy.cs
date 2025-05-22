@@ -155,34 +155,60 @@ public class ContactAlliesStrategy : IStrategy
 public class DetectAttackStrategy : IStrategy
 {
     private Blackboard blackboard;
+    private EnemyController agent;
 
     public DetectAttackStrategy(Blackboard pBlackboard) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        agent = _agent;
     }
 
     public Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> enemies);
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
 
-        foreach (var enemy in enemies) {
-            if (!enemy.TryGetComponent(out Character _character)) continue;
+        List<Character> _tryHitters = new List<Character>();
+        
+        foreach (var _enemy in enemies) {
+            if (!_enemy.TryGetComponent(out Character _character)) continue;
 
             if (_character.IsAttacking()) {
                 //todo: see if enemy attack makes contact
                 Vector3 _diffVec =
-                    MiscHelper.DifferenceVector(_agent.transform.position, _character.transform.position);
+                    MiscHelper.DifferenceVector(agent.transform.position, _character.transform.position);
 
                 if (_diffVec.magnitude > _character.GetWeaponRange()) continue;
 
                 float _angle = RadialHelper.CartesianToPol(_diffVec.normalized).y;
 
                 if (Mathf.Abs(_angle - _character.GetWeaponAngle()) > 180f) continue;
-
+                
+                _tryHitters.Add(_character);
                 //todo: deal with attack
             }
         }
+        
+        if(_tryHitters.Count == 0) return Node.NodeStatus.Failure;
 
+        if (_tryHitters.Count >= 2) {
+            blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
+            blackboard.SetKeyValue(CommonKeys.TargetEnemy, FindClosestCharacter(_tryHitters).gameObject);
+            return Node.NodeStatus.Success;
+        }
+
+        blackboard.SetKeyValue(CommonKeys.TargetEnemy, _tryHitters[0].gameObject);
         return Node.NodeStatus.Success;
+    }
+    
+    private Character FindClosestCharacter(List<Character> characters) { //stolen from getclosestcharacter
+        Character closestCharacter = characters[0];
+        float closestCharDistance = float.MaxValue;
+        foreach (Character character in characters) {
+            float charDistance = Mathf.Abs((agent.transform.position - character.transform.position).magnitude);
+            if (!(charDistance < closestCharDistance)) continue;
+            closestCharacter = character;
+            closestCharDistance = charDistance;
+        }
+        return closestCharacter;
     }
 }
 
@@ -201,6 +227,24 @@ public class DistanceSelfStrategy : IStrategy
         Vector3 diffVec = avoidPosition - agent.transform.position;
         diffVec *= -1;
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, diffVec);
+        return Node.NodeStatus.Success;
+    }
+}
+
+public class DodgeStrategy : IStrategy
+{
+    Blackboard blackboard;
+    private EnemyController agent;
+    public DodgeStrategy(Blackboard pBlackboard) {
+        blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
+    }
+
+    public Node.NodeStatus Process() {
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject enemy);
+        Vector3 _revDiffVec = agent.transform.position - enemy.transform.position;
+        
+        agent.ChooseMovementAction(ActionType.Dodge, _revDiffVec.normalized);
         return Node.NodeStatus.Success;
     }
 }
@@ -451,6 +495,21 @@ public class SetTargetAllyStrategy : IStrategy
         }
 
         return Node.NodeStatus.Failure;
+    }
+}
+
+public class StrikeParry : IStrategy
+{
+    private Blackboard blackboard;
+    
+    public StrikeParry(Blackboard pBlackboard)
+    {
+        blackboard = pBlackboard;
+    }
+    public Node.NodeStatus Process()
+    {
+        
+        return Node.NodeStatus.Success;
     }
 }
 

@@ -102,9 +102,13 @@ public class EnemyController : MonoBehaviour
         return enemyCharacter.GetWeaponAngle();
     }
 
-    public void ChooseAttack(ActionType pActionType, float pAttackAngle)
+    public void ChooseAttackAction(ActionType pActionType, float pAttackAngle)
     {
         enemyCharacter.Attack(pActionType, pAttackAngle);
+    }
+
+    public void ChooseMovementAction(ActionType pActionType, Vector3 pDir) {
+        //enemyCharacter.Attack(pActionType, pDir);
     }
     
     void OnDrawGizmos() {
