@@ -47,7 +47,8 @@ public class Character : MonoBehaviour
 
     private void Update() {
         var actionType = CombatSM.GetCurrentState().actionType;
-        isAttacking = actionType != ActionType.None && actionType != ActionType.Stride && actionType != ActionType.Dodge;
+        isAttacking = actionType != ActionType.None && actionType != ActionType.Stride &&
+                      actionType != ActionType.Dodge;
     }
 
     public void CumulativeVelocity() {
@@ -136,7 +137,8 @@ public class Character : MonoBehaviour
 
     private void moveToPoint(Vector3 pPoint) {
         Vector3 diffVec = pPoint - transform.position;
-        Move(Body.Step(diffVec.normalized) * Mathf.Max(diffVec.magnitude, Body.GetStepLength()));
+        Vector3 _movementVec = Body.Step(diffVec.normalized) * Mathf.Min(diffVec.magnitude, Body.GetStepLength());
+        Move(_movementVec);
     }
 
     private void moveInDirection(Vector3 pDirection) {
@@ -199,59 +201,61 @@ public class Character : MonoBehaviour
         Debug.Log($"Defend action type: {_actionType}");
     }
 
-    public void CollisionDetected(Character pCharacterHit, bool pIsClash, float pMomentum) {
+    public void CollisionDetected(Character pCharacterHit, bool pIsClash, Vector2 pMomentum, Vector3 pPointHit) {
         if (pIsClash) {
-            weaponHit(pCharacterHit, pMomentum);
+            weaponHit(pCharacterHit, pMomentum, pPointHit);
         }
         else {
             bodyHit(pCharacterHit);
         }
     }
 
-    private void weaponHit(Character pCharacterHit, float pMomentum) {
-        Vector2 _otherMomentum = pCharacterHit.getHitMomentum();
+    private void weaponHit(Character pCharacterHit, Vector2 pMomentum, Vector3 pPointHit) {
+        Vector2 _v1 = cumulVelocity;
+        Vector2 _v2 = pMomentum;
 
         Vector2 _impactDirection;
-        if (cumulVelocity.magnitude < 0.01f) {
-            _impactDirection = _otherMomentum.normalized;
-        }
-        else if (_otherMomentum.magnitude < 0.01f) {
-            _impactDirection = cumulVelocity.normalized;
-        }
-        else {
-            _impactDirection = (cumulVelocity - _otherMomentum).normalized;
-        }
+        if (_v1.sqrMagnitude < 1e-4f) _impactDirection = _v2.normalized;
+        else if (_v2.sqrMagnitude < 1e-4f) _impactDirection = _v1.normalized;
+        else _impactDirection = (_v1 - _v2).normalized;
 
-        float _v1 = Vector2.Dot(cumulVelocity, _impactDirection);
-        float _v2 = Vector2.Dot(_otherMomentum, _impactDirection);
+        float u1 = Vector2.Dot(_v1, _impactDirection);
+        float u2 = Vector2.Dot(_v2, _impactDirection);
+        
+        float m1 = this.Weapon.GetMass();
+        float m2 = pCharacterHit.Weapon.GetMass();
+        float v1new = ((m1 - m2)/(m1 + m2))*u1 + (2*m2/(m1 + m2))*u2;
+        float v2new = (2*m1/(m1 + m2))*u1 + ((m2 - m1)/(m1 + m2))*u2;
 
-        float _m1 = Weapon.GetMass();
-        float _m2 = pCharacterHit.Weapon.GetMass();
+        _v1 += (v1new - u1)*_impactDirection;
+        _v2 += (v2new - u2)*_impactDirection;
+        
+        _v1 *= data.CollisionElasticity;
+        _v2 *= data.CollisionElasticity;
 
-        float _newV1 = ((_m1 - _m2) / (_m1 + _m2)) * _v1 + ((2 * _m2) / (_m1 + _m2)) * _v2;
-        float _newV2 = ((2 * _m1) / (_m1 + _m2)) * _v1 + ((_m2 - _m1) / (_m1 + _m2)) * _v2;
+        Vector3 gripPos = GetWeaponPosition();
+        Vector3 theirGripPos = pCharacterHit.GetWeaponPosition();
 
-        Vector2 _newVelocity1 = cumulVelocity + (_newV1 - _v1) * _impactDirection;
-        Vector2 _newVelocity2 = _otherMomentum + (_newV2 - _v2) * _impactDirection;
+        Vector3 contactPos = pPointHit;
+        Vector3 rA = contactPos - gripPos;
+        Vector3 rB = contactPos - theirGripPos;
 
-        _newVelocity1 *= data.CollisionElasticity;
-        _newVelocity2 *= data.CollisionElasticity;
+        Vector3 pA = new Vector3(_v1.x, 0f, _v1.y);
+        Vector3 pB = new Vector3(_v2.x, 0f, _v2.y);
+        
+        float angularImpulse = Vector3.Cross(rA, pA).y;
+        float angularImpulseB = Vector3.Cross(rB, pB).y;
+        Debug.Log($"r={rA.magnitude:F2}, p={pA.magnitude:F2}, L={angularImpulse:F2}");
+        Debug.Log($"r={rB.magnitude:F2}, p={pB.magnitude:F2}, L={angularImpulseB:F2}");
 
-        Vector2 _relativePosition1 = (GetWeaponPosition() - pCharacterHit.GetWeaponPosition()).normalized;
-        Vector2 _relativePosition2 = -_relativePosition1;
+        float appliedAngular = angularImpulse * data.AngularFactor;
+        float appliedAngularB = angularImpulseB * data.AngularFactor;
 
+        Weapon.OrbitalKnockback(appliedAngular);
+        pCharacterHit.Weapon.OrbitalKnockback(appliedAngularB);
 
-        float _sign1 = Mathf.Sign(Vector3.Cross(new Vector3(_relativePosition1.x, 0, _relativePosition1.y),
-            new Vector3(_newVelocity1.x, 0, _newVelocity1.y)).y);
-        float _sign2 = Mathf.Sign(Vector3.Cross(new Vector3(_relativePosition2.x, 0, _relativePosition2.y),
-            new Vector3(_newVelocity2.x, 0, _newVelocity2.y)).y);
-
-        float _angularFactor = 0.5f;
-        float _angularMomentum1 = _sign1 * _newVelocity1.magnitude * _angularFactor;
-        float _angularMomentum2 = _sign2 * _newVelocity2.magnitude * _angularFactor;
-
-        AddWeaponKnockback(_angularMomentum1);
-        pCharacterHit.AddWeaponKnockback(_angularMomentum2);
+        cumulVelocity = _v1;
+        pCharacterHit.cumulVelocity = _v2;
     }
 
     private void bodyHit(Character pCharacterHit) { }

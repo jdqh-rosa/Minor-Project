@@ -266,12 +266,12 @@ public class BehaviourTree : Node
         while (currentChild < children.Count) {
             var status = children[currentChild].Process();
             if (status != NodeStatus.Success) {
-                Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
+                //Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
                 return status;
             }
             currentChild++;
         }
-        Debug.Log($"{Name} =>{NodeStatus.Success}");
+        //Debug.Log($"{Name} =>{NodeStatus.Success}");
         return NodeStatus.Success;
     }
 }

@@ -18,14 +18,14 @@ public class DefendSelfTree : BehaviourTree
         Leaf _detectAttack = new("DefendSelf//DetectAttack", new DetectAttackStrategy(blackboard));
         PrioritySelector _defendSelector = new("DefendSelf//Selector");
         Leaf _evadeAction = new("DefendSelf///Evade", new DodgeStrategy(blackboard));
-        //Leaf _interceptAction = new("DefendSelf///StrikeParry", );
+        Leaf _interceptAction = new("DefendSelf///StrikeParry", new StrikeParry(blackboard));
         //Leaf _blockAction = new("DefendSelf///Block", );
         
         AddChild(_sequence);
         _sequence.AddChild(_detectAttack);
         _sequence.AddChild(_defendSelector);
         _defendSelector.AddChild(_evadeAction);
-        //_defendSelector.AddChild(_parryAction);
+        _defendSelector.AddChild(_interceptAction);
         //_defendSelector.AddChild(_blockAction);
     }
 }

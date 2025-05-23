@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45e953292ee6d7f4e93df25b2f48666b, type: 3}
   m_Name: PlayerBody
   m_EditorClassIdentifier: 
-  StepLength: 0.3
-  StepDuration: 0.4
+  StepLength: 0.2
+  StepDuration: 0.5
   StepFraction: 0.4

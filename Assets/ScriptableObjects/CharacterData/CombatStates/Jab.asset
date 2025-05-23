@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ActionType: 1
   Duration: 0.5
-  InteruptTime: 0.4
+  InteruptTime: 0.5
   AttackRange: 2
   IdealAttackAngle: 20
   HoldAction: 0

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Swing
   m_EditorClassIdentifier: 
   ActionType: 4
-  Duration: 2
-  InteruptTime: 1
+  Duration: 1
+  InteruptTime: 0.8
   AttackRange: 2
   IdealAttackAngle: 90
   HoldAction: 1

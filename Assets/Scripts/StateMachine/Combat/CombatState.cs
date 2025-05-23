@@ -10,6 +10,8 @@ public abstract class CombatState : BaseState<CombatSM>
     public bool Interruptible;
     public bool HoldAction;
     protected float elapsedTime = 0f;
+    protected float extendTime =0.1f;
+    protected float retractTime =0.1f;
     
     CombatStateData stateData;
 

@@ -5,6 +5,7 @@ using UnityEngine;
 public class CharacterWeapon : MonoBehaviour
 {
     public Character Character;
+    [SerializeField] private Rigidbody rb;
     [SerializeField] private WeaponPart hilt;
     [SerializeField] private WeaponPart blade;
     [SerializeField] private WeaponPart tip;
@@ -84,6 +85,7 @@ public class CharacterWeapon : MonoBehaviour
 
     private void updateVelocity() {
         Velocity = MiscHelper.Vec2ToVec3Pos(CalculateOrbitalVelocity(OrbitalVelocity));
+        momentum = VelocityToMomentum(OrbitalVelocity, currentDistance);
     }
 
     public Vector2 CalculateOrbitalVelocity(float pAngularDifference) {
@@ -100,6 +102,11 @@ public class CharacterWeapon : MonoBehaviour
         currentDistance = Mathf.Clamp(currentDistance, data.WeaponDistance, data.MaxReach);
 
         Vector2 _orbitPos = RadialHelper.PolarToCart(currentAngle, currentDistance);
+        
+        //Vector3 parentWorldPos = transform.parent.position;
+        //Vector3 targetWorldPos = parentWorldPos + new Vector3(_orbitPos.x, transform.localPosition.y, _orbitPos.y);
+        //rb.MovePosition(targetWorldPos);
+        //rb.MoveRotation(Quaternion.Euler(0f, -currentAngle + 90f, 0f));
         
         transform.localPosition = new Vector3(_orbitPos.x, transform.localPosition.y, _orbitPos.y);
         transform.rotation = Quaternion.Euler(0, -currentAngle + 90, 0);
@@ -151,16 +158,48 @@ public class CharacterWeapon : MonoBehaviour
         return  data.MaxReach + tip.PartDistance;
     }
 
-    public void CollisionDetected(WeaponPart pPart, Character pCharacter, bool pIsClash, Vector3 pPointHit) {
-        //get momentum from PoC 
-        Vector3 _hitVector = pPointHit - Character.transform.position;
-        Vector3 _weaponVector = pPart.transform.position - Character.transform.position;
-
-        float _vectorDistance = Vector3.Dot(_weaponVector.normalized, _hitVector);
-        float _pointMomentum = VelocityToMomentum(OrbitalVelocity, _vectorDistance);
-
-        Character.CollisionDetected(pCharacter, pIsClash, _pointMomentum);
+    public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, bool pIsClash, Vector3 pPointHit) {
+        
+        Vector3 vAttacker = pCharacterHit.Weapon.Velocity;
+        Vector3 vDefender = Velocity; 
+        
+        Vector3 relVel3D = vAttacker - vDefender;
+        Vector2 relVel2D = new Vector2(relVel3D.x, relVel3D.z);
+        
+        float mAttacker = pPart.Weapon.GetMass();
+        Vector2 pMomentum   = relVel2D * mAttacker;
+        
+        pCharacterHit.CollisionDetected(Character, pIsClash, pMomentum, pPointHit);
     }
+    
+    // private void OnCollisionEnter(Collision collision)
+    // {
+    //     foreach (var contact in collision.contacts) {
+    //         GameObject _part = contact.thisCollider.transform.gameObject;
+    //         WeaponPart _partPart;
+    //         if (_part == hilt.gameObject) {
+    //             _partPart = hilt;
+    //         }
+    //         else if (_part == blade.transform.gameObject) {
+    //             _partPart = blade;
+    //         }
+    //         else if (_part == tip.gameObject) {
+    //             _partPart = tip;
+    //         }
+    //         else {
+    //             return;
+    //         }
+    //         
+    //         var otherTrans = contact.otherCollider.transform;
+    //         var otherChar  = otherTrans.GetComponentInParent<Character>();
+    //         if (otherChar == null) continue;
+    //
+    //         bool isClash = otherTrans.CompareTag("WeaponPart");
+    //
+    //         CollisionDetected(_partPart, otherChar, isClash, contact.point);
+    //     }
+    // }
+    
 }
 
 public enum WeaponState

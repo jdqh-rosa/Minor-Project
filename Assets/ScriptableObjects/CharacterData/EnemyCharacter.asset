@@ -13,14 +13,15 @@ MonoBehaviour:
   m_Name: EnemyCharacter
   m_EditorClassIdentifier: 
   CharacterName: 
-  CharacterTeam: 2
+  CharacterTeam: 0
   RotationSpeed: 10
-  MaxRotationSpeed: 500
+  MaxRotationSpeed: 300
   DampingFactor: 0.2
   VelocityDamping: 0.9
   DeadZoneThreshold: 0.1
   LinearAttackZone: 40
   CollisionElasticity: 0.8
+  AngularFactor: 0.5
   JabState: {fileID: 11400000, guid: 93b09fbb01dd1694f9cda6f074b154ba, type: 2}
   ThrustState: {fileID: 11400000, guid: 98283c60453b3724e8485518fa31bcfc, type: 2}
   SwipeState: {fileID: 11400000, guid: 94059a4d53710c947aba1f1e8044736a, type: 2}

@@ -12,6 +12,7 @@ public class CharacterData : ScriptableObject
     public float DeadZoneThreshold = 0.1f;
     public float LinearAttackZone = 30f;
     public float CollisionElasticity = 0.8f;
+    public float AngularFactor = 0.9f;
 
     public CombatStateData JabState;
     public CombatStateData ThrustState;

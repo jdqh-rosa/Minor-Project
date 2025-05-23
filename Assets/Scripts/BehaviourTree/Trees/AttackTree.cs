@@ -23,7 +23,7 @@ public class AttackTree : BehaviourTree
         Leaf _executeAttack = new("ExecuteAttack", new ActionStrategy(()=>
         {
             blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType _attackType);
-            agent.ChooseAttackAction(_attackType, targetAngle());
+            agent.InitiateAttackAction(_attackType, targetAngle());
         }));
         Leaf _angleCheck = new("DoAttack//AngleCheck", new ConditionStrategy(()=> { 
             float _deltaAngle = deltaAngle();
@@ -98,6 +98,6 @@ public class AttackTree : BehaviourTree
 
         Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
         
-        blackboard.SetKeyValue(CommonKeys.ChosenPosition, agent.transform.position + positionOffset);
+        blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
     }
 }

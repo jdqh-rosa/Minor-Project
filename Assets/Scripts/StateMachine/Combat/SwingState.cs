@@ -7,12 +7,13 @@ public class SwingState : CombatState
 
     public override void Ready() {
         //Name = "Swing";
+        extendTime = 0.3f;
     }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
-
-        StateMachine.Weapon.ApplyThrust(attackRange, 0.5f);
+        
+        StateMachine.Weapon.ApplyThrust(attackRange, extendTime);
     }
 
     public override void UpdateLogic(float delta) {
@@ -38,7 +39,7 @@ public class SwingState : CombatState
 
     public override void Exit() {
         base.Exit();
-        StateMachine.Weapon.ApplyThrust(0, 0.1f);
+        StateMachine.Weapon.ApplyThrust(0, retractTime);
         elapsedTime = 0f;
         attackAngle = 0f;
         Interruptible = true;
