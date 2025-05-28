@@ -8,6 +8,7 @@ public class EnemyController : MonoBehaviour
     
     private BehaviourTree tree;
     readonly EnemyBlackboard blackboard = new();
+    private ComProtocol protocol;
 
     [SerializeField] private Character enemyCharacter;
 
@@ -114,6 +115,13 @@ public class EnemyController : MonoBehaviour
     public void ChooseMovementAction(ActionType pActionType, Vector3 pDir) {
         enemyCharacter.SetCharacterDirection(pDir);
         enemyCharacter.Attack(pActionType, 0);
+    }
+
+    public void SendComMessage(EnemyController pRecipient, ComMessage pMessage) {
+        pRecipient.ReceiveComMessage(pMessage);
+    }
+    public void ReceiveComMessage(ComMessage pMessage) {
+        protocol.ReceiveComMessage(pMessage);
     }
     
     void OnDrawGizmos() {

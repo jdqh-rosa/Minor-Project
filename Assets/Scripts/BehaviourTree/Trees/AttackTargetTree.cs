@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class AttackTargetTree : BehaviourTree
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
     private EnemyController agent;
     
-    public AttackTargetTree(Blackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("AttackTarget", pPriority)
+    public AttackTargetTree(EnemyBlackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("AttackTarget", pPriority)
     {
         blackboard = pBlackboard;
         agent = pAgent;

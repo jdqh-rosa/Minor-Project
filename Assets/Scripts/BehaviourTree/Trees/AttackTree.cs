@@ -99,5 +99,6 @@ public class AttackTree : BehaviourTree
         Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
         
         blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
+        blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
     }
 }

@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class AssembleTree : BehaviourTree
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
     
-    public AssembleTree(Blackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("Assemble", pPriority)
+    public AssembleTree(EnemyBlackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("Assemble", pPriority)
     {
         blackboard = pBlackboard;
         

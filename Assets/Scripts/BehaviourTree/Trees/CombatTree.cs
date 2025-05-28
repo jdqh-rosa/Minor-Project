@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class CombatTree : BehaviourTree
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
     private EnemyController agent;
     private BlackboardKey agentKey;
     
-    public CombatTree(Blackboard pBlackboard, int pPriority = 0) : base("Combat", pPriority)
+    public CombatTree(EnemyBlackboard pBlackboard, int pPriority = 0) : base("Combat", pPriority)
     {
         blackboard = pBlackboard;
         

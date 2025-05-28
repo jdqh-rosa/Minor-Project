@@ -23,18 +23,23 @@ public class EnemyBlackboard : Blackboard
         SetKeyValue(CommonKeys.Actions, _actionDictionary);
         
     }
+
+    public TargetType GetActiveTargetType() {
+        TryGetValue(CommonKeys.ActiveTarget, out TargetType result);
+        return result;
+    }
 }
 
 public enum CommonKeys
 {
     Error,
     Actions,
+    ActiveTarget,
     AgentSelf,
     ChosenAction,
     ChosenAttack,
     ChosenFaceAngle,
     ChosenPosition,
-    ChosenTarget, //
     ChosenWeaponAngle,
     DetectedAttack,
     FindRadius,
@@ -58,4 +63,12 @@ public enum CommonKeys
     VisibleTargets,
     WeaponReach,
     
+}
+
+public enum TargetType
+{
+    None,
+    Ally,
+    Enemy,
+    Object,
 }
