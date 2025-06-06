@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
-using UnityEngine.Rendering.Universal;
 
 public class Node
 {
@@ -263,14 +261,21 @@ public class BehaviourTree : Node
 
     public override NodeStatus Process() {
         IsActive = true;
-        while (currentChild < children.Count) {
-            var status = children[currentChild].Process();
+        foreach (Node child in children) {
+            var status = child.Process();
             if (status != NodeStatus.Success) {
                 //Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
                 return status;
             }
-            currentChild++;
         }
+        // while (currentChild < children.Count) {
+        //     var status = children[currentChild].Process();
+        //     if (status != NodeStatus.Success) {
+        //         //Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
+        //         return status;
+        //     }
+        //     currentChild++;
+        // }
         //Debug.Log($"{Name} =>{NodeStatus.Success}");
         return NodeStatus.Success;
     }

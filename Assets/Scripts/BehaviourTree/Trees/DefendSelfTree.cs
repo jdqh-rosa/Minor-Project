@@ -2,10 +2,10 @@ using UnityEngine;
 
 public class DefendSelfTree : BehaviourTree
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
     private EnemyController agent;
     
-    public DefendSelfTree(Blackboard pBlackboard, int pPriority = 0) : base("DefendSelf", pPriority)
+    public DefendSelfTree(EnemyBlackboard pBlackboard, int pPriority = 0) : base("DefendSelf", pPriority)
     {
         blackboard = pBlackboard;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
@@ -20,6 +20,7 @@ public class DefendSelfTree : BehaviourTree
         Leaf _evadeAction = new("DefendSelf///Evade", new DodgeStrategy(blackboard));
         Leaf _interceptAction = new("DefendSelf///StrikeParry", new StrikeParry(blackboard));
         //Leaf _blockAction = new("DefendSelf///Block", );
+        Leaf _retreatAction = new("", new RetreatFromPositionStrategy(blackboard));
         
         AddChild(_sequence);
         _sequence.AddChild(_detectAttack);
@@ -27,5 +28,6 @@ public class DefendSelfTree : BehaviourTree
         _defendSelector.AddChild(_evadeAction);
         _defendSelector.AddChild(_interceptAction);
         //_defendSelector.AddChild(_blockAction);
+        _defendSelector.AddChild(_retreatAction);
     }
 }

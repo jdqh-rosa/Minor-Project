@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -20,50 +19,32 @@ public class EnemyController : MonoBehaviour
         
         blackboard.AddCharacterData(enemyCharacter.GetData());
         blackboardData.SetValuesOnBlackboard(blackboard);
+        blackboard.SetKeyValue(CommonKeys.ComProtocol, protocol);        
+        blackboard.SetKeyValue(CommonKeys.MessageInbox, new List<ComMessage>());
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, enemyCharacter.transform.position);
         blackboard.SetKeyValue(CommonKeys.VisibleAllies, new List<GameObject>());
         blackboard.SetKeyValue(CommonKeys.VisibleTargets, new List<GameObject>());
         blackboard.SetKeyValue(CommonKeys.AgentSelf, this); 
         blackboard.SetKeyValue(CommonKeys.FindRadius, findRadius);
+        blackboard.SetKeyValue(CommonKeys.DirectionalForces, new List<DirectionalForce>());
         
         tree = new BehaviourTree("Enemy");
 
         Repeater _repeater = new Repeater("BaseLogic");
         Parallel _parallel = new("BaseLogic/Parallel", 2);
-        PrioritySelector _prioritySelector = new PrioritySelector("BaseLogic//BranchSelector");
         Parallel _actionParallel = new("BaseLogic/ActionParallel",2);
         Leaf _moveToPosition = new("BaseLogic//MoveToPosition", new ActionStrategy(() => enemyCharacter.SetCharacterPosition(movePosition())));
         Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
         
+        
+        tree.AddChild(_repeater);
         _repeater.AddChild(_parallel);
-        _parallel.AddChild(_prioritySelector);
+        _parallel.AddChild(new CheckerTree(blackboard));
+        _parallel.AddChild(new MessengerTree(blackboard));
+        _parallel.AddChild(new DeciderTree(blackboard));
         _parallel.AddChild(_actionParallel);
         _actionParallel.AddChild(_moveToPosition);
         _actionParallel.AddChild(_positionWeapon);
-
-        Sequence _combatBranch = new("Base//CombatSequence");
-        _combatBranch.AddChild(new Leaf("CheckCombat", new ConditionStrategy(() =>
-        {
-            blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> targets);
-            return targets is { Count: > 0 };
-        })));
-        _combatBranch.AddChild(new CombatTree(blackboard));
-        
-        Sequence _assembleBranch = new("Base//AssembleSequence");
-        _assembleBranch.AddChild(new Leaf("CheckAssemble", new ConditionStrategy(() =>
-        {
-            blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> targets);
-            return targets is { Count: > 0 };
-        })));
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
-
-        _assembleBranch.AddChild(new AssembleTree(blackboard, agent));
-        
-        _prioritySelector.AddChild(_combatBranch);
-        _prioritySelector.AddChild(_assembleBranch);
-        _prioritySelector.AddChild(new IdleTree(blackboard));
-        
-        tree.AddChild(_repeater);
         tree.Reset();
         
         AddBTDebugHUD();
@@ -84,6 +65,15 @@ public class EnemyController : MonoBehaviour
     {
         blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
         return _targetPosition;
+    }
+
+    private Vector2 processDirections() {
+        if (!blackboard.TryGetValue(CommonKeys.DirectionalForces, out List<DirectionalForce> _forces)) return Vector2.zero;
+        Vector2 direction = Vector2.zero;
+        foreach (DirectionalForce dForce in _forces) {
+            direction += (dForce.Direction).normalized * dForce.Force;
+        }
+        return direction.normalized;
     }
 
 
@@ -121,7 +111,10 @@ public class EnemyController : MonoBehaviour
         pRecipient.ReceiveComMessage(pMessage);
     }
     public void ReceiveComMessage(ComMessage pMessage) {
-        protocol.ReceiveComMessage(pMessage);
+        blackboard.TryGetValue(CommonKeys.MessageInbox, out List<ComMessage> _inbox);
+        _inbox.Add(pMessage);
+        blackboard.SetKeyValue(CommonKeys.MessageInbox, _inbox);
+        //protocol.ReceiveComMessage(pMessage);
     }
     
     void OnDrawGizmos() {

@@ -3,13 +3,13 @@ using UnityEngine;
 
 public class IdleTree : BehaviourTree
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
 
-    public IdleTree(Blackboard pBlackboard, int pPriority = 0) : base("Combat", pPriority)
+    public IdleTree(EnemyBlackboard pBlackboard, int pPriority = 0) : base("Combat", pPriority)
     {
         blackboard = pBlackboard;
 
-        SetupIdleTree();
+        //SetupIdleTree();
     }
     
     private void SetupIdleTree() {
@@ -23,7 +23,7 @@ public class IdleTree : BehaviourTree
         Leaf _targetsCheck = new("Idle//Selector/TargetsCheck", new ConditionStrategy(()=> _targets.Count > 0));
         blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies);
         Leaf _alliesCheck = new("Idle//Selector/AlliesCheck", new ConditionStrategy(()=> _allies.Count > 0));
-        //Leaf _patrolTimeCheck = new("Idle//Selector/PatrolCheck", new ConditionStrategy(()=> ));
+        //Leaf _patrolTimeCheck = new("Idle//Selector/PatrolCheck", new ConditionStrategy(()=> blackboard.TimeSinceLastPatrol() < blackboard.PatrolCooldown()));
         
         AddChild(_idleBaseParallel);
         _idleBaseParallel.AddChild(_idleParallelAction);

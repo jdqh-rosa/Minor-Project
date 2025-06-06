@@ -3,7 +3,6 @@ using UnityEngine;
 
 public class EnemyBlackboard : Blackboard
 {
-
     public void AddCharacterData(CharacterData pData)
     {
         Dictionary<ActionType, CombatStateData> _actionDictionary = new(){
@@ -28,6 +27,37 @@ public class EnemyBlackboard : Blackboard
         TryGetValue(CommonKeys.ActiveTarget, out TargetType result);
         return result;
     }
+
+    public float TimeSinceLastPatrol() {
+        TryGetValue(CommonKeys.LastPatrolTime, out float result);
+        return result;
+    }
+
+    public float PatrolCooldown() {
+        TryGetValue(CommonKeys.PatrolCoolDown, out float result);
+        return result;
+    }
+
+    public bool AlliesAvailable() {
+        TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies);
+        return _allies.Count > 0;
+    }
+    
+    public bool EnemiesAvailable() {
+        TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> _enemies);
+        return _enemies.Count > 0;
+    }
+
+    public float GetHealth() {
+        TryGetValue(CommonKeys.SelfHealth, out float result);
+        return result;
+    }
+
+    public void AddDirectionalForce(DirectionalForce pForce) {
+        TryGetValue(CommonKeys.DirectionalForces, out List<DirectionalForce> _forces);
+        _forces.Add(pForce);
+        SetKeyValue(CommonKeys.DirectionalForces, _forces);
+    }
 }
 
 public enum CommonKeys
@@ -41,18 +71,32 @@ public enum CommonKeys
     ChosenFaceAngle,
     ChosenPosition,
     ChosenWeaponAngle,
+    ComProtocol,
     DetectedAttack,
     FindRadius,
+    FlankAlly,
+    FlankDirection,
+    FlankTarget,
+    GroupUpAllies,
+    GroupUpPosition,
     KnownAllies,
     KnownEnemies,
     KnownTargets,
     LastAllyPosition,
+    LastPatrolTime,
     LinearAttackZone,
+    MaxRotationSpeed,
+    MessageInbox,
     PatrolCoolDown,
     PatrolPoints,
     RotationSpeed,
-    MaxRotationSpeed,
+    RetreatDistance,
+    RetreatThreatPosition,
     SelfHealth,
+    SurroundAllies,
+    SurroundDirection,
+    SurroundRadius,
+    SurroundTarget,
     TargetAlly,
     TargetEnemy,
     TargetObject,
@@ -63,6 +107,7 @@ public enum CommonKeys
     VisibleTargets,
     WeaponReach,
     
+    DirectionalForces,
 }
 
 public enum TargetType
@@ -71,4 +116,14 @@ public enum TargetType
     Ally,
     Enemy,
     Object,
+}
+
+public struct DirectionalForce
+{
+    public Vector2 Direction;
+    public float Force;
+    public DirectionalForce(Vector2 pDirection, float pForce) {
+        Direction = pDirection;
+        Force = pForce;
+    }
 }

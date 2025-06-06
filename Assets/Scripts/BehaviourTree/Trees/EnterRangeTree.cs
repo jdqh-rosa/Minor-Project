@@ -32,7 +32,6 @@ public class EnterRangeTree : BehaviourTree
     {
         Vector3 _difVector = getTargetDifVector();
         Vector3 _prefDif = _difVector - _difVector.normalized * (agent.GetWeaponRange() -0.1f);
-        
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, _prefDif + agent.transform.position);
     }
     

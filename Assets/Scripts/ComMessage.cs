@@ -37,6 +37,7 @@ public enum MessageInfoType
     Allies,
     Behaviour,
     Direction,
+    Distance,
     Enemy,
     Enemies,
     Object,

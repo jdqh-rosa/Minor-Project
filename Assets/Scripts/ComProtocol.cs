@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using NUnit.Framework;
 using UnityEngine;
 
 public class ComProtocol : MonoBehaviour
@@ -17,14 +18,18 @@ public class ComProtocol : MonoBehaviour
     public void ReceiveComMessage(ComMessage message) {
         inbox.Add(message);
     }
-    
-    
 
+    public List<ComMessage> GetInbox() {
+        return inbox;
+    }
+    
     private IEnumerator ProcessInbox() {
         while (true) { //sus line
-            for (int i = 0; i < bandwidth; i++) {
-                foreach (ComMessage message in inbox) {
+            List<ComMessage> _messagesToProcess = inbox.GetRange(0, bandwidth);
+            for (int i = 0; i < Mathf.Min(bandwidth, _messagesToProcess.Count); i++) {
+                foreach (ComMessage message in _messagesToProcess) {
                     ProcessMessage(message);
+                    inbox.Remove(message);
                 }
             }
             yield return new WaitForSeconds(latency);

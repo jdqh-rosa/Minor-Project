@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class CombatTree : BehaviourTree
@@ -19,32 +20,55 @@ public class CombatTree : BehaviourTree
 
     void setup()
     {
-        Sequence _sequence = new Sequence("CombatBaseSeq");
-        Leaf _findEnemiesAction = new Leaf("Combat/FindTargets", new FindEnemiesStrategy(blackboard));
-        Leaf _obtainEnemy = new Leaf("Combat/ObtainTarget", new GetClosestEnemyStrategy(blackboard));
-        Sequence _targetedSequence = new Sequence("Combat/TargetSeq");
+        Sequence _baseCombatSequence = new Sequence("CombatBaseSeq");
         
-        blackboard.TryGetValue(CommonKeys.SelfHealth, out int _charHealth);
-        Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => _charHealth < 10));
-        Leaf _detectAttack = new("Combat/DetectAttack", new DetectAttackStrategy(blackboard));
-        PrioritySelector _prioritySelector = new PrioritySelector("Combat/TargetSeq/RandSel");
+        Leaf _obtainEnemy = new Leaf("Combat/ObtainTarget", new GetClosestEnemyStrategy(blackboard));
+        
+        PrioritySelector _combatTacticSelector = new PrioritySelector("Combat/TargetSeq/CombatTacticSel");
         Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
-        Leaf _findAllies = new Leaf("Combat/TargetSeq/RandSel/FindAllies", new FindAlliesStrategy(blackboard));
-
-        _sequence.AddChild(_findEnemiesAction);
-        _sequence.AddChild(_obtainEnemy);
-        _sequence.AddChild(_targetedSequence);
-        _targetedSequence.AddChild(_healthCheck);
-        _targetedSequence.AddChild(_detectAttack);
-        _targetedSequence.AddChild(_prioritySelector);
-        _targetedSequence.AddChild(_distanceSelfFromWeapon);
-        _prioritySelector.AddChild(new AttackTargetTree(blackboard, agent));
-        _prioritySelector.AddChild(new DefendSelfTree(blackboard, defensePriority()));
-        _prioritySelector.AddChild(_findAllies);
-
-        AddChild(_sequence);
+        
+        Sequence _flankSequence = new Sequence("Combat///FlankSeq");
+        Leaf _flankCheck = new("Combat///FlankCheck", new ConditionStrategy(() =>
+        {
+            blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
+            return visibleAllies.Count > 1;
+        }));
+        Leaf _flankTarget = new("Combat///FlankTarget", new FlankStrategy(blackboard));
+        
+        Sequence _surroundSequence = new Sequence("Combat//FlankSeq");
+        Leaf _surroundCheck = new("Combat///FlankCheck", new ConditionStrategy(() =>
+        {
+            blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
+            return visibleAllies.Count > 3;
+        }));
+        Leaf _surroundTarget = new("Combat///SurroundTarget", new SurroundTargetStrategy(blackboard));
+        
+        Sequence _fleeBranch = new Sequence("Combat//FleeBranch");
+        Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => agentHealth() < 10));
+        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()));
+        
+        AddChild(_baseCombatSequence);
+        _baseCombatSequence.AddChild(_obtainEnemy);
+        _baseCombatSequence.AddChild(_combatTacticSelector);
+        _baseCombatSequence.AddChild(_distanceSelfFromWeapon);
+        
+        _combatTacticSelector.AddChild(_surroundSequence);
+        _surroundSequence.AddChild(_surroundCheck);
+        _surroundSequence.AddChild(_surroundTarget);
+        
+        _combatTacticSelector.AddChild(new AttackTargetTree(blackboard, agent));
+        
+        _combatTacticSelector.AddChild(new DefendSelfTree(blackboard, defensePriority()));
+        
+        _combatTacticSelector.AddChild(_fleeBranch);
+        _fleeBranch.AddChild(_healthCheck);
+        _fleeBranch.AddChild(_retreat);
+        
+        _combatTacticSelector.AddChild(_flankSequence);
+        _flankSequence.AddChild(_flankCheck);
+        _flankSequence.AddChild(_flankTarget);
     }
-
+    
     private int defensePriority() {
         blackboard.TryGetValue(CommonKeys.ChosenAction, out ActionType _actionType);
         if (_actionType == ActionType.Parry || _actionType == ActionType.Dodge) return 3;
@@ -57,5 +81,15 @@ public class CombatTree : BehaviourTree
         if(!_enemy.TryGetComponent(out Character _character)) return null;
         _enemyWeaponRange = _character.GetWeaponRange();
         return _character.Weapon.gameObject;
+    }
+
+    private GameObject targetEnemy() {
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
+        return _target;
+    }
+
+    private float agentHealth() {
+        blackboard.TryGetValue(CommonKeys.SelfHealth, out float _agentHealth);
+        return _agentHealth;
     }
 }
