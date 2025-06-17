@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class AttackTargetTree : BehaviourTree
@@ -10,6 +11,12 @@ public class AttackTargetTree : BehaviourTree
         blackboard = pBlackboard;
         agent = pAgent;
         
+        setup();
+    }
+
+    public AttackTargetTree(EnemyBlackboard pBlackboard, EnemyController pAgent, Func<int> pDynamicPriority, int pFallback = 0) : base("Combat", pDynamicPriority, pFallback) {
+        blackboard = pBlackboard;
+        agent = pAgent;
         setup();
     }
 

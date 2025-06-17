@@ -2,91 +2,85 @@ using System;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class TreeValues : ScriptableObject
+
+[CreateAssetMenu(menuName = "AI/TreeValues")]
+[Serializable]
+public class TreeValuesSO : ScriptableObject
 {
-    [InspectorLabel("Messages")]
-    [SerializeField] private int FlankMessageWeight;
-    [SerializeField] private int FlankMessageModifier;
-    [SerializeField] private int GroupUpMessageWeight;
-    [SerializeField] private int GroupUpMessageModifier;
-    [SerializeField] private int RetreatMessageWeight;
-    [SerializeField] private int RetreatMessageModifier;
-    [SerializeField] private int BackUpMessageWeight;
-    [SerializeField] private int BackUpMessageModifier;
-    [SerializeField] private int SurroundMessageWeight;
-    [SerializeField] private int SurroundMessageModifier;
-
-    [InspectorLabel("Health")]
-    [SerializeField] private int LowHealthWeight;
-    [SerializeField] private float lowHealthBarrier;
-    
-    [InspectorLabel("Decider")]
-    [SerializeField] private int CombatWeight;
-    [SerializeField] private int PatrolWeight;
-    [SerializeField] private int AssembleWeight;
-    [SerializeField] private int IdleWeight;
-    
-    [InspectorLabel("Combat")]
-    [SerializeField] private int SurroundWeight;
-    [SerializeField] private int FlankWeight;
-    [SerializeField] private int AttackTargetWeight;
-    [SerializeField] private int DefendSelfWeight;
-    [SerializeField] private int RetreatWeight;
-    [SerializeField] private int RetreatSelfWeight;
-    [SerializeField] private int RetreatGroupWeight;
-
-    [InspectorLabel("AttackTarget")] 
-    [SerializeField] private int WeakAttackPreference;
-    [SerializeField] private int StrongAttackPreference;
-    [SerializeField] private int JabPreference;
-    [SerializeField] private int SwingPreference;
+    public MessengerWeights Messenger = new();
+    public HealthWeights Health = new();
+    public HighLevelBranchWeights Decider = new();
+    public CombatTacticWeights CombatTactic = new();
+    public CombatAttackWeights CombatAttack = new();
+    public DefenseWeights Defense = new();
     
     [Serializable]
-    public class MessageWeights {
-        public int FlankWeight;
-        public int FlankModifier;
-        public int GroupUpWeight;
-        public int GroupUpModifier; 
-        public int RetreatWeight;    
-        public int RetreatModifier; 
-        public int BackUpWeight;     
-        public int BackUpModifier;   
-        public int SurroundWeight;   
-        public int SurroundModifier;
+    public class MessengerWeights {
+        [Range(0, 100)] public int FlankWeight = 10;
+        [Range(0, 100)] public int GroupUpWeight = 10;
+        [Range(0, 100)] public int RetreatWeight = 10;
+        [Range(0, 100)] public int BackUpWeight = 10;
+        [Range(0, 100)] public int SurroundWeight = 10;
     }
 
     [Serializable]
     public class HealthWeights {
-        public int LowHealthWeight;
-        public float LowHealthThreshold;
+        [Range(0, 100)] public int LowHealthWeight = 20;
+        [Range(0f, 1f)] public float LowHealthThreshold = 0.3f;
     }
 
     [Serializable]
     public class HighLevelBranchWeights {
-        public int CombatWeight;
-        public int PatrolWeight;
-        public int AssembleWeight;
-        public int IdleWeight;
+        [Range(0, 100)] public int CombatWeight = 50;
+        [Range(0, 100)] public int PatrolWeight = 25;
+        [Range(0, 100)] public int AssembleWeight = 15;
+        [Range(0, 100)] public int IdleWeight = 10;
+    }
+
+    [Serializable]
+    public class CombatTacticWeights {
+        [Range(0, 100)] public int SurroundWeight = 25;
+        [Range(0, 100)] public int FlankWeight = 20;
+        [Range(0, 100)] public int AttackTargetWeight = 30;
+        [Range(0, 100)] public int DefendSelfWeight = 10;
+        [Range(0, 100)] public int RetreatWeight = 15;
+        [Range(0, 100)] public int RetreatSelfWeight = 8;
+        [Range(0, 100)] public int RetreatGroupWeight = 7;
+    }
+    public class CombatAttackWeights {
+        [Range(0, 100)] public int StabWeight = 25;
+        [Range(0, 100)] public int SwingWeight = 20;
+        [Range(0, 100)] public int StrongStabWeight = 10;
+        [Range(0, 100)] public int WeakStabWeight = 30;
+        [Range(0, 100)] public int StrongSwingWeight = 10;
+        [Range(0, 100)] public int WeakSwingWeight = 30;
     }
     
     [Serializable]
-    public class CombatWeights {
-        public int SurroundWeight;
-        public int FlankWeight;
-        public int AttackTargetWeight;
-        public int DefendSelfWeight;
-        public int RetreatWeight;
-        public int RetreatSelfWeight;
-        public int RetreatGroupWeight;
+    public class DefenseWeights {
+        [Range(0, 100)] public int EvadeWeight = 10;
+        [Range(0, 100)] public int ParryWeight = 10;
+        [Range(0, 100)] public int BlockWeight = 10;
+        [Range(0, 100)] public int RetreatWeight = 10;
     }
-
-    [CreateAssetMenu(menuName = "AI/TreeValues")]
-    public class TreeValuesSO : ScriptableObject
+    
+    public class TreeValuesRuntime
     {
-        public MessageWeights message;
-        public HealthWeights health;
-        public HighLevelBranchWeights decider;
-        public CombatWeights combat;
-    }
+        public MessengerWeights Message;
+        public HealthWeights Health;
+        public HighLevelBranchWeights Decider;
+        public CombatTacticWeights CombatTactic;
+        public CombatAttackWeights CombatAttack;
+        public DefenseWeights Defense;
 
+        public TreeValuesRuntime(TreeValuesSO source)
+        {
+            Message = JsonUtility.FromJson<MessengerWeights>(JsonUtility.ToJson(source.Messenger));
+            Health = JsonUtility.FromJson<HealthWeights>(JsonUtility.ToJson(source.Health));
+            Decider = JsonUtility.FromJson<HighLevelBranchWeights>(JsonUtility.ToJson(source.Decider));
+            CombatTactic = JsonUtility.FromJson<CombatTacticWeights>(JsonUtility.ToJson(source.CombatTactic));
+            CombatAttack = JsonUtility.FromJson<CombatAttackWeights>(JsonUtility.ToJson(source.CombatAttack));
+            Defense = JsonUtility.FromJson<DefenseWeights>(JsonUtility.ToJson(source.Defense));
+        }
+    }
 }

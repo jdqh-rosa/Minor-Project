@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 
 public class Node
 {
@@ -12,7 +13,10 @@ public class Node
     }
 
     public readonly string Name;
-    public readonly int Priority;
+    private readonly int staticPriority;
+    public Func<int> DynamicPriority;
+    
+    public int Priority => DynamicPriority?.Invoke() ?? staticPriority;
 
     public readonly List<Node> children = new();
     public Node Parent;
@@ -23,7 +27,13 @@ public class Node
 
     public Node(string pName = "Node", int pPriority = 0) {
         Name = pName;
-        Priority = pPriority;
+        staticPriority = pPriority;
+    }
+    
+    public Node(string name, Func<int> dynamicPriority, int fallbackPriority = 0) {
+        Name = name;
+        DynamicPriority = dynamicPriority;
+        staticPriority = fallbackPriority;
     }
 
     public virtual void AddChild(Node child) {
@@ -36,7 +46,7 @@ public class Node
     {
         IsActive = true;
         status = children[currentChild].Process();
-        IsActive = false;
+        IsActive = status == NodeStatus.Running;
         return status;
     }
 
@@ -111,6 +121,11 @@ public class Parallel : Node
         succesThreshold = pSuccesThreshold;
         failureThreshold = pFailureThreshold;
     }
+    
+    public Parallel(string name, int pSuccesThreshold, int pFailureThreshold, Func<int> pDynamicPriority, int pFallback = 0) : base(name, pDynamicPriority, pFallback) {
+        succesThreshold = pSuccesThreshold;
+        failureThreshold = pFailureThreshold;
+    }
 
     public override NodeStatus Process() {
         int succesCount = 0;
@@ -159,6 +174,7 @@ public class Repeater : DecoratorNode //0 goes on forever
 public class Selector : Node
 {
     public Selector(string name, int pPriority = 0) : base(name, pPriority) { }
+    public Selector(string name, Func<int> pDynamicPriority, int pFallback = 0) : base(name, pDynamicPriority, pFallback) { }
 
     public override NodeStatus Process() {
         if (currentChild < children.Count) {
@@ -189,6 +205,7 @@ public class PrioritySelector : Selector
     protected virtual List<Node> SortChildren() => children.OrderByDescending(child => child.Priority).ToList();
 
     public PrioritySelector(string name = "PrioritySelector", int pPriority = 0) : base(name, pPriority) { }
+    public PrioritySelector(string name, Func<int> pDynamicPriority, int pFallback = 0) : base(name, pDynamicPriority, pFallback) { }
 
     public override void Reset() {
         base.Reset();
@@ -218,12 +235,14 @@ public class RandomSelector : PrioritySelector
     protected override List<Node> SortChildren() =>
         children.OrderBy(i => Guid.NewGuid()).ToList(); //idk about this check fisher yates icof
 
-    public RandomSelector(string name) : base(name) { }
+    public RandomSelector(string name, int pPriority =0) : base(name, pPriority) { }
+    public RandomSelector(string name, Func<int> pDynamicPriority, int pFallback = 0) : base(name, pDynamicPriority, pFallback) { }
 }
 
 public class Sequence : Node
 {
     public Sequence(string pName = "Sequence", int pPriority = 0) : base(pName, pPriority) { }
+    public Sequence(string pName, Func<int> pDynamicPriority, int pFallback = 0) : base(pName, pDynamicPriority, pFallback) { }
 
     public override NodeStatus Process() {
         IsActive = true;
@@ -251,6 +270,9 @@ public class Leaf : Node
     public Leaf(string pName, IStrategy pStrategy, int pPriority = 0) : base(pName, pPriority) {
         strategy = pStrategy;
     }
+    public Leaf(string pName, IStrategy pStrategy, Func<int> pDynamicPriority, int pFallback = 0) : base(pName, pDynamicPriority, pFallback) {
+        strategy = pStrategy;
+    }
     public override NodeStatus Process() => strategy.Process();
     public override void Reset() => strategy.Reset();
 }
@@ -258,25 +280,19 @@ public class Leaf : Node
 public class BehaviourTree : Node
 {
     public BehaviourTree(string pName, int pPriority =0) : base(pName, pPriority) { }
+    public BehaviourTree(string pName, Func<int> pDynamicPriority, int pFallback = 0) : base(pName, pDynamicPriority, pFallback) { }
 
     public override NodeStatus Process() {
         IsActive = true;
         foreach (Node child in children) {
+            child.IsActive = true;
             var status = child.Process();
+            child.IsActive = status == NodeStatus.Running;
             if (status != NodeStatus.Success) {
-                //Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
+                Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
                 return status;
             }
         }
-        // while (currentChild < children.Count) {
-        //     var status = children[currentChild].Process();
-        //     if (status != NodeStatus.Success) {
-        //         //Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
-        //         return status;
-        //     }
-        //     currentChild++;
-        // }
-        //Debug.Log($"{Name} =>{NodeStatus.Success}");
         return NodeStatus.Success;
     }
 }

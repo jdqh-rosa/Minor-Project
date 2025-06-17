@@ -14,7 +14,7 @@ public class CharacterBody : MonoBehaviour
     private bool isStepping;
     private bool isWalking;
 
-    private float lastStepVelocity = 0f;
+    //private float lastStepVelocity = 0f;
 
     private Vector3 targetPosition;
     float elapsedTime = 0;

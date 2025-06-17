@@ -64,10 +64,10 @@ public class CalculatePositionStrategy : IStrategy
 
 public class CalculateWeaponAngleStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private Vector3 avoidPosition;
 
-    public CalculateWeaponAngleStrategy(Blackboard pBlackboard) {
+    public CalculateWeaponAngleStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -108,7 +108,7 @@ public class ChooseAllyStrategy : ChooseObjectStrategy
         blackboard = pBlackboard;
     }
 
-    public new Node.NodeStatus Process() {
+    public override Node.NodeStatus Process() {
         var status = base.Process();
         blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Ally);
         return status;
@@ -125,7 +125,7 @@ public class ChooseEnemyStrategy : ChooseObjectStrategy
         blackboard = pBlackboard;
     }
 
-    public new Node.NodeStatus Process() {
+    public override Node.NodeStatus Process() {
         var status = base.Process();
         blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Ally);
         return status;
@@ -134,21 +134,22 @@ public class ChooseEnemyStrategy : ChooseObjectStrategy
 
 public class ChooseObjectStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private BlackboardKey listKey;
     private BlackboardKey targetKey;
 
-    public ChooseObjectStrategy(Blackboard pBlackboard, BlackboardKey pListKey, BlackboardKey ptargetKey) {
+    public ChooseObjectStrategy(EnemyBlackboard pBlackboard, BlackboardKey pListKey, BlackboardKey ptargetKey) {
         blackboard = pBlackboard;
         listKey = pListKey;
         targetKey = ptargetKey;
     }
 
-    public Node.NodeStatus Process() {
+    public virtual Node.NodeStatus Process() {
         if (!blackboard.TryGetValue(listKey, out List<GameObject> targets)) return Node.NodeStatus.Failure;
         //todo: use logic to choose most applicable target
         blackboard.SetValue(targetKey, targets[0]);
         blackboard.SetKeyValue(CommonKeys.TargetPosition, targets[0].transform.position);
+        blackboard.AddForce(targets[0].transform.position, 1, "Choose_TargetObject");
 
         return Node.NodeStatus.Success;
     }
@@ -156,10 +157,10 @@ public class ChooseObjectStrategy : IStrategy
 
 public class ContactAllyStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private Vector3 avoidPosition;
 
-    public ContactAllyStrategy(Blackboard pBlackboard) {
+    public ContactAllyStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -172,11 +173,11 @@ public class ContactAllyStrategy : IStrategy
 
 public class ContactAlliesStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private EnemyController agent;
     private ComMessage message;
 
-    public ContactAlliesStrategy(Blackboard pBlackboard, ComMessage pMessage) {
+    public ContactAlliesStrategy(EnemyBlackboard pBlackboard, ComMessage pMessage) {
         blackboard = pBlackboard;
         message = pMessage;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
@@ -196,10 +197,10 @@ public class ContactAlliesStrategy : IStrategy
 
 public class DetectAttackStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private EnemyController agent;
 
-    public DetectAttackStrategy(Blackboard pBlackboard) {
+    public DetectAttackStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
         agent = _agent;
@@ -261,10 +262,10 @@ public class DetectAttackStrategy : IStrategy
 
 public class DistanceSelfStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private Vector3 avoidPosition;
 
-    public DistanceSelfStrategy(Blackboard pBlackboard, Vector3 pAvoidPosition) {
+    public DistanceSelfStrategy(EnemyBlackboard pBlackboard, Vector3 pAvoidPosition) {
         blackboard = pBlackboard;
         avoidPosition = pAvoidPosition;
     }
@@ -274,17 +275,18 @@ public class DistanceSelfStrategy : IStrategy
         Vector3 diffVec = avoidPosition - agent.transform.position;
         diffVec *= -1;
         blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec);
+        blackboard.AddForce(diffVec, -5f, "DistanceSelf");
         return Node.NodeStatus.Success;
     }
 }
 
 public class DistanceSelfFromObjectStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private GameObject avoidObject;
     private float minDistance;
 
-    public DistanceSelfFromObjectStrategy(Blackboard pBlackboard, GameObject pAvoidObject, float pMinDistance) {
+    public DistanceSelfFromObjectStrategy(EnemyBlackboard pBlackboard, GameObject pAvoidObject, float pMinDistance) {
         blackboard = pBlackboard;
         avoidObject = pAvoidObject;
         minDistance = pMinDistance;
@@ -296,17 +298,18 @@ public class DistanceSelfFromObjectStrategy : IStrategy
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
         Vector3 diffVec = avoidObject.transform.position - agent.transform.position;
         diffVec *= -1;
-        blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec.normalized.normalized * minDistance);
+        blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec.normalized * minDistance);
+        blackboard.AddForce(avoidObject.transform.position, -2f, "DistanceSelf_Object");
         return Node.NodeStatus.Success;
     }
 }
 
 public class DodgeStrategy : IStrategy
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
     private EnemyController agent;
 
-    public DodgeStrategy(Blackboard pBlackboard) {
+    public DodgeStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
     }
@@ -322,9 +325,9 @@ public class DodgeStrategy : IStrategy
 
 public class ExecuteActionStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
 
-    public ExecuteActionStrategy(Blackboard pBlackboard) {
+    public ExecuteActionStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -338,18 +341,18 @@ public class ExecuteActionStrategy : IStrategy
 
 public class ExecuteAttackStrategy : ExecuteActionStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
 
-    public ExecuteAttackStrategy(Blackboard pBlackboard) : base(pBlackboard) {
+    public ExecuteAttackStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard) {
         blackboard = pBlackboard;
     }
 }
 
 public class FaceTargetStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
 
-    public FaceTargetStrategy(Blackboard pBlackboard) {
+    public FaceTargetStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -369,7 +372,7 @@ public class FindAlliesStrategy : IStrategy
 {
     FindCharactersStrategy findCharactersStrategy;
 
-    public FindAlliesStrategy(Blackboard pBlackboard) {
+    public FindAlliesStrategy(EnemyBlackboard pBlackboard) {
         pBlackboard.TryGetValue(CommonKeys.TeamSelf, out CharacterTeam _team);
         BlackboardKey _keyList = pBlackboard.GetOrRegisterKey(CommonKeys.VisibleAllies);
 
@@ -383,14 +386,14 @@ public class FindAlliesStrategy : IStrategy
 
 public class FindCharactersStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private BlackboardKey listKey;
     private EnemyController agent;
     private float findRadius;
     private CharacterTeam team;
     private bool exclude;
 
-    public FindCharactersStrategy(Blackboard pBlackboard, BlackboardKey pListKey,
+    public FindCharactersStrategy(EnemyBlackboard pBlackboard, BlackboardKey pListKey,
         CharacterTeam pCharacterTeam = CharacterTeam.Any, bool pExcludeTeam = false) {
         blackboard = pBlackboard;
         listKey = pListKey;
@@ -404,21 +407,23 @@ public class FindCharactersStrategy : IStrategy
     public Node.NodeStatus Process() {
         Collider[] _hitColliders = Physics.OverlapSphere(agent.transform.position, findRadius);
         List<GameObject> _targetsFound = new();
-
+        
         foreach (var hitCollider in _hitColliders) {
-            if (!hitCollider.gameObject.CompareTag("Character") ||
-                hitCollider.gameObject == agent.transform.gameObject) continue;
-            if (!hitCollider.gameObject.TryGetComponent(out Character _character)) continue;
+            GameObject _hitGO = hitCollider.gameObject;
+            if (!_hitGO.CompareTag("Character") || _hitGO == agent.transform.gameObject) continue;
+            if (!_hitGO.TryGetComponent(out Character _character)) continue;
+            
+            CharacterTeam _otherTeam = _character.GetUnitData().CharacterTeam;
+            
             if (!exclude) {
-                if (_character.GetData().CharacterTeam == team) {
-                    _targetsFound.Add(hitCollider.gameObject);
+                if (_otherTeam == team) {
+                    _targetsFound.Add(_hitGO);
                 }
-
                 continue;
             }
 
-            if (team == CharacterTeam.Any || _character.GetData().CharacterTeam != team) {
-                _targetsFound.Add(hitCollider.gameObject);
+            if (team == CharacterTeam.Any || (team != CharacterTeam.Neutral && _otherTeam != CharacterTeam.Neutral) && _otherTeam != team) {
+                _targetsFound.Add(_hitGO);
             }
         }
 
@@ -431,7 +436,7 @@ public class FindEnemiesStrategy : IStrategy
 {
     FindCharactersStrategy findCharactersStrategy;
 
-    public FindEnemiesStrategy(Blackboard pBlackboard) {
+    public FindEnemiesStrategy(EnemyBlackboard pBlackboard) {
         pBlackboard.TryGetValue(CommonKeys.TeamSelf, out CharacterTeam _team);
         BlackboardKey _keyList = pBlackboard.GetOrRegisterKey(CommonKeys.VisibleEnemies);
 
@@ -445,13 +450,13 @@ public class FindEnemiesStrategy : IStrategy
 
 public class FindObjectsStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private BlackboardKey listKey;
     private Transform agentTransform;
     private float findRadius;
     private int findLayer;
 
-    public FindObjectsStrategy(Blackboard pBlackboard, BlackboardKey pListKey,
+    public FindObjectsStrategy(EnemyBlackboard pBlackboard, BlackboardKey pListKey,
         int pFindLayer) {
         blackboard = pBlackboard;
         listKey = pListKey;
@@ -479,12 +484,12 @@ public class FindObjectsStrategy : IStrategy
 
 public class FlankStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private Vector3? lastFlankPosition;
     private float stuckTimer = 0f;
     private float maxStuckTime = 3f;
 
-    public FlankStrategy(Blackboard pBlackboard) {
+    public FlankStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -523,6 +528,7 @@ public class FlankStrategy : IStrategy
 
         lastFlankPosition = flankPosition;
         blackboard.SetKeyValue(CommonKeys.TargetPosition, flankPosition);
+        blackboard.AddForce(flankPosition, 5f, "Flank");
 
         if (Vector3.Distance(self.transform.position, flankPosition) < 1f) {
             endFlank();
@@ -540,7 +546,8 @@ public class FlankStrategy : IStrategy
     private Node.NodeStatus HandleFallback(EnemyController self, Vector3 enemyPosition) {
         Vector3 fallbackPosition = enemyPosition - self.transform.forward * 3f;
         blackboard.SetKeyValue(CommonKeys.TargetPosition, fallbackPosition);
-
+        blackboard.AddForce(fallbackPosition, 5f, "Flank_Fallback");
+        
         endFlank();
 
         return Node.NodeStatus.Failure;
@@ -551,13 +558,12 @@ public class GetClosestAllyStrategy : GetClosestCharacterStrategy
 {
     EnemyBlackboard blackboard;
 
-    public GetClosestAllyStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard,
-        pBlackboard.GetOrRegisterKey(CommonKeys.TargetAlly), pBlackboard.GetOrRegisterKey(CommonKeys.VisibleAllies),
+    public GetClosestAllyStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard, pBlackboard.GetOrRegisterKey(CommonKeys.TargetAlly), pBlackboard.GetOrRegisterKey(CommonKeys.VisibleAllies),
         pBlackboard.GetOrRegisterKey(CommonKeys.KnownAllies)) {
         blackboard = pBlackboard;
     }
 
-    public new Node.NodeStatus Process() {
+    public override Node.NodeStatus Process() {
         var status = base.Process();
         blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Ally);
         return status;
@@ -566,14 +572,13 @@ public class GetClosestAllyStrategy : GetClosestCharacterStrategy
 
 public class GetClosestCharacterStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private EnemyController agent;
     private BlackboardKey visibleKey;
     private BlackboardKey knownKey;
     private BlackboardKey targetKey;
 
-    public GetClosestCharacterStrategy(Blackboard pBlackboard, BlackboardKey pTargetKey, BlackboardKey pVisibleKey,
-        BlackboardKey pKnownKey = default) {
+    public GetClosestCharacterStrategy(EnemyBlackboard pBlackboard, BlackboardKey pTargetKey, BlackboardKey pVisibleKey, BlackboardKey pKnownKey = default) {
         blackboard = pBlackboard;
         visibleKey = pVisibleKey;
         knownKey = pKnownKey;
@@ -582,19 +587,20 @@ public class GetClosestCharacterStrategy : IStrategy
         agent = _agent;
     }
 
-    public Node.NodeStatus Process() {
+    public virtual Node.NodeStatus Process() {
         if (blackboard.TryGetValue(visibleKey, out List<GameObject> characters)) {
             FindClosestCharacter(characters);
             return Node.NodeStatus.Success;
         }
 
         if (!blackboard.TryGetValue(knownKey, out List<GameObject> knownCharacters)) return Node.NodeStatus.Failure;
-
         FindClosestCharacter(knownCharacters);
+        
         return Node.NodeStatus.Success;
     }
 
     private void FindClosestCharacter(List<GameObject> characters) {
+        if(characters.Count == 0) return;
         GameObject closestCharacter = null;
         float closestCharDistance = float.MaxValue;
         foreach (GameObject character in characters) {
@@ -603,26 +609,34 @@ public class GetClosestCharacterStrategy : IStrategy
             closestCharacter = character;
             closestCharDistance = charDistance;
         }
-
+        
         blackboard.SetValue(targetKey, closestCharacter);
         blackboard.SetKeyValue(CommonKeys.TargetPosition, closestCharacter.transform.position);
+        //blackboard.AddForce(closestCharacter.transform.position, 1f, "Closest_Character");
     }
 }
 
 public class GetClosestEnemyStrategy : GetClosestCharacterStrategy
 {
-    public GetClosestEnemyStrategy(Blackboard pBlackboard) : base(pBlackboard,
-        pBlackboard.GetOrRegisterKey(CommonKeys.TargetEnemy), pBlackboard.GetOrRegisterKey(CommonKeys.VisibleEnemies),
-        pBlackboard.GetOrRegisterKey(CommonKeys.KnownEnemies)) { }
+    private EnemyBlackboard blackboard;
+    public GetClosestEnemyStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard, pBlackboard.GetOrRegisterKey(CommonKeys.TargetEnemy), pBlackboard.GetOrRegisterKey(CommonKeys.VisibleEnemies), pBlackboard.GetOrRegisterKey(CommonKeys.KnownEnemies)) {
+        blackboard = pBlackboard;
+    }
+    
+    public override Node.NodeStatus Process() {
+        var status = base.Process();
+        blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Enemy);
+        return status;
+    }
 }
 
 public class GroupUpStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private float radius = 2.0f;
     private float arrivalThreshold = 1.0f;
 
-    public GroupUpStrategy(Blackboard pBlackboard) {
+    public GroupUpStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -643,6 +657,7 @@ public class GroupUpStrategy : IStrategy
             return Node.NodeStatus.Success;
 
         blackboard.SetKeyValue(CommonKeys.TargetPosition, targetPosition);
+        blackboard.AddForce(targetPosition, 5f, "GroupUp");
         return Node.NodeStatus.Running;
     }
 
@@ -668,10 +683,10 @@ public class GroupUpStrategy : IStrategy
 
 public class MessageAllyStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private GameObject ally;
 
-    public MessageAllyStrategy(Blackboard pBlackboard, GameObject pAlly) {
+    public MessageAllyStrategy(EnemyBlackboard pBlackboard, GameObject pAlly) {
         blackboard = pBlackboard;
         ally = pAlly;
     }
@@ -707,6 +722,7 @@ public class SetTargetAllyStrategy : IStrategy
             blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject target);
             blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Ally);
             blackboard.SetKeyValue(CommonKeys.TargetPosition, target.transform.position);
+            blackboard.AddForce(target.transform.position, 1f, "Target_Ally");
             return Node.NodeStatus.Success;
         }
 
@@ -721,10 +737,10 @@ public class SetTargetAllyStrategy : IStrategy
 
 public class MoveToPositionStrategy : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
     private Vector3 destination;
 
-    public MoveToPositionStrategy(Blackboard pBlackboard, Vector3 position) {
+    public MoveToPositionStrategy(EnemyBlackboard pBlackboard, Vector3 position) {
         blackboard = pBlackboard;
         destination = position;
     }
@@ -803,11 +819,10 @@ public class ProcessMessagesStrategy : IStrategy
 
     private void ProcessFlank(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
-        GameObject _ally = (GameObject)message.Payload[MessageInfoType.Ally];
-        Vector2 _flankDirection = (Vector2)message.Payload[MessageInfoType.Direction];
+        EnemyController _ally = (EnemyController)message.Payload[MessageInfoType.Ally];
+        Vector3 _flankDirection = (Vector3)message.Payload[MessageInfoType.Direction];
 
-        Vector3 flankDir = new Vector3(_flankDirection.x, 0, _flankDirection.y);
-        blackboard.SetKeyValue(CommonKeys.FlankDirection, flankDir);
+        blackboard.SetKeyValue(CommonKeys.FlankDirection, _flankDirection);
         blackboard.SetKeyValue(CommonKeys.FlankAlly, _ally);
         blackboard.SetKeyValue(CommonKeys.FlankTarget, _enemyTarget);
     }
@@ -877,7 +892,7 @@ public class RetreatFromTargetStrategy : RetreatFromPositionStrategy
         target = pTarget;
     }
 
-    public new Node.NodeStatus Process () {
+    public override Node.NodeStatus Process () {
         blackboard.SetKeyValue(CommonKeys.RetreatThreatPosition, target.transform.position);
         return base.Process();
     }
@@ -893,7 +908,7 @@ public class RetreatFromPositionStrategy : IStrategy
         retreatDistance = pRetreatDistance;
     }
 
-    public Node.NodeStatus Process() {
+    public virtual Node.NodeStatus Process() {
         if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent)) return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.RetreatThreatPosition, out Vector3 _threatPos))
             return Node.NodeStatus.Failure;
@@ -914,6 +929,7 @@ public class RetreatFromPositionStrategy : IStrategy
         }
 
         blackboard.SetKeyValue(CommonKeys.TargetPosition, retreatTarget);
+        blackboard.AddForce(_threatPos, -5f, "Retreat_Position");
         return Node.NodeStatus.Running;
     }
 
@@ -927,21 +943,35 @@ public class SendMessageToAllyStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
     private ComMessage message;
+    private Func<ComMessage> messageMethod;
     protected GameObject recipient;
+    protected Func<GameObject> recipientMethod;
 
     public SendMessageToAllyStrategy(EnemyBlackboard pBlackboard, GameObject pRecipient, ComMessage _message) {
         blackboard = pBlackboard;
         recipient = pRecipient;
         message = _message;
     }
+    public SendMessageToAllyStrategy(EnemyBlackboard pBlackboard, Func<GameObject> pRecipient, Func<ComMessage> _message) {
+        blackboard = pBlackboard;
+        recipientMethod = pRecipient;
+        messageMethod = _message;
+    }
 
-    public Node.NodeStatus Process() {
+    public virtual Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
-        if (recipient.TryGetComponent<EnemyController>(out EnemyController _allyAgent)) {
+        recipient ??= recipientMethod();
+        if (recipient.TryGetComponent(out EnemyController _allyAgent)) {
+            message ??= messageMethod();
             _agent.SendComMessage(_allyAgent, message);
             return Node.NodeStatus.Success;
         }
         return Node.NodeStatus.Failure;
+    }
+
+    public void Reset() {
+    message = null;
+    recipient = null;
     }
 }
 
@@ -952,8 +982,11 @@ public class SendMessageToAlliesStrategy : SendMessageToAllyStrategy
     public SendMessageToAlliesStrategy(EnemyBlackboard pBlackboard, ComMessage _message) : base(pBlackboard, null, _message) {
         blackboard = pBlackboard;
     }
+    public SendMessageToAlliesStrategy(EnemyBlackboard pBlackboard, Func<ComMessage> _message) : base(pBlackboard, null, _message) {
+        blackboard = pBlackboard;
+    }
 
-    public new Node.NodeStatus Process() {
+    public override Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies);
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
         foreach (var _ally in _allies) {
@@ -967,9 +1000,9 @@ public class SendMessageToAlliesStrategy : SendMessageToAllyStrategy
 
 public class StrikeParry : IStrategy
 {
-    private Blackboard blackboard;
+    private EnemyBlackboard blackboard;
 
-    public StrikeParry(Blackboard pBlackboard) {
+    public StrikeParry(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
@@ -992,7 +1025,6 @@ public class SurroundTargetStrategy : IStrategy
     private EnemyBlackboard blackboard;
     private float arrivalThreshold = 0.5f;
     private float sectorAngle = 170;
-    private float directionAngle = 90;
 
     public SurroundTargetStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
@@ -1019,6 +1051,7 @@ public class SurroundTargetStrategy : IStrategy
             return Node.NodeStatus.Success;
 
         blackboard.SetKeyValue(CommonKeys.TargetPosition, desiredPosition);
+        blackboard.AddForce(desiredPosition, 5f, "Surround_Target");
         return Node.NodeStatus.Running;
     }
 

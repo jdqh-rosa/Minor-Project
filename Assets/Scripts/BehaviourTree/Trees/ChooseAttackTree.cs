@@ -3,26 +3,27 @@ using UnityEngine;
 public class ChooseAttackTree : BehaviourTree
 {
     Blackboard blackboard;
+    private EnemyController agent;
     
     public ChooseAttackTree(Blackboard pBlackboard, int pPriority = 0) : base("ChooseAttack", pPriority)
     {
         blackboard = pBlackboard;
-
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         setup();
     }
 
     private void setup()
     {
-        Selector _baseSelector = new("AttackSelector");
-        Sequence _stabSequence = new("StabSequence");
-        Sequence _swingSequence = new("SwingSequence");
+        PrioritySelector _baseSelector = new("AttackSelector");
+        Sequence _stabSequence = new("StabSequence", ()=> agent.TreeValues.CombatAttack.StabWeight);
+        Sequence _swingSequence = new("SwingSequence", ()=> agent.TreeValues.CombatAttack.SwingWeight);
         Leaf _stabCheck = new Leaf("ChooseAttack//StabCheck", new ConditionStrategy(stabCheck)); 
         RandomSelector _stabSelector = new("ChooseAttack///JabSelector");
         RandomSelector _swingSelector = new("ChooseAttack///SwingSelector");
-        Leaf _weakStab = new("ChooseAttack////WeakStab", new ActionStrategy(() => chooseAttack(ActionType.Jab)));
-        Leaf _strongStab = new("ChooseAttack////StrongStab", new ActionStrategy(() => chooseAttack(ActionType.Thrust)));
-        Leaf _weakSwing = new("ChooseAttack////WeakSwing", new ActionStrategy(() => chooseAttack(ActionType.Swipe)));
-        Leaf _strongSwing = new("ChooseAttack////StrongSwing", new ActionStrategy(() => chooseAttack(ActionType.Swing)));
+        Leaf _weakStab = new("ChooseAttack////WeakStab", new ActionStrategy(() => chooseAttack(ActionType.Jab)), ()=> agent.TreeValues.CombatAttack.WeakStabWeight);
+        Leaf _strongStab = new("ChooseAttack////StrongStab", new ActionStrategy(() => chooseAttack(ActionType.Thrust)), ()=> agent.TreeValues.CombatAttack.StrongStabWeight);
+        Leaf _weakSwing = new("ChooseAttack////WeakSwing", new ActionStrategy(() => chooseAttack(ActionType.Swipe)), ()=> agent.TreeValues.CombatAttack.WeakSwingWeight);
+        Leaf _strongSwing = new("ChooseAttack////StrongSwing", new ActionStrategy(() => chooseAttack(ActionType.Swing)), ()=> agent.TreeValues.CombatAttack.StrongSwingWeight);
 
         AddChild(_baseSelector);
         _baseSelector.AddChild(_stabSequence);

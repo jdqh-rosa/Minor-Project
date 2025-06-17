@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ComMessage : MonoBehaviour
+public class ComMessage
 {
     public EnemyController Sender { get; private set; }
     public EnemyController Receiver { get; private set; }  // null for broadcast
@@ -17,11 +17,16 @@ public class ComMessage : MonoBehaviour
         Payload = pPayload;
         Timestamp = pTimestamp;
         Priority = pPriority;
+
+        if (Sender == null || Type == default || Payload == null) {
+            Debug.Log("Sender or Type or Payload can't be null");
+        }
     }
 }
 
 public enum MessageType
 {
+    None = default,
     Communicate,
     EnemySpotted,
     Flank,

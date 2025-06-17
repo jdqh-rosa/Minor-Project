@@ -27,7 +27,7 @@ public class CombatTree : BehaviourTree
         PrioritySelector _combatTacticSelector = new PrioritySelector("Combat/TargetSeq/CombatTacticSel");
         Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
         
-        Sequence _flankSequence = new Sequence("Combat///FlankSeq");
+        Sequence _flankSequence = new Sequence("Combat///FlankSeq", ()=> agent.TreeValues.CombatTactic.FlankWeight);
         Leaf _flankCheck = new("Combat///FlankCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
@@ -35,17 +35,19 @@ public class CombatTree : BehaviourTree
         }));
         Leaf _flankTarget = new("Combat///FlankTarget", new FlankStrategy(blackboard));
         
-        Sequence _surroundSequence = new Sequence("Combat//FlankSeq");
-        Leaf _surroundCheck = new("Combat///FlankCheck", new ConditionStrategy(() =>
+        Sequence _surroundSequence = new Sequence("Combat//SurroundSeq", ()=> agent.TreeValues.CombatTactic.SurroundWeight);
+        Leaf _surroundCheck = new("Combat///SurroundCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
             return visibleAllies.Count > 3;
         }));
         Leaf _surroundTarget = new("Combat///SurroundTarget", new SurroundTargetStrategy(blackboard));
         
-        Sequence _fleeBranch = new Sequence("Combat//FleeBranch");
-        Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => agentHealth() < 10));
-        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()));
+        Sequence _fleeBranch = new Sequence("Combat//FleeBranch", ()=> agent.TreeValues.CombatTactic.RetreatWeight);
+        Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => agentHealth() < agent.TreeValues.Health.LowHealthThreshold));
+        //PrioritySelector _retreatSelector = new("Combat//FleeBranch/Selector");
+        //Leaf _regroup = new("Combat/FleeBranch/Regroup", new GroupUpStrategy(blackboard), agent.TreeValues.Combat.RetreatGroupWeight);
+        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()), ()=> agent.TreeValues.CombatTactic.RetreatSelfWeight);
         
         AddChild(_baseCombatSequence);
         _baseCombatSequence.AddChild(_obtainEnemy);
@@ -56,9 +58,9 @@ public class CombatTree : BehaviourTree
         _surroundSequence.AddChild(_surroundCheck);
         _surroundSequence.AddChild(_surroundTarget);
         
-        _combatTacticSelector.AddChild(new AttackTargetTree(blackboard, agent));
+        _combatTacticSelector.AddChild(new AttackTargetTree(blackboard, agent, ()=> agent.TreeValues.CombatTactic.AttackTargetWeight));
         
-        _combatTacticSelector.AddChild(new DefendSelfTree(blackboard, defensePriority()));
+        _combatTacticSelector.AddChild(new DefendSelfTree(blackboard, ()=> agent.TreeValues.CombatTactic.DefendSelfWeight));
         
         _combatTacticSelector.AddChild(_fleeBranch);
         _fleeBranch.AddChild(_healthCheck);

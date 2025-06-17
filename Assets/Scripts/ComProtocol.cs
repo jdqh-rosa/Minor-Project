@@ -68,7 +68,7 @@ public class ComProtocol : MonoBehaviour
     }
     private void ProcessFlank(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
-        GameObject _ally  = (GameObject)message.Payload[MessageInfoType.Ally];
+        EnemyController _ally  = (EnemyController)message.Payload[MessageInfoType.Ally];
         Vector2 _flankDirection = (Vector2)message.Payload[MessageInfoType.Direction];
         //todo: flank enemy opposite of ally
     }

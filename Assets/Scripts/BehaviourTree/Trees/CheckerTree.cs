@@ -16,11 +16,13 @@ public class CheckerTree : BehaviourTree
         
         Sequence _enemySequence = new("Checker//EnemyCheckerSeq");
         Leaf _findEnemies = new("Checker///FindEnemies", new FindEnemiesStrategy(blackboard));
-        Leaf _enemiesAvailable = new("Checker//EnemiesAvailable", new ConditionStrategy(blackboard.EnemiesAvailable));
+        Leaf _enemiesAvailable = new("Checker//EnemiesAvailable", new ConditionStrategy(() => blackboard.EnemiesAvailable()));
+        Leaf _getClosestEnemy = new("Checker//GetClosestEnemy", new GetClosestEnemyStrategy(blackboard));
         
         Sequence _allySequence = new("Checker//AllyCheckerSeq");
         Leaf _findAllies = new("Checker///FindEnemies", new FindAlliesStrategy(blackboard));
-        Leaf _alliesAvailable = new("Checker//EnemiesAvailable", new ConditionStrategy(blackboard.AlliesAvailable));
+        Leaf _alliesAvailable = new("Checker//AlliesAvailable", new ConditionStrategy(() => blackboard.AlliesAvailable()));
+        Leaf _getClosestAlly = new("Checker//GetClosestAlly", new GetClosestAllyStrategy(blackboard));
         
         Parallel _selfCheckParallel = new("Checker//SelfChecks", 1);
         
@@ -38,9 +40,11 @@ public class CheckerTree : BehaviourTree
         
         _enemySequence.AddChild(_findEnemies);
         _enemySequence.AddChild(_enemiesAvailable);
+        _enemySequence.AddChild(_getClosestEnemy);
         
         _allySequence.AddChild(_findAllies);
         _allySequence.AddChild(_alliesAvailable);
+        _allySequence.AddChild(_getClosestAlly);
         
         //_selfCheckParallel.AddChild(_patrolTimeCheck);
         //_selfCheckParallel.AddChild(_healthCheck);

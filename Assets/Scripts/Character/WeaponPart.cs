@@ -14,16 +14,16 @@ public class WeaponPart : MonoBehaviour
         Weapon.CollisionDetected(this, pCharacterHit, pIsClash, pPointOfContact);
     }
 
-    private void OnTriggerEnter(Collider pOther)
+    private void OnCollisionEnter(Collision pOther)
     {
         if (pOther.transform.parent == transform.parent) return;
         
-        var hitChar = pOther.GetComponentInParent<Character>();
-        if (hitChar == null) return;
+        var _hitChar = pOther.collider.GetComponentInParent<Character>();
+        if (_hitChar == null) return;
 
-        bool isClash = pOther.CompareTag("WeaponPart");
+        bool isClash = _hitChar.CompareTag("WeaponPart");
         Vector3 contactPoint = transform.position; // approximate tip, or do a raycast
-        Weapon.CollisionDetected(this, hitChar, isClash, contactPoint);
+        Weapon.CollisionDetected(this, _hitChar, isClash, contactPoint);
         
         // Vector3 _contact = pOther.GetContact(0).point;
         // var _collisionTag = pOther.gameObject.tag;

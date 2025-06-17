@@ -1,42 +1,56 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
     [SerializeField] BlackboardData blackboardData;
-    
+
     private BehaviourTree tree;
     readonly EnemyBlackboard blackboard = new();
+    //public TreeValuesManager ValuesManager;
+    [SerializeField] private TreeValuesSO treeValues;
+    public TreeValuesSO TreeValues => treeValues;
     private ComProtocol protocol;
 
     [SerializeField] private Character enemyCharacter;
 
-    private float findRadius = 10;
+    private float findRadius = 20;
 
-    private void Awake()
-    {
+    private void Awake() {
         if (!enemyCharacter) enemyCharacter = GetComponent<Character>();
-        
-        blackboard.AddCharacterData(enemyCharacter.GetData());
+
+        blackboard.AddCharacterData(enemyCharacter.GetCharacterData());
         blackboardData.SetValuesOnBlackboard(blackboard);
-        blackboard.SetKeyValue(CommonKeys.ComProtocol, protocol);        
-        blackboard.SetKeyValue(CommonKeys.MessageInbox, new List<ComMessage>());
+        blackboard.SetKeyValue(CommonKeys.ComProtocol, protocol);
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, enemyCharacter.transform.position);
-        blackboard.SetKeyValue(CommonKeys.VisibleAllies, new List<GameObject>());
-        blackboard.SetKeyValue(CommonKeys.VisibleTargets, new List<GameObject>());
-        blackboard.SetKeyValue(CommonKeys.AgentSelf, this); 
+        blackboard.SetKeyValue(CommonKeys.AgentSelf, this);
         blackboard.SetKeyValue(CommonKeys.FindRadius, findRadius);
-        blackboard.SetKeyValue(CommonKeys.DirectionalForces, new List<DirectionalForce>());
+        blackboard.SetKeyValue(CommonKeys.TeamSelf, enemyCharacter.GetUnitData().CharacterTeam);
         
+
+        
+        
+        //if (ValuesManager == null) {
+        //    ValuesManager = new TreeValuesManager(blackboard, this);
+        //}
+        
+        if (treeValues == null) {
+            treeValues = ScriptableObject.CreateInstance<TreeValuesSO>();
+        }
+        
+
         tree = new BehaviourTree("Enemy");
 
         Repeater _repeater = new Repeater("BaseLogic");
         Parallel _parallel = new("BaseLogic/Parallel", 2);
-        Parallel _actionParallel = new("BaseLogic/ActionParallel",2);
-        Leaf _moveToPosition = new("BaseLogic//MoveToPosition", new ActionStrategy(() => enemyCharacter.SetCharacterPosition(movePosition())));
-        Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
-        
-        
+        Parallel _actionParallel = new("BaseLogic/ActionParallel", 2);
+        Leaf _moveToPosition = new("BaseLogic//MoveToPosition",
+            new ActionStrategy(() => enemyCharacter.SetCharacterDirection(processDirections())));
+        Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle",
+            new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
+
+
         tree.AddChild(_repeater);
         _repeater.AddChild(_parallel);
         _parallel.AddChild(new CheckerTree(blackboard));
@@ -46,55 +60,53 @@ public class EnemyController : MonoBehaviour
         _actionParallel.AddChild(_moveToPosition);
         _actionParallel.AddChild(_positionWeapon);
         tree.Reset();
-        
+
         AddBTDebugHUD();
+
+        StartCoroutine(TreeTick());
     }
 
     private void Update() {
-        tree.Process();
+        //tree.Process();
     }
 
-    private Vector2 moveDirection()
-    {
+    IEnumerator TreeTick() {
+        while (true) {
+            tree.Process();
+            yield return new WaitForSeconds(0.1f);
+        }
+    }
+
+    private Vector2 moveDirection() {
         blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
         Vector3 moveDir = (_targetPosition - enemyCharacter.transform.position).normalized;
         return new Vector2(moveDir.x, moveDir.z);
     }
-    
-    private Vector3 movePosition()
-    {
+
+    private Vector3 movePosition() {
         blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
         return _targetPosition;
     }
 
-    private Vector2 processDirections() {
-        if (!blackboard.TryGetValue(CommonKeys.DirectionalForces, out List<DirectionalForce> _forces)) return Vector2.zero;
-        Vector2 direction = Vector2.zero;
-        foreach (DirectionalForce dForce in _forces) {
-            direction += (dForce.Direction).normalized * dForce.Force;
-        }
-        return direction.normalized;
+    private Vector3 processDirections() {
+        return blackboard.GetBlendedDirection();
     }
 
 
-    private float weaponAngle()
-    {
+    private float weaponAngle() {
         blackboard.TryGetValue(CommonKeys.ChosenWeaponAngle, out float _weaponAngle);
         return _weaponAngle;
     }
 
-    public float GetWeaponRange()
-    {
+    public float GetWeaponRange() {
         return enemyCharacter.GetWeaponRange();
     }
 
-    public float GetWeaponAngle()
-    {
+    public float GetWeaponAngle() {
         return enemyCharacter.GetWeaponAngle();
     }
 
-    public void InitiateAttackAction(ActionType pActionType, float pAttackAngle)
-    {
+    public void InitiateAttackAction(ActionType pActionType, float pAttackAngle) {
         enemyCharacter.Attack(pActionType, pAttackAngle);
     }
 
@@ -110,23 +122,37 @@ public class EnemyController : MonoBehaviour
     public void SendComMessage(EnemyController pRecipient, ComMessage pMessage) {
         pRecipient.ReceiveComMessage(pMessage);
     }
+
     public void ReceiveComMessage(ComMessage pMessage) {
         blackboard.TryGetValue(CommonKeys.MessageInbox, out List<ComMessage> _inbox);
         _inbox.Add(pMessage);
         blackboard.SetKeyValue(CommonKeys.MessageInbox, _inbox);
         //protocol.ReceiveComMessage(pMessage);
     }
-    
+
     void OnDrawGizmos() {
         if (tree == null) return;
         DrawNodeGizmo(tree, Vector3.up * 2);
+        DrawForces();
+    }
+    
+    void DrawForces() {
+        if (!Application.isPlaying) return;
+        foreach (var force in blackboard.MovementForces) {
+            Gizmos.color = force.Force>0 ? Color.green : Color.red;
+            Gizmos.DrawLine(transform.position, transform.position + force.Direction * force.Force);
+        }
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(transform.position, transform.position + blackboard.GetBlendedDirection() * 2);
+        blackboard.ClearForces();
     }
 
     void DrawNodeGizmo(Node node, Vector3 pos) {
         Gizmos.color = node.IsActive ? Color.green : Color.gray;
         Gizmos.DrawSphere(pos, 0.1f);
         for (int i = 0; i < node.children.Count; i++) {
-            Vector3 childPos = pos + new Vector3((i - node.children.Count/2f)*0.5f, -0.5f, 0);
+            Vector3 childPos = pos + new Vector3((i - node.children.Count / 2f) * 0.5f, 0, -0.5f);
             Gizmos.DrawLine(pos, childPos);
             DrawNodeGizmo(node.children[i], childPos);
         }
@@ -135,5 +161,4 @@ public class EnemyController : MonoBehaviour
     private void AddBTDebugHUD() {
         GetComponent<BTDebugHUD>().tree = tree;
     }
-
 }

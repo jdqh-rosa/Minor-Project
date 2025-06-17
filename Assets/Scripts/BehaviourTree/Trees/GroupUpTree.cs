@@ -5,7 +5,7 @@ public class GroupUpTree : BehaviourTree
 {
     EnemyBlackboard blackboard;
     private EnemyController agent;
-    private bool sender=false;
+    //private bool sender=false;
     
     public GroupUpTree(EnemyBlackboard pBlackboard) : base("GroupUp"){
         blackboard = pBlackboard;

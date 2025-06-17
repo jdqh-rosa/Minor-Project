@@ -3,10 +3,10 @@ using UnityEngine;
 
 public class AttackTree : BehaviourTree
 {
-    Blackboard blackboard;
+    EnemyBlackboard blackboard;
     private EnemyController agent;
 
-    public AttackTree(Blackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("DoAttack", pPriority)
+    public AttackTree(EnemyBlackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("DoAttack", pPriority)
     {
         blackboard = pBlackboard;
         agent = pAgent;
@@ -99,6 +99,9 @@ public class AttackTree : BehaviourTree
         Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
         
         blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
+        Vector2 dir = (positionOffset).normalized;
+        blackboard.AddForce(dir, 1, "Aligned_AttackPosition");
+        
         blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
     }
 }
