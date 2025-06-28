@@ -3,6 +3,7 @@ using UnityEngine;
 public abstract class CombatState : BaseState<CombatSM>
 {
     public ActionType actionType;
+    protected float attackForce;
     protected float duration;
     protected float attackAngle;
     protected float attackRange;
@@ -19,6 +20,7 @@ public abstract class CombatState : BaseState<CombatSM>
     public virtual void Enter(CombatSM pStateMachine, float pAttackAngle)
     {
         base.Enter(pStateMachine);
+        StateMachine.GetWeapon().CurrentState = WeaponState.Active;
         attackAngle = pAttackAngle;
         Interruptible = false;
     }
@@ -26,8 +28,11 @@ public abstract class CombatState : BaseState<CombatSM>
     public virtual void AddStateData(CombatStateData pData)
     {
         stateData = pData;
+        attackForce = stateData.AttackForce;
         actionType = stateData.ActionType;
         duration = stateData.Duration;
+        extendTime = stateData.ExtendTime;
+        retractTime = stateData.RetractTime;
         actionType = stateData.ActionType;
         attackRange = stateData.AttackRange;
         interruptTime = stateData.InteruptTime;
@@ -47,6 +52,7 @@ public abstract class CombatState : BaseState<CombatSM>
     public override void Exit()
     {
         base.Exit();
+        StateMachine.GetWeapon().CurrentState = WeaponState.Reset;
     }
 
     public virtual void SetAttackAngle(float pAttackAngle) {

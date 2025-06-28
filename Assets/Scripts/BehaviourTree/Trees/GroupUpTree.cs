@@ -20,13 +20,12 @@ public class GroupUpTree : BehaviourTree
         Leaf _findAllies = new("GroupUp/FindAllies", new FindAlliesStrategy(blackboard));
         Leaf _contactAllies = new("GroupUp/ContactAllies", new ContactAlliesStrategy(blackboard, GroupUpMessage()));
         Leaf _groupUpAction = new("", new GroupUpStrategy(blackboard));
-        EnterRangeTree _enterRange = new(blackboard, 2f);
 
         AddChild(_sequence);
         _sequence.AddChild(_findAllies);
         _sequence.AddChild(_contactAllies);
         _sequence.AddChild(_groupUpAction);
-        _sequence.AddChild(_enterRange);
+        //_sequence.AddChild(new EnterRangeTree(blackboard, 2f));
     }
 
     private ComMessage GroupUpMessage() {

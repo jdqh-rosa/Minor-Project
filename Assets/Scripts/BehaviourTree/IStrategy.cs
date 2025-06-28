@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Object = System.Object;
@@ -93,7 +94,7 @@ public class CheckMessageStrategy : IStrategy
         foreach (ComMessage msg in _inbox) {
             if (msg.Type == type) return Node.NodeStatus.Success;
         }
-
+        Debug.Log($"Check Message: {type} Failed");
         return Node.NodeStatus.Failure;
     }
 }
@@ -135,11 +136,13 @@ public class ChooseEnemyStrategy : ChooseObjectStrategy
 public class ChooseObjectStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
+    private EnemyController agent;
     private BlackboardKey listKey;
     private BlackboardKey targetKey;
 
     public ChooseObjectStrategy(EnemyBlackboard pBlackboard, BlackboardKey pListKey, BlackboardKey ptargetKey) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         listKey = pListKey;
         targetKey = ptargetKey;
     }
@@ -149,7 +152,7 @@ public class ChooseObjectStrategy : IStrategy
         //todo: use logic to choose most applicable target
         blackboard.SetValue(targetKey, targets[0]);
         blackboard.SetKeyValue(CommonKeys.TargetPosition, targets[0].transform.position);
-        blackboard.AddForce(targets[0].transform.position, 1, "Choose_TargetObject");
+        blackboard.AddForce(targets[0].transform.position - agent.transform.position, agent.TreeValues.Movement.ChooseObjectForce, "Choose_TargetObject");
 
         return Node.NodeStatus.Success;
     }
@@ -212,7 +215,7 @@ public class DetectAttackStrategy : IStrategy
         List<Character> _tryHitters = new List<Character>();
 
         foreach (var _enemy in enemies) {
-            if (!_enemy.TryGetComponent(out Character _character)) continue;
+            if (!_enemy || !_enemy.TryGetComponent(out Character _character)) continue;
 
             if (_character.IsAttacking()) {
                 //todo: see if enemy attack makes contact
@@ -273,9 +276,9 @@ public class DistanceSelfStrategy : IStrategy
     public Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
         Vector3 diffVec = avoidPosition - agent.transform.position;
-        diffVec *= -1;
-        blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec);
-        blackboard.AddForce(diffVec, -5f, "DistanceSelf");
+        //diffVec *= -1;
+        //blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec);
+        blackboard.AddForce(diffVec, agent.TreeValues.Movement.DistanceSelfForce, "DistanceSelf");
         return Node.NodeStatus.Success;
     }
 }
@@ -283,8 +286,8 @@ public class DistanceSelfStrategy : IStrategy
 public class DistanceSelfFromObjectStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
-    private GameObject avoidObject;
-    private float minDistance;
+    protected GameObject avoidObject;
+    protected float minDistance;
 
     public DistanceSelfFromObjectStrategy(EnemyBlackboard pBlackboard, GameObject pAvoidObject, float pMinDistance) {
         blackboard = pBlackboard;
@@ -292,14 +295,36 @@ public class DistanceSelfFromObjectStrategy : IStrategy
         minDistance = pMinDistance;
     }
 
-    public Node.NodeStatus Process() {
+    public virtual Node.NodeStatus Process() {
         if (!avoidObject) return Node.NodeStatus.Failure;
 
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
-        Vector3 diffVec = avoidObject.transform.position - agent.transform.position;
-        diffVec *= -1;
-        blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec.normalized * minDistance);
-        blackboard.AddForce(avoidObject.transform.position, -2f, "DistanceSelf_Object");
+        Vector2 diffVec = MiscHelper.Vec2ToVec3Pos(avoidObject.transform.position - agent.transform.position);
+        if (diffVec.magnitude > minDistance) return Node.NodeStatus.Success;
+        //diffVec *= -1;
+        //blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec.normalized * minDistance);
+        blackboard.AddForce(diffVec, agent.TreeValues.Movement.AvoidObjectForce, "DistanceSelf_Object");
+        return Node.NodeStatus.Success;
+    }
+}
+
+public class DistanceSelfFromWeaponsStrategy : DistanceSelfFromObjectStrategy
+{
+    private EnemyBlackboard blackboard;
+
+    public DistanceSelfFromWeaponsStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard, null, 0.1f) {
+        blackboard = pBlackboard;
+    }
+
+    public override Node.NodeStatus Process() {
+        blackboard.TryGetValue(CommonKeys.VisibleWeapons, out List<CharacterWeapon> _weapons);
+        
+        foreach (CharacterWeapon _weapon in _weapons) {
+            if(!_weapon) continue;
+            avoidObject = _weapon.gameObject;
+            minDistance = _weapon.GetRange();
+            base.Process();
+        }
         return Node.NodeStatus.Success;
     }
 }
@@ -368,19 +393,10 @@ public class FaceTargetStrategy : IStrategy
     }
 }
 
-public class FindAlliesStrategy : IStrategy
+public class FindAlliesStrategy : FindCharactersStrategy
 {
-    FindCharactersStrategy findCharactersStrategy;
 
-    public FindAlliesStrategy(EnemyBlackboard pBlackboard) {
-        pBlackboard.TryGetValue(CommonKeys.TeamSelf, out CharacterTeam _team);
-        BlackboardKey _keyList = pBlackboard.GetOrRegisterKey(CommonKeys.VisibleAllies);
-
-        findCharactersStrategy = new(pBlackboard, _keyList, _team);
-    }
-
-    public Node.NodeStatus Process() {
-        return findCharactersStrategy.Process();
+    public FindAlliesStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard, pBlackboard.GetOrRegisterKey(CommonKeys.VisibleAllies), CharacterTeam.TeamSelf) {
     }
 }
 
@@ -393,27 +409,34 @@ public class FindCharactersStrategy : IStrategy
     private CharacterTeam team;
     private bool exclude;
 
-    public FindCharactersStrategy(EnemyBlackboard pBlackboard, BlackboardKey pListKey,
-        CharacterTeam pCharacterTeam = CharacterTeam.Any, bool pExcludeTeam = false) {
+    protected FindCharactersStrategy(EnemyBlackboard pBlackboard, BlackboardKey pListKey, CharacterTeam pCharacterTeam = CharacterTeam.TeamSelf, bool pExcludeTeam = false) {
         blackboard = pBlackboard;
         listKey = pListKey;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         blackboard.TryGetValue(CommonKeys.FindRadius, out findRadius);
         //blackboard.TryGetValue(CommonKeys.TeamSelf, out team);
-        team = pCharacterTeam;
+        if (pCharacterTeam == CharacterTeam.TeamSelf) {
+            blackboard.TryGetValue(CommonKeys.TeamSelf, out team);
+        }
+        else {
+            team = pCharacterTeam;
+        }
         exclude = pExcludeTeam;
     }
 
-    public Node.NodeStatus Process() {
+    public virtual Node.NodeStatus Process() {
         Collider[] _hitColliders = Physics.OverlapSphere(agent.transform.position, findRadius);
         List<GameObject> _targetsFound = new();
+        List<CharacterWeapon> _weaponsList = new();
         
         foreach (var hitCollider in _hitColliders) {
             GameObject _hitGO = hitCollider.gameObject;
             if (!_hitGO.CompareTag("Character") || _hitGO == agent.transform.gameObject) continue;
             if (!_hitGO.TryGetComponent(out Character _character)) continue;
             
-            CharacterTeam _otherTeam = _character.GetUnitData().CharacterTeam;
+            _weaponsList.Add(_character.Weapon);
+            
+            CharacterTeam _otherTeam = _character.GetCharacterInfo().Team;
             
             if (!exclude) {
                 if (_otherTeam == team) {
@@ -426,25 +449,16 @@ public class FindCharactersStrategy : IStrategy
                 _targetsFound.Add(_hitGO);
             }
         }
-
+        
+        blackboard.SetKeyValue(CommonKeys.VisibleWeapons, _weaponsList);
         blackboard.SetValue(listKey, _targetsFound);
         return _targetsFound.Count == 0 ? Node.NodeStatus.Failure : Node.NodeStatus.Success;
     }
 }
 
-public class FindEnemiesStrategy : IStrategy
+public class FindEnemiesStrategy : FindCharactersStrategy
 {
-    FindCharactersStrategy findCharactersStrategy;
-
-    public FindEnemiesStrategy(EnemyBlackboard pBlackboard) {
-        pBlackboard.TryGetValue(CommonKeys.TeamSelf, out CharacterTeam _team);
-        BlackboardKey _keyList = pBlackboard.GetOrRegisterKey(CommonKeys.VisibleEnemies);
-
-        findCharactersStrategy = new(pBlackboard, _keyList, _team, true);
-    }
-
-    public Node.NodeStatus Process() {
-        return findCharactersStrategy.Process();
+    public FindEnemiesStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard, pBlackboard.GetOrRegisterKey(CommonKeys.VisibleEnemies), CharacterTeam.TeamSelf, true) {
     }
 }
 
@@ -485,19 +499,21 @@ public class FindObjectsStrategy : IStrategy
 public class FlankStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
+    private EnemyController agent;
     private Vector3? lastFlankPosition;
     private float stuckTimer = 0f;
     private float maxStuckTime = 3f;
 
     public FlankStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
     }
 
     public Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.FlankTarget, out GameObject _enemyTarget);
         if (_enemyTarget == null) return Node.NodeStatus.Failure;
 
-        if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController self)) return Node.NodeStatus.Failure;
+        if (!agent) return Node.NodeStatus.Failure;
 
         Vector3 enemyPosition = _enemyTarget.transform.position;
 
@@ -508,6 +524,7 @@ public class FlankStrategy : IStrategy
             }
             else {
                 endFlank();
+                Debug.Log($"Flank Failed");
                 return Node.NodeStatus.Failure;
             }
         }
@@ -519,7 +536,7 @@ public class FlankStrategy : IStrategy
         if (lastFlankPosition.HasValue && Vector3.Distance(flankPosition, lastFlankPosition.Value) < 0.1f) {
             stuckTimer += Time.deltaTime;
             if (stuckTimer >= maxStuckTime) {
-                return HandleFallback(self, enemyPosition);
+                return HandleFallback(agent, enemyPosition);
             }
         }
         else {
@@ -528,9 +545,9 @@ public class FlankStrategy : IStrategy
 
         lastFlankPosition = flankPosition;
         blackboard.SetKeyValue(CommonKeys.TargetPosition, flankPosition);
-        blackboard.AddForce(flankPosition, 5f, "Flank");
+        blackboard.AddForce(flankPosition - agent.transform.position, agent.TreeValues.Movement.FlankForce, "Flank");
 
-        if (Vector3.Distance(self.transform.position, flankPosition) < 1f) {
+        if (Vector3.Distance(agent.transform.position, flankPosition) < 1f) {
             endFlank();
             return Node.NodeStatus.Success;
         }
@@ -541,15 +558,16 @@ public class FlankStrategy : IStrategy
     private void endFlank() {
         blackboard.SetKeyValue<float?>(CommonKeys.FlankDirection, null);
         blackboard.SetKeyValue<GameObject>(CommonKeys.FlankTarget, null);
+        agent.TreeValues.CombatTactic.IsFlankModified = false;
     }
 
-    private Node.NodeStatus HandleFallback(EnemyController self, Vector3 enemyPosition) {
-        Vector3 fallbackPosition = enemyPosition - self.transform.forward * 3f;
+    private Node.NodeStatus HandleFallback(EnemyController agent, Vector3 enemyPosition) {
+        Vector3 fallbackPosition = enemyPosition - agent.transform.forward * 3f;
         blackboard.SetKeyValue(CommonKeys.TargetPosition, fallbackPosition);
-        blackboard.AddForce(fallbackPosition, 5f, "Flank_Fallback");
+        blackboard.AddForce(fallbackPosition - agent.transform.position, agent.TreeValues.Movement.FlankForce, "Flank_Fallback");
         
         endFlank();
-
+        Debug.Log($"Flank Failed Fallback");
         return Node.NodeStatus.Failure;
     }
 }
@@ -604,12 +622,13 @@ public class GetClosestCharacterStrategy : IStrategy
         GameObject closestCharacter = null;
         float closestCharDistance = float.MaxValue;
         foreach (GameObject character in characters) {
+            if(!character) continue;
             float charDistance = Mathf.Abs((agent.transform.position - character.transform.position).magnitude);
             if (!(charDistance < closestCharDistance)) continue;
             closestCharacter = character;
             closestCharDistance = charDistance;
         }
-        
+        if(closestCharacter == null) return;
         blackboard.SetValue(targetKey, closestCharacter);
         blackboard.SetKeyValue(CommonKeys.TargetPosition, closestCharacter.transform.position);
         //blackboard.AddForce(closestCharacter.transform.position, 1f, "Closest_Character");
@@ -653,11 +672,13 @@ public class GroupUpStrategy : IStrategy
         Vector3 targetPosition = GetGridPosition(centerPosition, index, allies.Count, radius);
         float distance = Vector3.Distance(agent.transform.position, targetPosition);
 
-        if (distance <= arrivalThreshold)
+        if (distance <= arrivalThreshold) {
+            agent.TreeValues.Decider.IsAssembleModified = false;
             return Node.NodeStatus.Success;
+        }
 
         blackboard.SetKeyValue(CommonKeys.TargetPosition, targetPosition);
-        blackboard.AddForce(targetPosition, 5f, "GroupUp");
+        blackboard.AddForce(targetPosition - agent.transform.position, agent.TreeValues.Movement.GroupUpForce, "GroupUp");
         return Node.NodeStatus.Running;
     }
 
@@ -699,14 +720,48 @@ public class MessageAllyStrategy : IStrategy
     }
 }
 
+public class ModifyWeightStrategy : IStrategy
+{
+    private EnemyBlackboard blackboard;
+    private EnemyController agent;
+    private MessageType messageType;
+
+    public ModifyWeightStrategy(EnemyBlackboard pBlackboard, MessageType pMessageType) {
+        blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
+        messageType = pMessageType;
+    }
+
+    public Node.NodeStatus Process() {
+        switch (messageType) {
+            case MessageType.Flank:
+                agent.TreeValues.CombatTactic.IsFlankModified = true;
+                break;
+            case MessageType.GroupUp:
+                agent.TreeValues.Decider.IsAssembleModified = true;
+                break;
+            case MessageType.Retreat:
+                agent.TreeValues.CombatTactic.IsRetreatModified = true;
+                break;
+            case MessageType.SurroundTarget:
+                agent.TreeValues.CombatTactic.IsSurroundModified = true;
+                break;
+        }
+        
+        return Node.NodeStatus.Success;
+    }
+}
+
 public class SetTargetAllyStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
+    private EnemyController agent;
     private GetClosestAllyStrategy _getClosestAlly;
     private GameObject targetAlly;
 
     public SetTargetAllyStrategy(EnemyBlackboard pBlackboard, GameObject pAlly = null) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         _getClosestAlly = new(blackboard);
         targetAlly = pAlly;
     }
@@ -722,7 +777,7 @@ public class SetTargetAllyStrategy : IStrategy
             blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject target);
             blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Ally);
             blackboard.SetKeyValue(CommonKeys.TargetPosition, target.transform.position);
-            blackboard.AddForce(target.transform.position, 1f, "Target_Ally");
+            blackboard.AddForce(target.transform.position - agent.transform.position, agent.TreeValues.Movement.TargetAllyForce, "Target_Ally");
             return Node.NodeStatus.Success;
         }
 
@@ -755,10 +810,12 @@ public class ProcessMessagesStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
     private ComProtocol protocol;
+    private EnemyController agent;
     private int bandwidth;
 
     public ProcessMessagesStrategy(EnemyBlackboard pBlackboard, int pBandwidth) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         bandwidth = pBandwidth;
         blackboard.TryGetValue(CommonKeys.ComProtocol, out protocol);
     }
@@ -775,6 +832,7 @@ public class ProcessMessagesStrategy : IStrategy
         List<ComMessage> _messagesToProcess = _messageInbox.GetRange(0, _count);
 
         foreach (ComMessage message in _messagesToProcess) {
+            if(message == null) continue;
             processMessage(message);
         }
 
@@ -820,11 +878,12 @@ public class ProcessMessagesStrategy : IStrategy
     private void ProcessFlank(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
         EnemyController _ally = (EnemyController)message.Payload[MessageInfoType.Ally];
-        Vector3 _flankDirection = (Vector3)message.Payload[MessageInfoType.Direction];
+        Vector3 _flankDirection = (Vector3)message.Payload[MessageInfoType.DirectionVector];
 
         blackboard.SetKeyValue(CommonKeys.FlankDirection, _flankDirection);
         blackboard.SetKeyValue(CommonKeys.FlankAlly, _ally);
         blackboard.SetKeyValue(CommonKeys.FlankTarget, _enemyTarget);
+        agent.TreeValues.CombatTactic.IsFlankModified = true;
     }
 
     private void ProcessGroupUp(ComMessage message) {
@@ -833,6 +892,7 @@ public class ProcessMessagesStrategy : IStrategy
 
         blackboard.SetKeyValue(CommonKeys.GroupUpAllies, _groupUpAllies);
         blackboard.SetKeyValue(CommonKeys.GroupUpPosition, _groupUpPosition);
+        agent.TreeValues.Decider.IsAssembleModified = true;
     }
 
     private void ProcessRetreat(ComMessage message) {
@@ -841,24 +901,25 @@ public class ProcessMessagesStrategy : IStrategy
 
         blackboard.SetKeyValue(CommonKeys.RetreatThreatPosition, _position);
         blackboard.SetKeyValue(CommonKeys.RetreatDistance, _retreatDistance);
+        agent.TreeValues.CombatTactic.IsRetreatModified = true;
     }
 
     private void ProcessRequestBackup(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
         blackboard.SetKeyValue(CommonKeys.TargetEnemy, _enemyTarget);
-        //todo: influence to attack
     }
 
     private void ProcessSurroundTarget(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
         List<GameObject> _allies = (List<GameObject>)message.Payload[MessageInfoType.Allies];
-        Vector2 _surroundAngle = (Vector2)message.Payload[MessageInfoType.Direction];
+        float _surroundAngle = (float)message.Payload[MessageInfoType.DirectionAngle];
         float _surroundRadius = (float)message.Payload[MessageInfoType.Distance];
 
         blackboard.SetKeyValue(CommonKeys.SurroundTarget, _enemyTarget);
         blackboard.SetKeyValue(CommonKeys.SurroundAllies, _allies);
         blackboard.SetKeyValue(CommonKeys.SurroundRadius, _surroundRadius);
         blackboard.SetKeyValue(CommonKeys.SurroundDirection, _surroundAngle);
+        agent.TreeValues.CombatTactic.IsSurroundModified = true;
     }
 }
 
@@ -893,29 +954,39 @@ public class RetreatFromTargetStrategy : RetreatFromPositionStrategy
     }
 
     public override Node.NodeStatus Process () {
+        agent.TreeValues.Messenger.IsRetreatModified = true;
+        if (!target) return Node.NodeStatus.Failure;
         blackboard.SetKeyValue(CommonKeys.RetreatThreatPosition, target.transform.position);
         return base.Process();
+    }
+
+    protected override void endRetreat() {
+        agent.TreeValues.Messenger.IsRetreatModified = false;
+        agent.TreeValues.CombatTactic.IsRetreatModified = false;
+        base.endRetreat();
     }
 }
 
 public class RetreatFromPositionStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
+    protected EnemyController agent;
     private float retreatDistance;
 
     public RetreatFromPositionStrategy(EnemyBlackboard pBlackboard, float pRetreatDistance = 5.0f) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         retreatDistance = pRetreatDistance;
     }
 
     public virtual Node.NodeStatus Process() {
-        if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent)) return Node.NodeStatus.Failure;
+        if (!agent) return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.RetreatThreatPosition, out Vector3 _threatPos))
             return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.RetreatDistance, out float _retreatDistance))
             _retreatDistance = retreatDistance;
 
-        Vector3 currentPos = _agent.transform.position;
+        Vector3 currentPos = agent.transform.position;
         Vector3 awayDirection = (currentPos - _threatPos).normalized;
 
         if (awayDirection == Vector3.zero) awayDirection = UnityEngine.Random.insideUnitSphere.normalized;
@@ -929,11 +1000,11 @@ public class RetreatFromPositionStrategy : IStrategy
         }
 
         blackboard.SetKeyValue(CommonKeys.TargetPosition, retreatTarget);
-        blackboard.AddForce(_threatPos, -5f, "Retreat_Position");
+        blackboard.AddForce(_threatPos - agent.transform.position, agent.TreeValues.Movement.RetreatForce, "Retreat_Position");
         return Node.NodeStatus.Running;
     }
 
-    private void endRetreat() {
+    protected virtual void endRetreat() {
         blackboard.SetKeyValue<float?>(CommonKeys.RetreatDistance, null);
         blackboard.SetKeyValue<Vector3?>(CommonKeys.RetreatThreatPosition, null);
     }
@@ -960,8 +1031,10 @@ public class SendMessageToAllyStrategy : IStrategy
 
     public virtual Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        if (recipient == null && recipientMethod == null) return Node.NodeStatus.Failure;
         recipient ??= recipientMethod();
         if (recipient.TryGetComponent(out EnemyController _allyAgent)) {
+            if(message == null && messageMethod == null){ return Node.NodeStatus.Failure; }
             message ??= messageMethod();
             _agent.SendComMessage(_allyAgent, message);
             return Node.NodeStatus.Success;
@@ -971,7 +1044,9 @@ public class SendMessageToAllyStrategy : IStrategy
 
     public void Reset() {
     message = null;
+    messageMethod = null;
     recipient = null;
+    recipientMethod = null;
     }
 }
 
@@ -989,11 +1064,15 @@ public class SendMessageToAlliesStrategy : SendMessageToAllyStrategy
     public override Node.NodeStatus Process() {
         blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies);
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        
         foreach (var _ally in _allies) {
             recipient = _ally;
             base.Process();
         }
 
+        recipient = _agent.gameObject;
+        base.Process();
+        
         return Node.NodeStatus.Success;
     }
 }
@@ -1023,11 +1102,13 @@ public class StrikeParry : IStrategy
 public class SurroundTargetStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
+    private EnemyController agent;
     private float arrivalThreshold = 0.5f;
     private float sectorAngle = 170;
 
     public SurroundTargetStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
     }
 
     public Node.NodeStatus Process() {
@@ -1035,23 +1116,26 @@ public class SurroundTargetStrategy : IStrategy
         if (!blackboard.TryGetValue(CommonKeys.SurroundAllies, out List<GameObject> allies))
             return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.SurroundRadius, out float radius)) radius = 5f;
-        if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController self)) return Node.NodeStatus.Failure;
+        if (!agent) return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.SurroundDirection, out Vector3 direction)) direction = Vector3.forward;
 
-        int index = allies.IndexOf(self.gameObject);
+        int index = allies.IndexOf(agent.gameObject);
         if (index == -1) return Node.NodeStatus.Failure;
 
         Vector3 targetPos = target.transform.position;
         Vector3 forward = direction.normalized;
 
         Vector3 desiredPosition = GetSectorPosition(targetPos, index, allies.Count, radius, sectorAngle, forward);
-        float distance = Vector3.Distance(self.transform.position, desiredPosition);
+        Vector3 directionToPosition = desiredPosition - agent.transform.position;
+        float distance = directionToPosition.magnitude;
 
-        if (distance <= arrivalThreshold)
+        if (distance <= arrivalThreshold) {
+            endSurround();
             return Node.NodeStatus.Success;
+        }
 
         blackboard.SetKeyValue(CommonKeys.TargetPosition, desiredPosition);
-        blackboard.AddForce(desiredPosition, 5f, "Surround_Target");
+        blackboard.AddForce(directionToPosition, agent.TreeValues.Movement.SurroundForce, "Surround_Target");
         return Node.NodeStatus.Running;
     }
 
@@ -1071,6 +1155,10 @@ public class SurroundTargetStrategy : IStrategy
         float _angle = 2 * Mathf.PI * pIndex / pTotal;
         Vector2 _pos = new Vector2(pCenter.x, pCenter.z) + RadialHelper.PolarToCart(_angle, pRadius);
         return new Vector3(_pos.x, pCenter.y, _pos.y);
+    }
+
+    private void endSurround() {
+        agent.TreeValues.CombatTactic.IsSurroundModified = false;
     }
 }
 

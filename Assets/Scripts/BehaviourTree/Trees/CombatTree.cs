@@ -23,44 +23,51 @@ public class CombatTree : BehaviourTree
         Sequence _baseCombatSequence = new Sequence("CombatBaseSeq");
         
         Leaf _obtainEnemy = new Leaf("Combat/ObtainTarget", new GetClosestEnemyStrategy(blackboard));
-        
+
+        Parallel _combatParallel = new("Combat//Parallel", 2, 1);
+        Leaf _targetCheck = new Leaf("Combat/TargetCheck", new ConditionStrategy(() => targetEnemy()));
         PrioritySelector _combatTacticSelector = new PrioritySelector("Combat/TargetSeq/CombatTacticSel");
         Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
         
-        Sequence _flankSequence = new Sequence("Combat///FlankSeq", ()=> agent.TreeValues.CombatTactic.FlankWeight);
+        Sequence _flankSequence = new Sequence("Combat///FlankSeq", ()=> agent.TreeValues.CombatTactic.FlankWeight + (agent.TreeValues.CombatTactic.IsFlankModified ? agent.TreeValues.CombatTactic.FlankMod : 0));
         Leaf _flankCheck = new("Combat///FlankCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
-            return visibleAllies.Count > 1;
+            return visibleAllies.Count >= 1;
         }));
         Leaf _flankTarget = new("Combat///FlankTarget", new FlankStrategy(blackboard));
         
-        Sequence _surroundSequence = new Sequence("Combat//SurroundSeq", ()=> agent.TreeValues.CombatTactic.SurroundWeight);
+        Sequence _surroundSequence = new Sequence("Combat//SurroundSeq", ()=> agent.TreeValues.CombatTactic.SurroundWeight + (agent.TreeValues.CombatTactic.IsSurroundModified ? agent.TreeValues.CombatTactic.SurroundMod : 0));
         Leaf _surroundCheck = new("Combat///SurroundCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
-            return visibleAllies.Count > 3;
+            return visibleAllies.Count >= 2;
         }));
         Leaf _surroundTarget = new("Combat///SurroundTarget", new SurroundTargetStrategy(blackboard));
         
-        Sequence _fleeBranch = new Sequence("Combat//FleeBranch", ()=> agent.TreeValues.CombatTactic.RetreatWeight);
-        Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => agentHealth() < agent.TreeValues.Health.LowHealthThreshold));
+        Sequence _fleeBranch = new Sequence("Combat//FleeBranch", ()=> agent.TreeValues.CombatTactic.RetreatWeight + (agent.TreeValues.CombatTactic.IsRetreatModified ? agent.TreeValues.CombatTactic.RetreatMod + agent.TreeValues.Health.LowHealthWeight : 0));
+        Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => blackboard.CheckLowHealth()));
         //PrioritySelector _retreatSelector = new("Combat//FleeBranch/Selector");
         //Leaf _regroup = new("Combat/FleeBranch/Regroup", new GroupUpStrategy(blackboard), agent.TreeValues.Combat.RetreatGroupWeight);
-        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()), ()=> agent.TreeValues.CombatTactic.RetreatSelfWeight);
+        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()), ()=>
+        {
+            return agent.TreeValues.CombatTactic.RetreatSelfWeight;
+        });
         
         AddChild(_baseCombatSequence);
         _baseCombatSequence.AddChild(_obtainEnemy);
-        _baseCombatSequence.AddChild(_combatTacticSelector);
+        _baseCombatSequence.AddChild(_combatParallel);
         _baseCombatSequence.AddChild(_distanceSelfFromWeapon);
         
+        _combatParallel.AddChild(_targetCheck);
+        _combatParallel.AddChild(_combatTacticSelector);
         _combatTacticSelector.AddChild(_surroundSequence);
         _surroundSequence.AddChild(_surroundCheck);
         _surroundSequence.AddChild(_surroundTarget);
         
-        _combatTacticSelector.AddChild(new AttackTargetTree(blackboard, agent, ()=> agent.TreeValues.CombatTactic.AttackTargetWeight));
+        _combatTacticSelector.AddChild(new AttackTargetTree(blackboard, agent, ()=> agent.TreeValues.CombatTactic.AttackTargetWeight + (agent.TreeValues.CombatTactic.IsAttackTargetModified ? agent.TreeValues.CombatTactic.AttackTargetMod : 0)));
         
-        _combatTacticSelector.AddChild(new DefendSelfTree(blackboard, ()=> agent.TreeValues.CombatTactic.DefendSelfWeight));
+        _combatTacticSelector.AddChild(new DefendSelfTree(blackboard, ()=> agent.TreeValues.CombatTactic.DefendSelfWeight + (agent.TreeValues.CombatTactic.IsDefendSelfModified ? agent.TreeValues.CombatTactic.DefendSelfMod : 0)));
         
         _combatTacticSelector.AddChild(_fleeBranch);
         _fleeBranch.AddChild(_healthCheck);
@@ -69,12 +76,6 @@ public class CombatTree : BehaviourTree
         _combatTacticSelector.AddChild(_flankSequence);
         _flankSequence.AddChild(_flankCheck);
         _flankSequence.AddChild(_flankTarget);
-    }
-    
-    private int defensePriority() {
-        blackboard.TryGetValue(CommonKeys.ChosenAction, out ActionType _actionType);
-        if (_actionType == ActionType.Parry || _actionType == ActionType.Dodge) return 3;
-        return 0;
     }
 
     private float _enemyWeaponRange = 0;
@@ -88,10 +89,5 @@ public class CombatTree : BehaviourTree
     private GameObject targetEnemy() {
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
         return _target;
-    }
-
-    private float agentHealth() {
-        blackboard.TryGetValue(CommonKeys.SelfHealth, out float _agentHealth);
-        return _agentHealth;
     }
 }

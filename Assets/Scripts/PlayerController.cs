@@ -100,8 +100,9 @@ public class PlayerController : MonoBehaviour
             }
             player.SetLookDirection(lastLookDirection.normalized);
         }
-        else if (lastLookDirection.sqrMagnitude > 0.01f) {
+        else if (lastLookDirection.sqrMagnitude > 0.01f && gamepadInput.sqrMagnitude > 0.1f) {
             Vector2 _smoothedDirection = Vector2.Lerp(lastLookDirection, gamepadInput, Time.deltaTime * rotationSpeed);
+            lastLookDirection = new Vector2(_smoothedDirection.x, _smoothedDirection.y);
             targetAngle = RadialHelper.NormalizeAngle(RadialHelper.CartesianToPol(_smoothedDirection).y);
             player.SetLookDirection(_smoothedDirection.normalized);
         }

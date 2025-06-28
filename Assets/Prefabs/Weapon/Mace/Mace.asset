@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6e90039c8b39714e93d1f2a9df25596, type: 3}
+  m_Name: Mace
+  m_EditorClassIdentifier: 
+  Mass: 5
+  WeaponDistance: 0.1
+  MaxTurnVelocity: 100
+  MaxOrbitalVelocity: 700
+  MaxReach: 2
+  SwingDampingFactor: 0.98
+  ThrustDampingFactor: 0.98
+  JabState: {fileID: 11400000, guid: 1a9290be566177045960a0210e4a4a50, type: 2}
+  ThrustState: {fileID: 11400000, guid: 2ae19fef35908f94cb2182b7d8d3084f, type: 2}
+  SwipeState: {fileID: 11400000, guid: ecbb7dbae6a425e4f909da4bee7a7d42, type: 2}
+  SwingState: {fileID: 11400000, guid: 41bbdcb3428dbfd4ab71edda3ea202a4, type: 2}
+  BlockState: {fileID: 0}

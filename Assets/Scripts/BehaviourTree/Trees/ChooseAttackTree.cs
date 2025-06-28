@@ -43,7 +43,8 @@ public class ChooseAttackTree : BehaviourTree
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
         blackboard.TryGetValue(CommonKeys.LinearAttackZone, out float _stabZone);
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
-
+        if (!_target) return false;
+            
         float diffAngle = RadialHelper.CartesianToPol((_target.transform.position - _agent.transform.position).normalized).y;
         
         float deltaAngle = Mathf.DeltaAngle(diffAngle, _stabZone);

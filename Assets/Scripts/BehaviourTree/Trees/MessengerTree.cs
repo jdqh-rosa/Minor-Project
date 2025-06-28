@@ -17,39 +17,43 @@ public class MessengerTree : BehaviourTree
         PrioritySelector _messengerSelector = new("MessageTree/MessengerSelector");
         
         
-        Sequence _flankSequence = new("MessageTree//Flank", ()=> agent.TreeValues.Messenger.FlankWeight);
+        Sequence _flankSequence = new("MessageTree//Flank", ()=> agent.TreeValues.Messenger.FlankWeight + (agent.TreeValues.Messenger.IsFlankModified ? agent.TreeValues.Messenger.FlankMod : 0));
         Leaf _flankViable = new("MessageTree//Flank/ViableCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.FlankFlag, out bool flankFlag);
             return blackboard.EnemiesAvailable() && !flankFlag;
         })); //todo: check if appropriate flag is off
         Leaf _flankMessage = new("MessageTree//Flank/SendMessage", new SendMessageToAllyStrategy(blackboard, ()=> targetAlly(), ()=> flankMessage()));
+        Leaf _flankModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsFlankModified = true));
         
-        Sequence _groupUpSequence = new("MessageTree//GroupUp", ()=> agent.TreeValues.Messenger.GroupUpWeight);
+        Sequence _groupUpSequence = new("MessageTree//GroupUp", ()=> agent.TreeValues.Messenger.GroupUpWeight + (agent.TreeValues.Messenger.IsGroupUpModified ? agent.TreeValues.Messenger.GroupUpMod : 0));
         Leaf _groupUpViable = new("MessageTree//GroupUp/ViableCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
             blackboard.TryGetValue(CommonKeys.GroupUpFlag, out bool groupUpFlag);
-            return visibleAllies.Count > 2 && !groupUpFlag;
+            return visibleAllies.Count >= 2 && !groupUpFlag;
         }));
         Leaf _groupUpMessage = new("MessageTree//GroupUp/SendMessage", new SendMessageToAlliesStrategy(blackboard, groupUpMessage));
+        Leaf _groupUpModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.Decider.IsAssembleModified = true));
         
-        Sequence _retreatSequence = new("MessageTree//Retreat", ()=> agent.TreeValues.Messenger.RetreatWeight);
-        Leaf _retreatViable = new("MessageTree//Retreat/ViableCheck", new ConditionStrategy(() => blackboard.GetHealth() > agent.TreeValues.Health.LowHealthThreshold));
+        Sequence _retreatSequence = new("MessageTree//Retreat", ()=> agent.TreeValues.Messenger.RetreatWeight  + (agent.TreeValues.Messenger.IsRetreatModified ? agent.TreeValues.Messenger.RetreatMod : 0));
+        Leaf _retreatViable = new("MessageTree//Retreat/ViableCheck", new ConditionStrategy(() => blackboard.EnemiesAvailable() && blackboard.CheckLowHealth()));
         Leaf _retreatMessage = new("MessageTree//Retreat/SendMessage", new SendMessageToAlliesStrategy(blackboard, retreatMessage));
+        Leaf _retreatModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsRetreatModified = true));
         
-        Sequence _backUpSequence = new("MessageTree//BackUp", ()=> agent.TreeValues.Messenger.BackUpWeight);
-        Leaf _backUpViable = new("MessageTree//BackUp/ViableCheck", new ConditionStrategy(() => blackboard.EnemiesAvailable() && blackboard.GetHealth() > agent.TreeValues.Health.LowHealthThreshold));
+        Sequence _backUpSequence = new("MessageTree//BackUp", ()=> agent.TreeValues.Messenger.BackUpWeight + (agent.TreeValues.Messenger.IsBackUpModified ? agent.TreeValues.Messenger.BackUpMod : 0));
+        Leaf _backUpViable = new("MessageTree//BackUp/ViableCheck", new ConditionStrategy(() => blackboard.EnemiesAvailable() && blackboard.CheckLowHealth()));
         Leaf _backUpMessage = new("MessageTree//BackUp/SendMessage", new SendMessageToAlliesStrategy(blackboard, backUpMessage));
         
-        Sequence _surroundSequence = new("MessageTree//Surround", ()=> agent.TreeValues.Messenger.SurroundWeight);
+        Sequence _surroundSequence = new("MessageTree//Surround", ()=> agent.TreeValues.Messenger.SurroundWeight + (agent.TreeValues.Messenger.IsSurroundModified ? agent.TreeValues.Messenger.SurroundMod : 0));
         Leaf _surroundViable = new("MessageTree//Surround/ViableCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> _visibleEnemies);
             blackboard.TryGetValue(CommonKeys.SurroundFlag, out bool surroundFlag);
-            return blackboard.AlliesAvailable() && _visibleEnemies.Count > 0 && _visibleEnemies.Count < 2 && !surroundFlag;
+            return blackboard.AlliesAvailable() && _visibleEnemies.Count > 0 && _visibleEnemies.Count < 2;
         }));
         Leaf _surroundMessage = new("MessageTree//Surround/SendMessage", new SendMessageToAlliesStrategy(blackboard, surroundMessage));
+        Leaf _surroundModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsSurroundModified = true));
         
         
         AddChild(_baseSequence);
@@ -64,18 +68,22 @@ public class MessengerTree : BehaviourTree
         
         _flankSequence.AddChild(_flankViable);
         _flankSequence.AddChild(_flankMessage);
+        _flankSequence.AddChild(_flankModified);
         
         _groupUpSequence.AddChild(_groupUpViable);
         _groupUpSequence.AddChild(_groupUpMessage);
+        _groupUpSequence.AddChild(_groupUpModified);
         
         _retreatSequence.AddChild(_retreatViable);
         _retreatSequence.AddChild(_retreatMessage);
+        _retreatSequence.AddChild(_retreatModified);
         
         _backUpSequence.AddChild(_backUpViable);
         _backUpSequence.AddChild(_backUpMessage);
         
         _surroundSequence.AddChild(_surroundViable);
         _surroundSequence.AddChild(_surroundMessage);
+        _surroundSequence.AddChild(_surroundModified);
     }
 
     private GameObject targetAlly() {
@@ -91,7 +99,7 @@ public class MessengerTree : BehaviourTree
         {
             { MessageInfoType.Enemy, _enemy },
             { MessageInfoType.Ally, agent },
-            { MessageInfoType.Direction, (_enemy.transform.position- agent.transform.position).normalized }
+            { MessageInfoType.DirectionVector, (_enemy.transform.position- agent.transform.position).normalized }
         };
 
         return new ComMessage(agent, _allyAgent, MessageType.Flank, _payload, Time.time);
@@ -143,7 +151,7 @@ public class MessengerTree : BehaviourTree
         {
             { MessageInfoType.Enemy, _enemy },
             { MessageInfoType.Allies, _allies }, 
-            { MessageInfoType.Direction, 270f }, //surroundAngle
+            { MessageInfoType.DirectionAngle, 270f }, //surroundAngle
             { MessageInfoType.Distance, 5f } //surroundRadius
         };
 

@@ -69,7 +69,7 @@ public class ComProtocol : MonoBehaviour
     private void ProcessFlank(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
         EnemyController _ally  = (EnemyController)message.Payload[MessageInfoType.Ally];
-        Vector2 _flankDirection = (Vector2)message.Payload[MessageInfoType.Direction];
+        Vector3 _flankDirection = (Vector3)message.Payload[MessageInfoType.DirectionVector];
         //todo: flank enemy opposite of ally
     }
     private void ProcessGroupUp(ComMessage message) {
@@ -87,7 +87,7 @@ public class ComProtocol : MonoBehaviour
     private void ProcessSurroundTarget(ComMessage message) {
         GameObject _enemyTarget = (GameObject)message.Payload[MessageInfoType.Enemy];
         List<GameObject> _allies = (List<GameObject>)message.Payload[MessageInfoType.Allies];
-        Vector2 _surroundAngle = (Vector2)message.Payload[MessageInfoType.Direction];
+        float _surroundAngle = (float)message.Payload[MessageInfoType.DirectionAngle];
         //todo: set expected position relative to target enemy
     }
 }

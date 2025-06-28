@@ -2,18 +2,17 @@ using UnityEngine;
 
 public class SwipeState : CombatState
 {
-    private float attackForce = 100f;
+
     public SwipeState(string pName) : base(pName) { }
 
     public override void Ready() {
         //Name = "Swipe";
-        extendTime = 0.3f;
     }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
 
-        StateMachine.Weapon.ApplyThrust(attackRange, extendTime);
+        StateMachine.GetWeapon().ApplyThrust(attackRange, extendTime);
     }
 
     public override void UpdateLogic(float delta) {
@@ -37,7 +36,7 @@ public class SwipeState : CombatState
 
     public override void Exit() {
         base.Exit();
-        StateMachine.Weapon.ApplyThrust(0, retractTime);
+        StateMachine.GetWeapon().ApplyThrust(0, retractTime);
         elapsedTime = 0f;
         attackAngle = 0f;
         Interruptible = true;

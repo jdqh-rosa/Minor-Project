@@ -23,11 +23,17 @@ public class AttackTargetTree : BehaviourTree
     private void setup()
     {
         Parallel _parallel = new("AttackTarget/Parallel", 1);
-        _parallel.AddChild(new EnterRangeTree(blackboard, agent.GetWeaponRange()));
-        //_parallel.AddChild(new Leaf("AttackTarget//PointWeapon",  new ActionStrategy(pointWeapon)));
+        _parallel.AddChild(new Leaf("AttackTarget/Parallel/TargetCheck", new ConditionStrategy(() => targetEnemy())));
+        _parallel.AddChild(new EnterRangeTree(blackboard, targetEnemy,agent.GetWeaponRange() -0.2f));
+        _parallel.AddChild(new Leaf("AttackTarget//PointWeapon",  new ActionStrategy(pointWeapon)));
         AddChild(_parallel);
         AddChild(new ChooseAttackTree(blackboard));
         AddChild(new AttackTree(blackboard, agent));
+    }
+
+    private GameObject targetEnemy() {
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy);
+        return _enemy;
     }
     
     void pointWeapon()

@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class EnemyBlackboard : Blackboard
 {
+    public List<DirectionalForce> MovementForces = new();
     private void Init() {
         SetKeyValue(CommonKeys.MessageInbox, new List<ComMessage>());
         SetKeyValue(CommonKeys.VisibleAllies, new List<GameObject>());
@@ -15,21 +16,28 @@ public class EnemyBlackboard : Blackboard
     }
     public void AddCharacterData(CharacterData pData)
     {
+        SetKeyValue(CommonKeys.LinearAttackZone, pData.LinearAttackZone);
+        SetKeyValue(CommonKeys.RotationSpeed, pData.RotationSpeed);
+        SetKeyValue(CommonKeys.MaxRotationSpeed, pData.MaxRotationSpeed);
+        
+        Dictionary<ActionType, CombatStateData> _actionDictionary = new(){
+            { ActionType.Stride, pData.StrideState},
+            { ActionType.Dodge , pData.DodgeState },
+        };
+        SetKeyValue(CommonKeys.MovementActions, _actionDictionary);
+        
+        Init();
+    }
+
+    public void AddWeaponData(WeaponData pData) {
         Dictionary<ActionType, CombatStateData> _actionDictionary = new(){
             { ActionType.Jab, pData.JabState },
             { ActionType.Thrust, pData.ThrustState },
             { ActionType.Swipe, pData.SwipeState },
             { ActionType.Swing, pData.SwingState },
-            { ActionType.Stride, pData.StrideState},
-            { ActionType.Dodge , pData.DodgeState },
         };
-        
-        SetKeyValue(CommonKeys.LinearAttackZone, pData.LinearAttackZone);
-        SetKeyValue(CommonKeys.RotationSpeed, pData.RotationSpeed);
-        SetKeyValue(CommonKeys.MaxRotationSpeed, pData.MaxRotationSpeed);
-        SetKeyValue(CommonKeys.Actions, _actionDictionary);
-        
-        Init();
+        SetKeyValue(CommonKeys.AttackActions, _actionDictionary);
+
     }
 
     public TargetType GetActiveTargetType() {
@@ -57,19 +65,17 @@ public class EnemyBlackboard : Blackboard
         return _enemies.Count > 0;
     }
 
-    public float GetHealth() {
-        TryGetValue(CommonKeys.SelfHealth, out float result);
-        return result;
+    public float GetCurrentHealth() {
+        TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        return _agent.GetCurrentHealth();
     }
 
-    public void AddDirectionalForce(DirectionalForce pForce) {
-        TryGetValue(CommonKeys.DirectionalForces, out List<DirectionalForce> _forces);
-        _forces.Add(pForce);
-        SetKeyValue(CommonKeys.DirectionalForces, _forces);
+    public bool CheckLowHealth() {
+        TryGetValue(CommonKeys.MaxHealth, out float _maxHealth);
+        TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        return GetCurrentHealth() < _maxHealth * _agent.TreeValues.Health.LowHealthThreshold;
     }
     
-    public List<DirectionalForce> MovementForces = new();
-
     public void AddForce(Vector3 pDirection, float pStrength, string pName="")
     {
         MovementForces.Add(new DirectionalForce(pDirection.normalized, pStrength, pName));
@@ -97,7 +103,8 @@ public class EnemyBlackboard : Blackboard
 public enum CommonKeys
 {
     Error,
-    Actions,
+    AttackActions,
+    MovementActions,
     ActiveTarget,
     AgentSelf,
     ChosenAction,
@@ -121,6 +128,7 @@ public enum CommonKeys
     LastAllyPosition,
     LastPatrolTime,
     LinearAttackZone,
+    MaxHealth,
     MaxRotationSpeed,
     MessageInbox,
     PatrolFlag,
@@ -144,6 +152,7 @@ public enum CommonKeys
     VisibleAllies,
     VisibleEnemies,
     VisibleTargets,
+    VisibleWeapons,
     WeaponReach,
     
     DirectionalForces,

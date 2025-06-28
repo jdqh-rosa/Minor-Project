@@ -137,6 +137,9 @@ public class Parallel : Node
                 succesCount++;
             }else if (status == NodeStatus.Failure) {
                 failureCount++;
+                if (failureCount >= failureThreshold) {
+                    return NodeStatus.Failure;
+                }
             }
         }
 
@@ -191,7 +194,6 @@ public class Selector : Node
                     return NodeStatus.Running;
             }
         }
-
         Reset();
         return NodeStatus.Failure;
     }
@@ -225,7 +227,6 @@ public class PrioritySelector : Selector
                     continue;
             }
         }
-
         return NodeStatus.Failure;
     }
 }
@@ -289,7 +290,7 @@ public class BehaviourTree : Node
             var status = child.Process();
             child.IsActive = status == NodeStatus.Running;
             if (status != NodeStatus.Success) {
-                Debug.Log($"{Name} : {children[currentChild].Path}=>{status}");
+                Debug.Log($"{Name} : {children[currentChild].children[children[currentChild].GetCurrentChildIndex()].Path}=>{status}");
                 return status;
             }
         }

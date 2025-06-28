@@ -22,7 +22,7 @@ public class DeciderTree : BehaviourTree
         })));
         _combatBranch.AddChild(new CombatTree(blackboard));
         
-        Sequence _assembleBranch = new("Base//AssembleSequence", ()=> agent.TreeValues.Decider.AssembleWeight);
+        Sequence _assembleBranch = new("Base//AssembleSequence", ()=> agent.TreeValues.Decider.AssembleWeight + (agent.TreeValues.Decider.IsAssembleModified ? agent.TreeValues.Decider.AssembleMod : 0));
         _assembleBranch.AddChild(new Leaf("CheckAssemble", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> targets);
@@ -34,7 +34,7 @@ public class DeciderTree : BehaviourTree
         
         AddChild(_prioritySelector);
         _prioritySelector.AddChild(_combatBranch);
-        //_prioritySelector.AddChild(_assembleBranch);
+        _prioritySelector.AddChild(_assembleBranch);
         _prioritySelector.AddChild(new IdleTree(blackboard, ()=> agent.TreeValues.Decider.IdleWeight));
     }
 }

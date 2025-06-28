@@ -12,14 +12,10 @@ public class CharacterData : ScriptableObject
     public float CollisionElasticity = 0.8f;
     public float AngularFactor = 0.9f;
 
-    public CombatStateData JabState;
-    public CombatStateData ThrustState;
-    public CombatStateData SwipeState;
-    public CombatStateData SwingState;
+    public float HitInvulerabilityTime = 0.3f;
+    
     public CombatStateData StrideState;
     public CombatStateData DodgeState;
-    public CombatStateData ParryState;
-    public CombatStateData BlockState;
 }
 
 public enum CharacterTeam
@@ -28,5 +24,6 @@ public enum CharacterTeam
     Player,
     Enemy,
     Neutral,
-    Blembd
+    Blembd,
+    TeamSelf,
 }

@@ -78,13 +78,13 @@ public class AttackTree : BehaviourTree
         float _deltaAngle = deltaAngle();
         _attackAngle += (_deltaAngle >= 0) ? _deltaAngle : -_deltaAngle;
         
-        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, _attackAngle);
+        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_attackAngle));
     }
 
     float idealAttackAngle()
     {
         blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType _attackType);
-        blackboard.TryGetValue(CommonKeys.Actions, out Dictionary<ActionType, CombatStateData> _actions);
+        blackboard.TryGetValue(CommonKeys.AttackActions, out Dictionary<ActionType, CombatStateData> _actions);
         float _attackAngle = _actions[_attackType].IdealAttackAngle;
         return _attackAngle;
     }
@@ -100,7 +100,7 @@ public class AttackTree : BehaviourTree
         
         blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
         Vector2 dir = (positionOffset).normalized;
-        blackboard.AddForce(dir, 1, "Aligned_AttackPosition");
+        blackboard.AddForce(dir, agent.TreeValues.Movement.AlignAttackForce, "Aligned_AttackPosition");
         
         blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
     }

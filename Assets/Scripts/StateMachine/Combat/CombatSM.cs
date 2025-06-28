@@ -4,7 +4,7 @@ using UnityEngine;
 public class CombatSM : BaseStateMachine<CombatSM>
 {
     public Character Character;
-    public CharacterWeapon Weapon;
+    private CharacterWeapon weapon;
     private CombatState inputState;
     private float attackAngle;
     protected CombatState currentCombatState;
@@ -15,6 +15,10 @@ public class CombatSM : BaseStateMachine<CombatSM>
     }
 
     protected override void Update() {
+        if (weapon != Character.Weapon) {
+            SetWeapon(Character.Weapon);
+        }
+        
         HandleInput();
         base.Update();
     }
@@ -48,10 +52,10 @@ public class CombatSM : BaseStateMachine<CombatSM>
 
     public void InputState(string pInput, float pAttackAngle=0f) {
         inputState = (CombatState)GetState(pInput);
-        attackAngle = pAttackAngle;
         
+        //SetAttackAngle(pAttackAngle);
         if (currentCombatState.HoldAction) {
-            currentCombatState.SetAttackAngle(attackAngle);
+            currentCombatState.SetAttackAngle(pAttackAngle);
         }
     }
 
@@ -81,6 +85,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
 
     public void Attack(ActionType pActionType, float pTargetAngle)
     {
+        attackAngle = pTargetAngle;
         switch (pActionType) {
             case ActionType.Jab:
                 InputState("Jab", pTargetAngle);
@@ -114,5 +119,17 @@ public class CombatSM : BaseStateMachine<CombatSM>
 
     public override void EndCurrentState() {
         TransitionToState(InitialState.Name);
+    }
+
+    public void SetAttackAngle(float pAngle) {
+        attackAngle = pAngle;
+        currentCombatState.SetAttackAngle(attackAngle);
+    }
+
+    public void SetWeapon(CharacterWeapon pWeapon) {
+        weapon = pWeapon;
+    }
+    public CharacterWeapon GetWeapon() {
+        return weapon;
     }
 }

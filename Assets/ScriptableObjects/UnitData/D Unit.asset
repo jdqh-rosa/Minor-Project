@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CharacterName: Dennis
   CharacterTeam: 2
-  MaxHealth: 50
+  MaxHealth: 1000
