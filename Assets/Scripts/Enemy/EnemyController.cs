@@ -137,7 +137,7 @@ public class EnemyController : MonoBehaviour
 
     void OnDrawGizmos() {
         if (tree == null) return;
-        //drawNodeGizmo(tree, Vector3.up * 2);
+        drawNodeGizmo(tree, enemyCharacter.transform.position);
         DrawForces();
     }
     
