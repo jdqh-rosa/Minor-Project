@@ -182,6 +182,7 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: 16c6c9140a16e404da1fcb405d9b7905, type: 2}
   weaponJoint: {fileID: 7805814822669693971}
   Velocity: {x: 0, y: 0, z: 0}
+  angularFactor: 0.1
   currentAngle: 0
   OrbitalVelocity: 0
   ThrustVelocity: 0

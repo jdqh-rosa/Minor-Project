@@ -15,7 +15,8 @@ public class CharacterWeapon : MonoBehaviour
 
     public Vector3 Velocity;
 
-    private float acceleration = 0.1f; // Acceleration factor for smooth control
+    private float acceleration = 0.1f;
+    [SerializeField] private float angularFactor = 0.1f;
     [SerializeField] private float currentAngle = 0f;
     private float currentDistance = 0;
 
@@ -63,8 +64,8 @@ public class CharacterWeapon : MonoBehaviour
         initialLocalRot = Quaternion.Inverse(weaponJoint.connectedBody.rotation) * transform.rotation;
         rb.ResetInertiaTensor();
 
-        data.MaxTurnVelocity = Character.GetCharacterData().MaxRotationSpeed;
-        data.WeaponDistance = Mathf.Max(0.01f, data.WeaponDistance);
+        //data.MaxTurnVelocity = Character.GetCharacterData().MaxRotationSpeed;
+        //data.WeaponDistance = Mathf.Max(0.01f, data.WeaponDistance);
         currentDistance = data.WeaponDistance;
 
         weaponJoint.axis = Character.transform.right;
@@ -263,13 +264,12 @@ public class CharacterWeapon : MonoBehaviour
         Vector3 _tangent = new Vector3(-Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0, Mathf.Cos(currentAngle * Mathf.Deg2Rad));
         float _sign = Mathf.Sign(Vector3.Dot(_tangent, pContactNormal));
 
-        float _massFactor = momentum;
+        //float _massFactor = GetMass();
 
-        float _angularFactor = 0.5f;
-
-        float dKnockback = _relAngVel * _sign * _massFactor * _angularFactor;
+        //float dKnockback = _relAngVel * _sign * _massFactor * angularFactor;
+        float dKnockback = _relAngVel * _sign * angularFactor;
         KnockbackVelocity += dKnockback;
-        KnockbackVelocity = Math.Clamp(KnockbackVelocity, -data.MaxOrbitalVelocity, data.MaxOrbitalVelocity);
+        KnockbackVelocity = Math.Clamp(KnockbackVelocity, -Character.GetCharacterData().MaxRotationSpeed, Character.GetCharacterData().MaxRotationSpeed);
         
         // float _myMass = GetMass();
         // float _otherMass = pCharacterHit.Weapon.GetMass();

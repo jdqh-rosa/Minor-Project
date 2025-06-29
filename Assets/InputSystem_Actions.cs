@@ -55,6 +55,15 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
+                    ""name"": ""AltAttack"",
+                    ""type"": ""Button"",
+                    ""id"": ""b4768c0a-ad76-4ff1-8868-8beb83a9ac8b"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": ""Press"",
+                    ""initialStateCheck"": false
+                },
+                {
                     ""name"": ""Interact"",
                     ""type"": ""Button"",
                     ""id"": ""852140f2-7766-474d-8707-702459ba45f3"",
@@ -85,7 +94,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""name"": ""Previous"",
                     ""type"": ""Button"",
                     ""id"": ""2776c80d-3c14-4091-8c56-d04ced07a2b0"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -352,6 +361,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""b454b948-e629-400e-9796-4cf3e3df60ed"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""cbac6039-9c09-46a1-b5f2-4e5124ccb5ed"",
                     ""path"": ""<Keyboard>/2"",
                     ""interactions"": """",
@@ -512,6 +532,17 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Swing"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""522cd644-6edc-4176-ac61-ea80cb3db449"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""AltAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -1102,6 +1133,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Attack = m_Player.FindAction("Attack", throwIfNotFound: true);
+        m_Player_AltAttack = m_Player.FindAction("AltAttack", throwIfNotFound: true);
         m_Player_Interact = m_Player.FindAction("Interact", throwIfNotFound: true);
         m_Player_Crouch = m_Player.FindAction("Crouch", throwIfNotFound: true);
         m_Player_MovementAction = m_Player.FindAction("MovementAction", throwIfNotFound: true);
@@ -1191,6 +1223,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Move;
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Attack;
+    private readonly InputAction m_Player_AltAttack;
     private readonly InputAction m_Player_Interact;
     private readonly InputAction m_Player_Crouch;
     private readonly InputAction m_Player_MovementAction;
@@ -1205,6 +1238,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         public InputAction @Move => m_Wrapper.m_Player_Move;
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @Attack => m_Wrapper.m_Player_Attack;
+        public InputAction @AltAttack => m_Wrapper.m_Player_AltAttack;
         public InputAction @Interact => m_Wrapper.m_Player_Interact;
         public InputAction @Crouch => m_Wrapper.m_Player_Crouch;
         public InputAction @MovementAction => m_Wrapper.m_Player_MovementAction;
@@ -1230,6 +1264,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Attack.started += instance.OnAttack;
             @Attack.performed += instance.OnAttack;
             @Attack.canceled += instance.OnAttack;
+            @AltAttack.started += instance.OnAltAttack;
+            @AltAttack.performed += instance.OnAltAttack;
+            @AltAttack.canceled += instance.OnAltAttack;
             @Interact.started += instance.OnInteract;
             @Interact.performed += instance.OnInteract;
             @Interact.canceled += instance.OnInteract;
@@ -1264,6 +1301,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Attack.started -= instance.OnAttack;
             @Attack.performed -= instance.OnAttack;
             @Attack.canceled -= instance.OnAttack;
+            @AltAttack.started -= instance.OnAltAttack;
+            @AltAttack.performed -= instance.OnAltAttack;
+            @AltAttack.canceled -= instance.OnAltAttack;
             @Interact.started -= instance.OnInteract;
             @Interact.performed -= instance.OnInteract;
             @Interact.canceled -= instance.OnInteract;
@@ -1470,6 +1510,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         void OnMove(InputAction.CallbackContext context);
         void OnLook(InputAction.CallbackContext context);
         void OnAttack(InputAction.CallbackContext context);
+        void OnAltAttack(InputAction.CallbackContext context);
         void OnInteract(InputAction.CallbackContext context);
         void OnCrouch(InputAction.CallbackContext context);
         void OnMovementAction(InputAction.CallbackContext context);

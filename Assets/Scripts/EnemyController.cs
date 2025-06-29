@@ -10,6 +10,7 @@ public class EnemyController : MonoBehaviour
     private BehaviourTree tree;
     readonly EnemyBlackboard blackboard = new();
     //public TreeValuesManager ValuesManager;
+    [SerializeField] private float tickWait=0.1f;
     [SerializeField] private TreeValuesSO treeValues;
     public TreeValuesSO.TreeValuesRuntime TreeValues;
     private ComProtocol protocol;
@@ -79,8 +80,9 @@ public class EnemyController : MonoBehaviour
 
     IEnumerator TreeTick() {
         while (true) {
+            blackboard.ClearForces();
             tree.Process();
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(tickWait);
         }
     }
 
@@ -150,7 +152,7 @@ public class EnemyController : MonoBehaviour
 
     void OnDrawGizmos() {
         if (tree == null) return;
-        DrawNodeGizmo(tree, Vector3.up * 2);
+        //DrawNodeGizmo(tree, Vector3.up * 2);
         DrawForces();
     }
     
@@ -163,7 +165,7 @@ public class EnemyController : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, transform.position + blackboard.GetBlendedDirection() * 2);
-        blackboard.ClearForces();
+        //blackboard.ClearForces();
     }
 
     void DrawNodeGizmo(Node node, Vector3 pos) {

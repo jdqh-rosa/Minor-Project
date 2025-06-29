@@ -11,6 +11,7 @@ public class Character : MonoBehaviour
     public CombatSM CombatSM;
     [SerializeField] private UnitData unitData;
     [SerializeField] private CharacterData characterData;
+    [SerializeField] private HealthBar healthBar;
     
     private CharacterInfo charInfo;
 
@@ -53,6 +54,7 @@ public class Character : MonoBehaviour
         CombatSM.AddState(new DodgeState("Dodge"), characterData.DodgeState);
         CombatSM.InitialState = _idle;
         
+        healthBar.ChangeHealth(charInfo.Health/charInfo.MaxHealth);
     }
 
     private void Update() {
@@ -328,6 +330,7 @@ public class Character : MonoBehaviour
     public void TakeDamage(float pDamage) {
         if(hitInvulnerable) return;
         charInfo.TakeDamage(pDamage);
+        healthBar.ChangeHealth(charInfo.Health/charInfo.MaxHealth);
         hitInvulnerable = true;
         if (charInfo.Health <= 0) {
             Destroy(this.gameObject);

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EnemyCharacter
   m_EditorClassIdentifier: 
   RotationSpeed: 10
-  MaxRotationSpeed: 300
+  MaxRotationSpeed: 100
   DampingFactor: 0.2
   VelocityDamping: 0.9
   DeadZoneThreshold: 0.1

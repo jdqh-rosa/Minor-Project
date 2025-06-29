@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Swipe
   m_EditorClassIdentifier: 
   ActionType: 3
-  AttackForce: 250
+  AttackForce: 200
   Duration: 0.3
   ExtendTime: 0.1
   RetractTime: 0.1
