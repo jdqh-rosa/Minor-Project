@@ -11,6 +11,7 @@ public class CharacterData : ScriptableObject
     public float LinearAttackZone = 30f;
     public float CollisionElasticity = 0.8f;
     public float AngularFactor = 0.9f;
+    public float CombatBufferTime = 0.5f;
 
     public float HitInvulerabilityTime = 0.3f;
     

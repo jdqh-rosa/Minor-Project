@@ -91,8 +91,6 @@ public class AttackTree : BehaviourTree
 
     void alignAttackPosition()
     {
-        //todo: get weapon attack angle and align with that
-
         Vector3 _weaponTipPosition = MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(agent.GetWeaponAngle(), agent.GetWeaponRange()));
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
 

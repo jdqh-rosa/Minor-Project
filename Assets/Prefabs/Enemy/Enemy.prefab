@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blackboardData: {fileID: 11400000, guid: 6db5b665b2516364bac611fcc43bbad2, type: 2}
-  tickWait: 0.2
+  tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 8801623956880581924}
 --- !u!114 &7033172849522095928

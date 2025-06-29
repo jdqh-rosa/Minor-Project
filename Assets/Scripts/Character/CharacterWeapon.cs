@@ -264,10 +264,13 @@ public class CharacterWeapon : MonoBehaviour
         Vector3 _tangent = new Vector3(-Mathf.Sin(currentAngle * Mathf.Deg2Rad), 0, Mathf.Cos(currentAngle * Mathf.Deg2Rad));
         float _sign = Mathf.Sign(Vector3.Dot(_tangent, pContactNormal));
 
-        //float _massFactor = GetMass();
+        float _myMass = GetMass();
+        float _otherMass = pCharacterHit.Weapon.GetMass();
+        float _invMassSum = (1f / _myMass) + (1f / _otherMass);
+        float _massFactor = GetMass();
 
         //float dKnockback = _relAngVel * _sign * _massFactor * angularFactor;
-        float dKnockback = _relAngVel * _sign * angularFactor;
+        float dKnockback = _relAngVel * _sign * _invMassSum * angularFactor;
         KnockbackVelocity += dKnockback;
         KnockbackVelocity = Math.Clamp(KnockbackVelocity, -Character.GetCharacterData().MaxRotationSpeed, Character.GetCharacterData().MaxRotationSpeed);
         

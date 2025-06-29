@@ -43,6 +43,7 @@ public class Character : MonoBehaviour
         }
 
         CombatSM.Character = this;
+        CombatSM.SetBufferTime(characterData.CombatBufferTime);
         CombatSM.SetWeapon(Weapon);
         var _idle = new IdleCombatState("Idle");
         CombatSM.AddState(_idle);

@@ -6,7 +6,10 @@ public class CombatSM : BaseStateMachine<CombatSM>
     public Character Character;
     private CharacterWeapon weapon;
     private CombatState inputState;
+    private CombatState bufferedState;
     private float attackAngle;
+    private float bufferTime = 1f;
+    private float bufferClock;
     protected CombatState currentCombatState;
 
     protected override void Start() {
@@ -60,12 +63,23 @@ public class CombatSM : BaseStateMachine<CombatSM>
     }
 
     private void HandleInput() {
-        if (inputState == null) return;
+        if (inputState == null && bufferedState == null) return;
 
-        if (!currentCombatState.Interruptible) return;
+        if (!currentCombatState.Interruptible) {
+            bufferedState = inputState;
+            return;
+        }
+        
+        inputState ??= bufferedState;
 
         TransitionToState(inputState, attackAngle);
         inputState = null;
+        
+        bufferClock += Time.deltaTime;
+        if (bufferClock >= bufferTime) {
+            bufferedState = null;
+            bufferClock = 0f;
+        }
     }
     
     public void Attack(ActionInput pAttackInput, float pTargetAngle, bool linearAttack) {
@@ -131,5 +145,9 @@ public class CombatSM : BaseStateMachine<CombatSM>
     }
     public CharacterWeapon GetWeapon() {
         return weapon;
+    }
+
+    public void SetBufferTime(float pBufferTime) {
+        bufferTime = pBufferTime;
     }
 }
