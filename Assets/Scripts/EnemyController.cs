@@ -17,23 +17,22 @@ public class EnemyController : MonoBehaviour
 
     [SerializeField] private Character enemyCharacter;
 
-    private float findRadius = 20;
     private float _movementSlerpFactor= 0.8f;
     private Vector3 previousDirection = Vector3.zero;
 
     private void Awake() {
         if (!enemyCharacter) enemyCharacter = GetComponent<Character>();
 
+        blackboardData?.SetValuesOnBlackboard(blackboard);
         blackboard.AddCharacterData(enemyCharacter.GetCharacterData());
         blackboard.AddWeaponData(enemyCharacter.Weapon.GetWeaponData());
         blackboard.SetKeyValue(CommonKeys.ComProtocol, protocol);
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, enemyCharacter.transform.position);
         blackboard.SetKeyValue(CommonKeys.AgentSelf, this);
-        blackboard.SetKeyValue(CommonKeys.FindRadius, findRadius);
+        blackboard.SetKeyValue(CommonKeys.FindRadius, treeValues.Miscellaneous.FindRange);
         blackboard.SetKeyValue(CommonKeys.TeamSelf, enemyCharacter.GetCharacterInfo().Team);
         blackboard.SetKeyValue(CommonKeys.SelfHealth, enemyCharacter.GetCharacterInfo().Health);
         blackboard.SetKeyValue(CommonKeys.MaxHealth, enemyCharacter.GetCharacterInfo().MaxHealth);
-        blackboardData?.SetValuesOnBlackboard(blackboard);
 
         //if (ValuesManager == null) {
         //    ValuesManager = new TreeValuesManager(blackboard, this);

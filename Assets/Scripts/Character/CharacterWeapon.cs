@@ -334,13 +334,44 @@ public class CharacterWeapon : MonoBehaviour
         
         float _strength = Mathf.Clamp01(momentum / HighestSpeed);
 
-        pCharacterHit.TakeDamage(_strength * (AverageHealth * DamageRatio));
+        float _damageMod = 0;
+        switch (pPart.PartType) {
+            case WeaponPartType.Hilt:
+                _damageMod = data.HiltDamageFactor;
+                break;
+            case WeaponPartType.Main:
+                _damageMod = data.MainDamageFactor;
+                break;
+            case WeaponPartType.Tip:
+                _damageMod = data.TipDamageFactor;
+                break;
+            default:
+                _damageMod = 1f;
+                break;
+        }
+        switch (pPart.ContactType) {
+            case ContactType.Blunt:
+                _damageMod *= data.BluntDamageFactor;
+                break;
+            case ContactType.Chop:
+                _damageMod *= data.ChopDamageFactor;
+                break;
+            case ContactType.Poke:
+                _damageMod *= data.PokeDamageFactor;
+                break;
+            case ContactType.Slash:
+                _damageMod *= data.SlashDamageFactor;
+                break;
+        }
+
+        pCharacterHit.TakeDamage(_strength * (AverageHealth * DamageRatio) * _damageMod);
     }
 
     private void OnCollisionEnter(Collision collision) {
         foreach (var contact in collision.contacts) {
             GameObject thisObj = gameObject;
             GameObject otherObj = contact.otherCollider.transform.root.gameObject;
+            otherObj = contact.otherCollider.gameObject;
 
             // Skip if same root or already handled
             if (thisObj == otherObj || !CollisionTracker.TryRegisterCollision(thisObj, otherObj)) {

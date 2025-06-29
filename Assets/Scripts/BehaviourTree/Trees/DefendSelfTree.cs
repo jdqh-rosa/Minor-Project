@@ -27,10 +27,12 @@ public class DefendSelfTree : BehaviourTree
         Leaf _interceptAction = new("DefendSelf///StrikeParry", new StrikeParry(blackboard), ()=> agent.TreeValues.Defense.ParryWeight);
         //Leaf _blockAction = new("DefendSelf///Block",  , ()=> agent.TreeValues.Defense.BlockWeight);
         Leaf _retreatAction = new("", new RetreatFromPositionStrategy(blackboard), ()=> agent.TreeValues.Defense.RetreatWeight);
+        Leaf _modifyDefendWeight = new("", new ActionStrategy(() => agent.TreeValues.CombatTactic.IsDefendSelfModified = false));
         
         AddChild(_sequence);
         _sequence.AddChild(_detectAttack);
         _sequence.AddChild(_defendSelector);
+        _sequence.AddChild(_modifyDefendWeight);
         _defendSelector.AddChild(_evadeAction);
         _defendSelector.AddChild(_interceptAction);
         //_defendSelector.AddChild(_blockAction);

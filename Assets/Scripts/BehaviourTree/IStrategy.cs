@@ -32,53 +32,6 @@ public class ActionStrategy : IStrategy
         return Node.NodeStatus.Success;
     }
 }
-
-public class CalculatePositionStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-    private Vector3 avoidPosition;
-
-    public CalculatePositionStrategy(EnemyBlackboard pBlackboard) {
-        blackboard = pBlackboard;
-    }
-
-    public Node.NodeStatus Process() {
-        //todo: actual calculations?
-
-        switch (blackboard.GetActiveTargetType()) {
-            case TargetType.Enemy:
-                break;
-            case TargetType.Object:
-                break;
-            case TargetType.Ally:
-                break;
-            default:
-                blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 targetPos);
-                blackboard.SetKeyValue(CommonKeys.ChosenPosition, targetPos);
-                break;
-        }
-
-
-        return Node.NodeStatus.Success;
-    }
-}
-
-public class CalculateWeaponAngleStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-    private Vector3 avoidPosition;
-
-    public CalculateWeaponAngleStrategy(EnemyBlackboard pBlackboard) {
-        blackboard = pBlackboard;
-    }
-
-    public Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.ChosenFaceAngle, out Vector3 targetPos);
-        blackboard.SetKeyValue(CommonKeys.TargetPosition, targetPos);
-        return Node.NodeStatus.Success;
-    }
-}
-
 public class CheckMessageStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
@@ -219,10 +172,10 @@ public class DetectAttackStrategy : IStrategy
 
             if (_character.IsAttacking()) {
                 //todo: see if enemy attack makes contact
-                Vector3 _diffVec =
-                    MiscHelper.DifferenceVector(agent.transform.position, _character.transform.position);
-
+                Vector3 _diffVec = MiscHelper.DifferenceVector(agent.transform.position, _character.transform.position);
+                Vector3 _diffFromWeaponVec = _character.transform.position + MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(_character.GetWeaponAngle(), _character.GetWeaponRange())) - agent.transform.position;
                 if (_diffVec.magnitude > _character.GetWeaponRange()) continue;
+                if (_diffFromWeaponVec.magnitude > _character.GetWeaponRange()) continue;
 
                 float _angle = RadialHelper.CartesianToPol(_diffVec.normalized).y;
 
@@ -234,13 +187,16 @@ public class DetectAttackStrategy : IStrategy
 
         switch (_tryHitters.Count) {
             case 0:
+                agent.TreeValues.CombatTactic.IsDefendSelfModified = false;
                 blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.None);
                 break;
             case >= 2:
+                agent.TreeValues.CombatTactic.IsDefendSelfModified = true;
                 blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
                 blackboard.SetKeyValue(CommonKeys.TargetEnemy, FindClosestCharacter(_tryHitters).gameObject);
                 break;
             default:
+                agent.TreeValues.CombatTactic.IsDefendSelfModified = true;
                 blackboard.SetKeyValue(CommonKeys.TargetEnemy, _tryHitters[0].gameObject);
                 break;
         }
@@ -301,8 +257,6 @@ public class DistanceSelfFromObjectStrategy : IStrategy
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
         Vector2 diffVec = MiscHelper.Vec2ToVec3Pos(avoidObject.transform.position - agent.transform.position);
         if (diffVec.magnitude > minDistance) return Node.NodeStatus.Success;
-        //diffVec *= -1;
-        //blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec.normalized * minDistance);
         blackboard.AddForce(diffVec, agent.TreeValues.Movement.AvoidObjectForce, "DistanceSelf_Object");
         return Node.NodeStatus.Success;
     }
@@ -775,6 +729,7 @@ public class SetTargetAllyStrategy : IStrategy
 
         if (_getClosestAlly.Process() == Node.NodeStatus.Success) {
             blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject target);
+            if (!target) return Node.NodeStatus.Failure;
             blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.Ally);
             blackboard.SetKeyValue(CommonKeys.TargetPosition, target.transform.position);
             blackboard.AddForce(target.transform.position - agent.transform.position, agent.TreeValues.Movement.TargetAllyForce, "Target_Ally");

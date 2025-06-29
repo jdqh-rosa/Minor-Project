@@ -14,6 +14,7 @@ public class TreeValuesSO : ScriptableObject
     public CombatAttackWeights CombatAttack = new();
     public DefenseWeights Defense = new();
     public MovementWeights Movement = new();
+    public MiscellaneousValues Miscellaneous = new();
     
     [Serializable]
     public class MessengerWeights {
@@ -114,6 +115,12 @@ public class TreeValuesSO : ScriptableObject
         [Range(-10, 10)] public float RetreatForce = -3f;
         [Range(-10, 10)] public float SurroundForce = 3f;
     }
+
+    [Serializable]
+    public class MiscellaneousValues
+    {
+        [Range(0, 100)] public float FindRange = 10;
+    }
     
     public class TreeValuesRuntime
     {
@@ -124,6 +131,7 @@ public class TreeValuesSO : ScriptableObject
         public CombatAttackWeights CombatAttack;
         public DefenseWeights Defense;
         public MovementWeights Movement;
+        public MiscellaneousValues Miscellaneous;
 
         public TreeValuesRuntime(TreeValuesSO source)
         {
@@ -134,6 +142,7 @@ public class TreeValuesSO : ScriptableObject
             CombatAttack = JsonUtility.FromJson<CombatAttackWeights>(JsonUtility.ToJson(source.CombatAttack));
             Defense = JsonUtility.FromJson<DefenseWeights>(JsonUtility.ToJson(source.Defense));
             Movement = JsonUtility.FromJson<MovementWeights>(JsonUtility.ToJson(source.Movement));
+            Miscellaneous = JsonUtility.FromJson<MiscellaneousValues>(JsonUtility.ToJson(source.Miscellaneous));
         }
     }
 }
