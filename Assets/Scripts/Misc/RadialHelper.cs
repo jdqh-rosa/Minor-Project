@@ -14,25 +14,25 @@ static class RadialHelper
         return 360 / CalculateCircumference(pRadius);
     }
 
-    public static Vector2 PolarToCart(float deg, float pRadius)
+    public static Vector2 PolarToCart(float pDeg, float pRadius)
     {
-        float x = pRadius * Mathf.Cos(deg * Mathf.Deg2Rad);
-        float y = pRadius * Mathf.Sin(deg * Mathf.Deg2Rad);
-        return new Vector2(x, y);
+        float _x = pRadius * Mathf.Cos(pDeg * Mathf.Deg2Rad);
+        float _y = pRadius * Mathf.Sin(pDeg * Mathf.Deg2Rad);
+        return new Vector2(_x, _y);
     }
 
-    public static Vector2 CartesianToPol(float x, float y)
+    public static Vector2 CartesianToPol(float pX, float pY)
     {
-        float radius = Mathf.Sqrt(x * x + y * y);
-        float angle = Mathf.Atan2(y, x) * Mathf.Rad2Deg;
+        float radius = Mathf.Sqrt(pX * pX + pY * pY);
+        float angle = Mathf.Atan2(pY, pX) * Mathf.Rad2Deg;
         return new Vector2(radius, angle);
     }
     
-    public static Vector2 CartesianToPol(Vector2 cartesian)
+    public static Vector2 CartesianToPol(Vector2 pCartesian)
     {
-        float radius = Mathf.Sqrt(cartesian.x * cartesian.x + cartesian.y * cartesian.y);
-        float angle = Mathf.Atan2(cartesian.y, cartesian.x) * Mathf.Rad2Deg;
-        return new Vector2(radius, angle);
+        float _radius = Mathf.Sqrt(pCartesian.x * pCartesian.x + pCartesian.y * pCartesian.y);
+        float _angle = Mathf.Atan2(pCartesian.y, pCartesian.x) * Mathf.Rad2Deg;
+        return new Vector2(_radius, _angle);
     }
 
     public static Vector2 OrbitPoint(Vector2 pivot, Vector2 point, float angle)
@@ -40,15 +40,12 @@ static class RadialHelper
         float sin = Mathf.Sin(angle * Mathf.Deg2Rad);
         float cos = Mathf.Cos(angle * Mathf.Deg2Rad);
 
-        // translate point back to origin:
         point.x -= pivot.x;
         point.y -= pivot.y;
 
-        // rotate point
         float xnew = point.x * cos - point.y * sin;
         float ynew = point.x * sin + point.y * cos;
 
-        // translate point back:
         point.x = xnew + pivot.x;
         point.y = ynew + pivot.y;
         return point;

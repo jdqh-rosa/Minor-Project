@@ -34,8 +34,6 @@ public class CharacterWeapon : MonoBehaviour
         set => state = value;
     }
 
-    private Quaternion initialLocalRot;
-
     private void Start() {
         if (hilt != null) {
             hilt.Weapon = this;
@@ -61,11 +59,10 @@ public class CharacterWeapon : MonoBehaviour
         }
 
         weaponJoint.connectedBody = Character.GetComponent<Rigidbody>();
-        initialLocalRot = Quaternion.Inverse(weaponJoint.connectedBody.rotation) * transform.rotation;
         rb.ResetInertiaTensor();
 
         //data.MaxTurnVelocity = Character.GetCharacterData().MaxRotationSpeed;
-        //data.WeaponDistance = Mathf.Max(0.01f, data.WeaponDistance);
+        data.WeaponDistance = Mathf.Max(0.01f, data.WeaponDistance);
         currentDistance = data.WeaponDistance;
 
         weaponJoint.axis = Character.transform.right;
@@ -84,22 +81,15 @@ public class CharacterWeapon : MonoBehaviour
         }
     }
 
-    public void AddOrbitalVelocity(float pAddedMomentum) {
-        OrbitalVelocity += pAddedMomentum * acceleration;
-        OrbitalVelocity = Mathf.Clamp(OrbitalVelocity, -data.MaxOrbitalVelocity, data.MaxOrbitalVelocity);
-    }
-
     public float OrbitalAccelerate(float pAcceleration) {
         if (currentDistance <= 0.001f) return OrbitalVelocity;
 
         float _angularAcceleration;
         if (state == WeaponState.Active) {
-            _angularAcceleration = Mathf.Clamp(pAcceleration / currentDistance, -data.MaxOrbitalVelocity,
-                data.MaxOrbitalVelocity);
+            _angularAcceleration = Mathf.Clamp(pAcceleration / currentDistance, -data.MaxOrbitalVelocity, data.MaxOrbitalVelocity);
         }
         else {
-            _angularAcceleration =
-                Mathf.Clamp(pAcceleration / currentDistance, -data.MaxTurnVelocity, data.MaxTurnVelocity);
+            _angularAcceleration = Mathf.Clamp(pAcceleration / currentDistance, -data.MaxTurnVelocity, data.MaxTurnVelocity);
         }
 
         OrbitalVelocity += _angularAcceleration;
@@ -108,19 +98,11 @@ public class CharacterWeapon : MonoBehaviour
         return OrbitalVelocity;
     }
 
-    public float OrbitalKnockback(float pKnockbackForce) {
-        if (currentDistance <= 0.001f) return OrbitalVelocity;
-
-        KnockbackVelocity += pKnockbackForce;
-
-        return KnockbackVelocity;
-    }
-
     public void ApplyThrust(float pTargetOffset, float pDuration) {
-        StartCoroutine(ThrustRoutine(pTargetOffset, pDuration));
+        StartCoroutine(thrustRoutine(pTargetOffset, pDuration));
     }
 
-    private IEnumerator ThrustRoutine(float pTargetOffset, float pDuration) {
+    private IEnumerator thrustRoutine(float pTargetOffset, float pDuration) {
         float _elapsed = 0;
         float _initialOffset = ThrustVelocity;
         while (_elapsed < pDuration) {
@@ -132,12 +114,9 @@ public class CharacterWeapon : MonoBehaviour
         ThrustVelocity = pTargetOffset;
     }
 
-    public void LinearKnockback(float pKnockbackForce) {
-        if (currentDistance <= 0.001f) return;
-
-        //ThrustKnockback += pKnockbackForce;
-
-        //return KnockbackVelocity;
+    public float LinearKnockback(float pKnockbackForce) {
+        ThrustKnockback += pKnockbackForce;
+        return KnockbackVelocity;
     }
 
     private void updateVelocity() {
@@ -165,30 +144,25 @@ public class CharacterWeapon : MonoBehaviour
         Vector3 worldOffset = (_orbitPos.x * radialX) + (_orbitPos.y * radialZ);
         Vector3 _worldOrbitPos = Character.transform.position + worldOffset;
 
-        Vector3 radialWorld = (_worldOrbitPos - Character.transform.position);
-        radialWorld.y = 0f;
+        Vector3 _radialWorld = (_worldOrbitPos - Character.transform.position);
+        _radialWorld.y = 0f;
 
         Transform _cb = weaponJoint.connectedBody.transform;
-        Vector3 _jointLocalRadial = _cb.InverseTransformDirection(radialWorld);
+        Vector3 _jointLocalRadial = _cb.InverseTransformDirection(_radialWorld);
         _jointLocalRadial = Vector3.ClampMagnitude(_jointLocalRadial, data.MaxReach);
         _jointLocalRadial.y = 0f;
         weaponJoint.targetPosition = _jointLocalRadial;
 
-
         Debug.DrawLine(Character.transform.position, _worldOrbitPos, Color.red);
         Debug.DrawLine(_worldOrbitPos, transform.position, Color.green);
-        Debug.DrawRay(Character.transform.position, radialWorld.normalized * 2f, Color.cyan);
+        Debug.DrawRay(Character.transform.position, _radialWorld.normalized * 2f, Color.cyan);
         Vector3 knockVec = Quaternion.Euler(0, currentAngle, 0) * Vector3.right * KnockbackVelocity;
-        //Debug.DrawRay(transform.position, knockVec, Color.magenta, 0.1f);
-
-
+        
         Quaternion _desiredRotation = Quaternion.Euler(0, -currentAngle + 90f, 0);
         Quaternion _worldToJointSpaceRotation = Quaternion.Inverse(weaponJoint.connectedBody.rotation);
         Quaternion _localDesiredRotation = _worldToJointSpaceRotation * _desiredRotation;
-        //weaponJoint.targetRotation = Quaternion.Inverse(initialLocalRot) * _localDesiredRotation;
         weaponJoint.targetRotation = _localDesiredRotation;
-
-
+        
         OrbitalVelocity *= data.SwingDampingFactor;
         ThrustVelocity *= data.ThrustDampingFactor;
         KnockbackVelocity *= data.SwingDampingFactor * 0.5f;
@@ -204,11 +178,6 @@ public class CharacterWeapon : MonoBehaviour
 
     public float VelocityToMomentum(float pOrbitalVelocity, float pDistance) {
         return Mathf.Abs(data.Mass * pOrbitalVelocity * pDistance * pDistance);
-    }
-
-    public float MomentumToVelocity(float pAngularMomentum, float pDistance) {
-        if (data.Mass <= 0 || pDistance <= 0) return 0;
-        return pAngularMomentum / (data.Mass * pDistance * pDistance);
     }
 
     private float retractClock = 0;
@@ -236,27 +205,22 @@ public class CharacterWeapon : MonoBehaviour
         return tip.PartDistance;
     }
 
-    public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, bool pIsClash, Vector3 pPointHit, Vector3 pContactNormal) {
-        //Vector3 vAttacker = pCharacterHit.Weapon.Velocity;
-        //Vector3 vDefender = Velocity;
+    public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, bool pIsClash, Vector3 pContactNormal) {
+        Vector3 _relVel3D = Velocity - pCharacterHit.Weapon.Velocity;
+        Vector2 _relVel2D = MiscHelper.Vec3ToVec2Pos(_relVel3D);
 
-        Vector3 relVel3D = Velocity - pCharacterHit.Weapon.Velocity;
-        Vector2 relVel2D = new Vector2(relVel3D.x, relVel3D.z);
-
-        float mAttacker = pPart.Weapon.GetMass();
-        Vector2 pMomentum = relVel2D * mAttacker;
-
-        //pCharacterHit.CollisionDetected(Character, pIsClash, pMomentum, pPointHit);
+        float _mAttacker = pPart.Weapon.GetMass();
+        Vector2 _pMomentum = _relVel2D * _mAttacker;
 
         if (pIsClash) {
-            weaponHit(pCharacterHit, pMomentum, pPointHit, pContactNormal);
+            weaponHit(pCharacterHit, pContactNormal);
         }
         else {
-            bodyHit(pPart, pCharacterHit, pMomentum, pPointHit);
+            bodyHit(pPart, pCharacterHit, _pMomentum);
         }
     }
 
-    private void weaponHit(Character pCharacterHit, Vector2 pMomentum, Vector3 pPointHit, Vector3 pContactNormal) {
+    private void weaponHit(Character pCharacterHit, Vector3 pContactNormal) {
 
         float _relAngVel = OrbitalVelocity - pCharacterHit.Weapon.OrbitalVelocity;
         if(Mathf.Abs(_relAngVel) < 0.01f) return;
@@ -267,64 +231,13 @@ public class CharacterWeapon : MonoBehaviour
         float _myMass = GetMass();
         float _otherMass = pCharacterHit.Weapon.GetMass();
         float _invMassSum = (1f / _myMass) + (1f / _otherMass);
-        float _massFactor = GetMass();
 
-        //float dKnockback = _relAngVel * _sign * _massFactor * angularFactor;
         float dKnockback = _relAngVel * _sign * _invMassSum * angularFactor;
         KnockbackVelocity += dKnockback;
         KnockbackVelocity = Math.Clamp(KnockbackVelocity, -Character.GetCharacterData().MaxRotationSpeed, Character.GetCharacterData().MaxRotationSpeed);
-        
-        // float _myMass = GetMass();
-        // float _otherMass = pCharacterHit.Weapon.GetMass();
-        // float _invMassSum = (1f / _myMass) + (1f / _otherMass);
-        // Vector3 _velocity = new Vector3(Velocity.x, 0, Velocity.z);
-        // Vector3 _otherVelocity = new Vector3(pCharacterHit.Weapon.Velocity.x, 0, pCharacterHit.Weapon.Velocity.z);
-        // Vector3 _relativeVelocity = _velocity - _otherVelocity;
-        // _relativeVelocity.y = 0;
-        // Vector3 _normal = _relativeVelocity.normalized;
-        // if (_normal.sqrMagnitude < 1e-4f) return;
-        // float _velAlongNormal = Vector3.Dot(_relativeVelocity, pContactNormal);
-        // if (_velAlongNormal >= 0f) return;
-        // float _bounciness = 0.8f;
-        // float _impulseFactor = -(1f + _bounciness) * _velAlongNormal / _invMassSum;
-        // Debug.Log($"J={_impulseFactor:F2}, velAlong={_velAlongNormal:F2}");
-        // Vector3 _impulseVec = _normal * _impulseFactor;
-        // Vector3 _leverArm = pPointHit - rb.worldCenterOfMass;
-        // _leverArm.y = 0;
-        // Vector3 _torque = Vector3.Cross(_leverArm, _impulseVec);
-        // float _torqueY = _torque.y;
-        // float _angularFactor = 1f;
-        // float _dKnockback = _torqueY * _angularFactor;
-        // if(Mathf.Abs(_dKnockback) < 0.01f) return;
-        // KnockbackVelocity += _dKnockback;
-        // KnockbackVelocity = Math.Clamp(KnockbackVelocity, -data.MaxOrbitalVelocity, data.MaxOrbitalVelocity);
-
-        //float _totalMass = _myMass + _otherMass;
-        //float _netMomentum = momentum - pCharacterHit.Weapon.momentum;
-        //float _impulse = _netMomentum / _totalMass;
-        //float _myImpulse = _impulse * _otherMass;
-        //float _otherImpulse = _impulse * GetMass();
-        //float _appliedImpulse = _netMomentum * (_otherMass / _totalMass);
-        //float _relativeVelocity = momentum / GetMass() - pCharacterHit.Weapon.momentum / _otherMass;
-        //Vector3 _r3 = pPointHit - rb.worldCenterOfMass;
-        //_r3.y = 0;
-        //Vector3 _F = new Vector3(pMomentum.x, 0f, pMomentum.y);
-        //float torqueY = Vector3.Cross(_F, _r3).normalized.y;
-        //float _angularFactor = 0.5f;
-        //float _dKnockback = torqueY * _appliedImpulse * _angularFactor;
-        //KnockbackVelocity += _dKnockback;
-
-        // Vector3 _radialDir = (rb.position - Character.transform.position);
-        // _radialDir.y = 0;
-        // _radialDir.Normalize();
-        // float _thrustImpulse = Vector3.Dot(_F, _radialDir);
-        //float _radialFactor = 0.05f;
-        // float _dThrust = _thrustImpulse * _radialFactor;
-        // ThrustKnockback += _dThrust;
-
     }
 
-    private void bodyHit(WeaponPart pPart, Character pCharacterHit, Vector2 pMomentum, Vector3 pPointHit) {
+    private void bodyHit(WeaponPart pPart, Character pCharacterHit, Vector2 pMomentum) {
         float AverageHealth = 1000f;
         float HighestSpeed = 4000f;
         float DamageRatio = 0.5f;
@@ -369,13 +282,13 @@ public class CharacterWeapon : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision) {
         foreach (var contact in collision.contacts) {
-            GameObject thisObj = gameObject;
-            GameObject otherObj = contact.otherCollider.transform.root.gameObject;
-            otherObj = contact.otherCollider.gameObject;
+            GameObject _thisObj = gameObject;
+            GameObject _otherObj = contact.otherCollider.transform.root.gameObject;
+            _otherObj = contact.otherCollider.gameObject;
 
             // Skip if same root or already handled
-            if (thisObj == otherObj || !CollisionTracker.TryRegisterCollision(thisObj, otherObj)) {
-                Debug.Log($"[Collision Skipped] Already handled collision between {thisObj.name} and {otherObj.name}");
+            if (_thisObj == _otherObj || !CollisionTracker.TryRegisterCollision(_thisObj, _otherObj)) {
+                Debug.Log($"[Collision Skipped] Already handled collision between {_thisObj.name} and {_otherObj.name}");
                 return;
             }
 
@@ -399,13 +312,13 @@ public class CharacterWeapon : MonoBehaviour
                     continue;
             }
 
-            var otherTrans = contact.otherCollider.transform;
-            var otherChar = otherTrans.GetComponentInParent<Character>();
-            if (otherChar == null) continue;
+            var _otherTrans = contact.otherCollider.transform;
+            var _otherChar = _otherTrans.GetComponentInParent<Character>();
+            if (_otherChar == null) continue;
 
-            bool isClash = otherTrans.GetComponent<WeaponPart>() != null;
+            bool isClash = _otherTrans.GetComponent<WeaponPart>() != null;
 
-            CollisionDetected(_part, otherChar, isClash, contact.point, contact.normal);
+            CollisionDetected(_part, _otherChar, isClash, contact.normal);
         }
     }
 
@@ -413,10 +326,10 @@ public class CharacterWeapon : MonoBehaviour
     {
         private static HashSet<(int, int)> handledPairs = new HashSet<(int, int)>();
 
-        public static bool TryRegisterCollision(GameObject a, GameObject b) {
-            int idA = a.GetInstanceID();
-            int idB = b.GetInstanceID();
-            var key = idA < idB ? (idA, idB) : (idB, idA);
+        public static bool TryRegisterCollision(GameObject pA, GameObject pB) {
+            int _idA = pA.GetInstanceID();
+            int _idB = pB.GetInstanceID();
+            var key = _idA < _idB ? (_idA, _idB) : (_idB, _idA);
 
             if (handledPairs.Contains(key)) {
                 return false;

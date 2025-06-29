@@ -30,8 +30,23 @@ public class AttackTree : BehaviourTree
             float _attackAngle = idealAttackAngle();
             return _deltaAngle >= -_attackAngle && _deltaAngle <= _attackAngle ; }));
         RandomSelector _randomSelector = new("DoAttack//RandomSelector");
-        Leaf _adjustAngle = new("DoAttack//RandSelector/AdjustAngle", new ActionStrategy(alignAttackAngle));
-        Leaf _adjustPosition = new("DoAttack//RandSelector/AdjustPosition", new ActionStrategy(alignAttackPosition));
+        Leaf _adjustAngle = new("DoAttack//RandSelector/AdjustAngle", new ActionStrategy(() =>
+        {
+            float _attackAngle = agent.GetWeaponAngle();
+            float _deltaAngle = deltaAngle();
+            _attackAngle += (_deltaAngle >= 0) ? _deltaAngle : -_deltaAngle;
+            blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_attackAngle));
+        }));
+        Leaf _adjustPosition = new("DoAttack//RandSelector/AdjustPosition", new ActionStrategy(() =>
+        {
+            Vector3 _weaponTipPosition = MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(agent.GetWeaponAngle(), agent.GetWeaponRange()));
+            blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
+            Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
+            blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
+            Vector2 dir = (positionOffset).normalized;
+            blackboard.AddForce(dir, agent.TreeValues.Movement.AlignAttackForce, "Aligned_AttackPosition");
+            blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
+        }));
 
         AddChild(_attackSequence);
         _attackSequence.AddChild(_attackParallel);
@@ -70,16 +85,7 @@ public class AttackTree : BehaviourTree
         return _target;
     }
 
-    void alignAttackAngle()
-    {
-        //todo: get weapon attack angle and align with that
-        
-        float _attackAngle = agent.GetWeaponAngle();
-        float _deltaAngle = deltaAngle();
-        _attackAngle += (_deltaAngle >= 0) ? _deltaAngle : -_deltaAngle;
-        
-        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_attackAngle));
-    }
+    
 
     float idealAttackAngle()
     {
@@ -89,17 +95,21 @@ public class AttackTree : BehaviourTree
         return _attackAngle;
     }
 
+    void alignAttackAngle()
+    {
+        float _attackAngle = agent.GetWeaponAngle();
+        float _deltaAngle = deltaAngle();
+        _attackAngle += (_deltaAngle >= 0) ? _deltaAngle : -_deltaAngle;
+        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_attackAngle));
+    }
     void alignAttackPosition()
     {
         Vector3 _weaponTipPosition = MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(agent.GetWeaponAngle(), agent.GetWeaponRange()));
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
-
         Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
-        
         blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
         Vector2 dir = (positionOffset).normalized;
         blackboard.AddForce(dir, agent.TreeValues.Movement.AlignAttackForce, "Aligned_AttackPosition");
-        
         blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
     }
 }

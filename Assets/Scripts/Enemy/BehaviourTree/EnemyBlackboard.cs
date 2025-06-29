@@ -114,6 +114,7 @@ public enum CommonKeys
     ChosenWeaponAngle,
     ComProtocol,
     DetectedAttack,
+    DirectionalForces,
     FindRadius,
     FlankFlag,
     FlankAlly,
@@ -153,9 +154,6 @@ public enum CommonKeys
     VisibleEnemies,
     VisibleTargets,
     VisibleWeapons,
-    WeaponReach,
-    
-    DirectionalForces,
 }
 
 public enum TargetType

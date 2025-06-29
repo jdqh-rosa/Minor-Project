@@ -48,11 +48,8 @@ public class CombatTree : BehaviourTree
         Sequence _fleeBranch = new Sequence("Combat//FleeBranch", ()=> agent.TreeValues.CombatTactic.RetreatWeight + (agent.TreeValues.CombatTactic.IsRetreatModified ? agent.TreeValues.CombatTactic.RetreatMod + agent.TreeValues.Health.LowHealthWeight : 0));
         Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => blackboard.CheckLowHealth()));
         //PrioritySelector _retreatSelector = new("Combat//FleeBranch/Selector");
-        //Leaf _regroup = new("Combat/FleeBranch/Regroup", new GroupUpStrategy(blackboard), agent.TreeValues.Combat.RetreatGroupWeight);
-        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()), ()=>
-        {
-            return agent.TreeValues.CombatTactic.RetreatSelfWeight;
-        });
+        Leaf _regroup = new("Combat/FleeBranch/Regroup", new GroupUpStrategy(blackboard), ()=> agent.TreeValues.CombatTactic.RetreatGroupWeight);
+        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy()), ()=> agent.TreeValues.CombatTactic.RetreatSelfWeight);
         
         AddChild(_baseCombatSequence);
         _baseCombatSequence.AddChild(_obtainEnemy);

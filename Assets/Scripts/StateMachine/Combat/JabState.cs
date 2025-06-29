@@ -5,10 +5,6 @@ public class JabState : CombatState
 {
     public JabState(string pName) : base(pName) { }
 
-    public override void Ready() {
-        //Name = "Jab";
-    }
-
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
 
@@ -27,8 +23,6 @@ public class JabState : CombatState
 
         elapsedTime += delta;
     }
-
-    private void ThrustAttack(bool pHoldAttack, float pTargetAngle) { }
 
     public override void UpdatePhysics(float delta) {
         StateMachine.Character.RotateWeaponTowardsAngle(attackAngle);

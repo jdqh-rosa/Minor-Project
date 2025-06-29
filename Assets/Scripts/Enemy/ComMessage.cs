@@ -4,7 +4,7 @@ using UnityEngine;
 public class ComMessage
 {
     public EnemyController Sender { get; private set; }
-    public EnemyController Receiver { get; private set; }  // null for broadcast
+    public EnemyController Receiver { get; private set; }
     public MessageType Type { get; private set; }
     public Dictionary<MessageInfoType, object> Payload { get; private set; }
     public float Timestamp { get; private set; }

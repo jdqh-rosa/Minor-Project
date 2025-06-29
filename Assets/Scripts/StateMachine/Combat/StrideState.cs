@@ -5,10 +5,6 @@ public class StrideState : CombatState
     private Vector3 moveDir;
     private Vector3 moveVec;
     public StrideState(string pName) : base(pName) { }
-    
-    public override void Ready() {
-        //Name = "Swing";
-    }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine);

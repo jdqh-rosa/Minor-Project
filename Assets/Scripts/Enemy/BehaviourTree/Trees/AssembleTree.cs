@@ -25,7 +25,6 @@ public class AssembleTree : BehaviourTree
         AddChild(_baseParallel);
         _baseParallel.AddChild(_setTargetAlly);
         _baseParallel.AddChild(_groupBranch);
-        //_baseParallel.AddChild(new EnterRangeTree(blackboard, 2f));
         
         _groupBranch.AddChild(_selector);
         _selector.AddChild(_groupMessageCheck);

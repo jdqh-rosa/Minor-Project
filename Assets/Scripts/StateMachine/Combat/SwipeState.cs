@@ -5,10 +5,6 @@ public class SwipeState : CombatState
 
     public SwipeState(string pName) : base(pName) { }
 
-    public override void Ready() {
-        //Name = "Swipe";
-    }
-
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
 
@@ -27,8 +23,6 @@ public class SwipeState : CombatState
 
         elapsedTime += delta;
     }
-
-    private void ThrustAttack(bool pHoldAttack, float pTargetAngle) { }
 
     public override void UpdatePhysics(float delta) {
         StateMachine.Character.RotateWeaponWithForce(attackAngle, attackForce);

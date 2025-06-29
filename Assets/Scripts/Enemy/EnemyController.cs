@@ -13,11 +13,10 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private float tickWait=0.1f;
     [SerializeField] private TreeValuesSO treeValues;
     public TreeValuesSO.TreeValuesRuntime TreeValues;
-    private ComProtocol protocol;
 
     [SerializeField] private Character enemyCharacter;
 
-    private float _movementSlerpFactor= 0.8f;
+    [SerializeField] private float movementSlerpFactor= 0.8f;
     private Vector3 previousDirection = Vector3.zero;
 
     private void Awake() {
@@ -26,7 +25,6 @@ public class EnemyController : MonoBehaviour
         blackboardData?.SetValuesOnBlackboard(blackboard);
         blackboard.AddCharacterData(enemyCharacter.GetCharacterData());
         blackboard.AddWeaponData(enemyCharacter.Weapon.GetWeaponData());
-        blackboard.SetKeyValue(CommonKeys.ComProtocol, protocol);
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, enemyCharacter.transform.position);
         blackboard.SetKeyValue(CommonKeys.AgentSelf, this);
         blackboard.SetKeyValue(CommonKeys.FindRadius, treeValues.Miscellaneous.FindRange);
@@ -38,7 +36,7 @@ public class EnemyController : MonoBehaviour
         //    ValuesManager = new TreeValuesManager(blackboard, this);
         //}
 
-        enemyCharacter.GetCharacterInfo().HealthChanged += AlterHealth;
+        enemyCharacter.GetCharacterInfo().HealthChanged += alterHealth;
         
         if (treeValues == null) {
             treeValues = ScriptableObject.CreateInstance<TreeValuesSO>();
@@ -68,7 +66,7 @@ public class EnemyController : MonoBehaviour
         _actionParallel.AddChild(_positionWeapon);
         tree.Reset();
 
-        AddBTDebugHUD();
+        addBTDebugHUD();
 
         StartCoroutine(TreeTick());
     }
@@ -85,20 +83,9 @@ public class EnemyController : MonoBehaviour
         }
     }
 
-    private Vector2 moveDirection() {
-        blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
-        Vector3 moveDir = (_targetPosition - enemyCharacter.transform.position).normalized;
-        return new Vector2(moveDir.x, moveDir.z);
-    }
-
-    private Vector3 movePosition() {
-        blackboard.TryGetValue(CommonKeys.ChosenPosition, out Vector3 _targetPosition);
-        return _targetPosition;
-    }
-
     private Vector3 processDirections() {
         Vector3 _blendedDirection = blackboard.GetBlendedDirection();
-        Vector3 _slerpedDir = Vector3.Slerp(previousDirection, _blendedDirection, _movementSlerpFactor);
+        Vector3 _slerpedDir = Vector3.Slerp(previousDirection, _blendedDirection, movementSlerpFactor);
         previousDirection = _blendedDirection;
         return _slerpedDir;
     }
@@ -131,17 +118,16 @@ public class EnemyController : MonoBehaviour
     }
 
     public void SendComMessage(EnemyController pRecipient, ComMessage pMessage) {
-        pRecipient.ReceiveComMessage(pMessage);
+        pRecipient.receiveComMessage(pMessage);
     }
 
-    public void ReceiveComMessage(ComMessage pMessage) {
+    private void receiveComMessage(ComMessage pMessage) {
         blackboard.TryGetValue(CommonKeys.MessageInbox, out List<ComMessage> _inbox);
         _inbox.Add(pMessage);
         blackboard.SetKeyValue(CommonKeys.MessageInbox, _inbox);
-        //protocol.ReceiveComMessage(pMessage);
     }
 
-    public void AlterHealth() {
+    private void alterHealth() {
         blackboard.SetKeyValue(CommonKeys.SelfHealth, enemyCharacter.GetCharacterInfo().Health);
     }
 
@@ -151,7 +137,7 @@ public class EnemyController : MonoBehaviour
 
     void OnDrawGizmos() {
         if (tree == null) return;
-        //DrawNodeGizmo(tree, Vector3.up * 2);
+        //drawNodeGizmo(tree, Vector3.up * 2);
         DrawForces();
     }
     
@@ -164,24 +150,23 @@ public class EnemyController : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, transform.position + blackboard.GetBlendedDirection() * 2);
-        //blackboard.ClearForces();
     }
 
-    void DrawNodeGizmo(Node node, Vector3 pos) {
-        Gizmos.color = node.IsActive ? Color.green : Color.gray;
-        Gizmos.DrawSphere(pos, 0.1f);
-        for (int i = 0; i < node.children.Count; i++) {
-            Vector3 childPos = pos + new Vector3((i - node.children.Count / 2f) * 0.5f, 0, -0.5f);
-            Gizmos.DrawLine(pos, childPos);
-            DrawNodeGizmo(node.children[i], childPos);
+    private void drawNodeGizmo(Node pNode, Vector3 pPos) {
+        Gizmos.color = pNode.IsActive ? Color.green : Color.gray;
+        Gizmos.DrawSphere(pPos, 0.1f);
+        for (int i = 0; i < pNode.children.Count; i++) {
+            Vector3 childPos = pPos + new Vector3((i - pNode.children.Count / 2f) * 0.5f, 0, -0.5f);
+            Gizmos.DrawLine(pPos, childPos);
+            drawNodeGizmo(pNode.children[i], childPos);
         }
     }
 
-    private void AddBTDebugHUD() {
+    private void addBTDebugHUD() {
         GetComponent<BTDebugHUD>().tree = tree;
     }
 
     private void OnDestroy() {
-        enemyCharacter.GetCharacterInfo().HealthChanged -= AlterHealth;
+        enemyCharacter.GetCharacterInfo().HealthChanged -= alterHealth;
     }
 }

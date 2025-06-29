@@ -6,10 +6,6 @@ public class DodgeState : CombatState
     private Vector3 moveVec;
     public DodgeState(string pName) : base(pName) { }
 
-    public override void Ready() {
-        //Name = "Swing";
-    }
-
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine);
         Interruptible = false;

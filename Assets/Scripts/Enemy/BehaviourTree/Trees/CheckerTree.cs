@@ -27,7 +27,7 @@ public class CheckerTree : BehaviourTree
         Parallel _selfCheckParallel = new("Checker//SelfChecks", 1);
         
         //Leaf _patrolTimeCheck = new("Checker//PatrolTimeCheck", new ConditionStrategy());
-        //Leaf _healthCheck = new("Checker//HealthCheck", new ConditionStrategy(()=> blackboard.GetHealth()< 10f ));
+        Leaf _healthCheck = new("Checker//HealthCheck", new ConditionStrategy(()=> blackboard.CheckLowHealth()));
         Leaf _checkMessages = new("Checker//MessageCheck", new ProcessMessagesStrategy(blackboard, 5));
         Leaf _detectAttacks = new("Checker//DetectAttack", new DetectAttackStrategy(blackboard));
         
@@ -47,7 +47,7 @@ public class CheckerTree : BehaviourTree
         _allySequence.AddChild(_getClosestAlly);
         
         //_selfCheckParallel.AddChild(_patrolTimeCheck);
-        //_selfCheckParallel.AddChild(_healthCheck);
+        _selfCheckParallel.AddChild(_healthCheck);
         _selfCheckParallel.AddChild(_checkMessages);
         _selfCheckParallel.AddChild(_detectAttacks);
         

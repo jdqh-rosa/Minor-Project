@@ -6,14 +6,6 @@ public class AttackTargetTree : BehaviourTree
     EnemyBlackboard blackboard;
     private EnemyController agent;
     
-    public AttackTargetTree(EnemyBlackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("AttackTarget", pPriority)
-    {
-        blackboard = pBlackboard;
-        agent = pAgent;
-        
-        setup();
-    }
-
     public AttackTargetTree(EnemyBlackboard pBlackboard, EnemyController pAgent, Func<int> pDynamicPriority, int pFallback = 0) : base("Combat", pDynamicPriority, pFallback) {
         blackboard = pBlackboard;
         agent = pAgent;

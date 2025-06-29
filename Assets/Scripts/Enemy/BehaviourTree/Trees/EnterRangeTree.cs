@@ -46,7 +46,7 @@ public class EnterRangeTree : BehaviourTree
     private Vector3 getTargetDifVector() {
         //targetPosition = GetTargetPosition();
         GameObject _target = targetObject.Invoke();
-        if(_target == null) return Vector3.zero;
+        if(!_target) return Vector3.zero;
         targetPosition = _target.transform.position;
         Vector3 _agentPos = agent.transform.position;
         Vector3 _difVector = targetPosition - _agentPos;

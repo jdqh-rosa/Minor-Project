@@ -70,8 +70,8 @@ MonoBehaviour:
     BlockWeight: 10
     RetreatWeight: 10
   Movement:
-    AlignAttackForce: 2
-    EnterRangeForce: 1
+    AlignAttackForce: 3
+    EnterRangeForce: 3
     ChooseObjectForce: 0.1
     DistanceSelfForce: -5
     AvoidObjectForce: -5
@@ -80,3 +80,5 @@ MonoBehaviour:
     TargetAllyForce: 0
     RetreatForce: -3
     SurroundForce: 3
+  Miscellaneous:
+    FindRange: 40

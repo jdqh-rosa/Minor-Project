@@ -14,8 +14,6 @@ public class CharacterBody : MonoBehaviour
     private bool isStepping;
     private bool isWalking;
 
-    //private float lastStepVelocity = 0f;
-
     private Vector3 targetPosition;
     float elapsedTime = 0;
 
@@ -24,10 +22,7 @@ public class CharacterBody : MonoBehaviour
     }
 
     public Vector3 Step(Vector3 pDir) {
-        if (isMovementSpecial) {
-            return Vector3.zero;
-        }
-        return Move(pDir, data.StepLength, data.StepDuration);
+        return isMovementSpecial ? Vector3.zero : Move(pDir, data.StepLength, data.StepDuration);
     }
     
     public Vector3 Stride(Vector3 pDir, float pStepLength, float pStepDuration, float pElapsedTime) {

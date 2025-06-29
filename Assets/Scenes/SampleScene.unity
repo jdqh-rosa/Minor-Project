@@ -414,15 +414,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1395756028602387688, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_IsActive
@@ -1075,6 +1075,7 @@ MonoBehaviour:
   tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 849021707}
+  movementSlerpFactor: 0.8
 --- !u!54 &849021709 stripped
 Rigidbody:
   m_CorrespondingSourceObject: {fileID: 3198113271263820664, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
@@ -1202,6 +1203,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 355215613}
     m_Modifications:
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1395756028602387688, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -1374,6 +1387,7 @@ MonoBehaviour:
   tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 902315922}
+  movementSlerpFactor: 0.8
 --- !u!1001 &1205519068
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1397,6 +1411,18 @@ PrefabInstance:
     - target: {fileID: 1744839716775370550, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5159050353757194108, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
@@ -1464,6 +1490,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1317913768}
     m_Modifications:
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1395756028602387688, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -1640,6 +1678,7 @@ MonoBehaviour:
   tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 1311697648}
+  movementSlerpFactor: 0.8
 --- !u!1 &1317913767
 GameObject:
   m_ObjectHideFlags: 0
@@ -1799,6 +1838,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Enemy
       objectReference: {fileID: 0}
+    - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5159050353757194108, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -1876,6 +1927,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1317913768}
     m_Modifications:
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMax.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
+      propertyPath: m_AnchorMin.x
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1395756028602387688, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -2052,6 +2115,7 @@ MonoBehaviour:
   tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 1928650967}
+  movementSlerpFactor: 0.8
 --- !u!1001 &2095843549
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2369,6 +2433,7 @@ MonoBehaviour:
   tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 2115637635}
+  movementSlerpFactor: 0.8
 --- !u!114 &2123855375 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6386569902005187320, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
@@ -2418,7 +2483,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5652565591399292471, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: tickWait
-      value: 0.3
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 6979469556757174990, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: m_LocalPosition.x

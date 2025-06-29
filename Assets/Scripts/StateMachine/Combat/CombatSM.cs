@@ -10,7 +10,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
     private float attackAngle;
     private float bufferTime = 1f;
     private float bufferClock;
-    protected CombatState currentCombatState;
+    private CombatState currentCombatState;
 
     protected override void Start() {
         base.Start();
@@ -26,11 +26,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
         base.Update();
     }
 
-    protected override void FixedUpdate() {
-        base.FixedUpdate();
-    }
-
-    public void TransitionToState(CombatState pNewState, float pAttackAngle) {
+    private void TransitionToState(CombatState pNewState, float pAttackAngle) {
         if (!states.ContainsKey(pNewState.Name)) return;
         currentState?.Exit();
 
@@ -56,7 +52,6 @@ public class CombatSM : BaseStateMachine<CombatSM>
     public void InputState(string pInput, float pAttackAngle=0f) {
         inputState = (CombatState)GetState(pInput);
         
-        //SetAttackAngle(pAttackAngle);
         if (currentCombatState.HoldAction) {
             currentCombatState.SetAttackAngle(pAttackAngle);
         }

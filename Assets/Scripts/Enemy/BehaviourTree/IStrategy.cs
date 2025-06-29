@@ -111,22 +111,6 @@ public class ChooseObjectStrategy : IStrategy
     }
 }
 
-public class ContactAllyStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-    private Vector3 avoidPosition;
-
-    public ContactAllyStrategy(EnemyBlackboard pBlackboard) {
-        blackboard = pBlackboard;
-    }
-
-    public Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject ally);
-        //todo: message ally
-        return Node.NodeStatus.Success;
-    }
-}
-
 public class ContactAlliesStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
@@ -219,26 +203,6 @@ public class DetectAttackStrategy : IStrategy
     }
 }
 
-public class DistanceSelfStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-    private Vector3 avoidPosition;
-
-    public DistanceSelfStrategy(EnemyBlackboard pBlackboard, Vector3 pAvoidPosition) {
-        blackboard = pBlackboard;
-        avoidPosition = pAvoidPosition;
-    }
-
-    public Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
-        Vector3 diffVec = avoidPosition - agent.transform.position;
-        //diffVec *= -1;
-        //blackboard.SetKeyValue(CommonKeys.TargetPosition, diffVec);
-        blackboard.AddForce(diffVec, agent.TreeValues.Movement.DistanceSelfForce, "DistanceSelf");
-        return Node.NodeStatus.Success;
-    }
-}
-
 public class DistanceSelfFromObjectStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
@@ -298,51 +262,6 @@ public class DodgeStrategy : IStrategy
         Vector3 _revDiffVec = agent.transform.position - enemy.transform.position;
 
         agent.ChooseMovementAction(ActionType.Dodge, _revDiffVec.normalized);
-        return Node.NodeStatus.Success;
-    }
-}
-
-public class ExecuteActionStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-
-    public ExecuteActionStrategy(EnemyBlackboard pBlackboard) {
-        blackboard = pBlackboard;
-    }
-
-    public Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.ChosenAction, out Action action);
-        //todo: process and use action
-
-        return Node.NodeStatus.Success;
-    }
-}
-
-public class ExecuteAttackStrategy : ExecuteActionStrategy
-{
-    private EnemyBlackboard blackboard;
-
-    public ExecuteAttackStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard) {
-        blackboard = pBlackboard;
-    }
-}
-
-public class FaceTargetStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-
-    public FaceTargetStrategy(EnemyBlackboard pBlackboard) {
-        blackboard = pBlackboard;
-    }
-
-    public Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
-
-        Vector3 diffVec = target.transform.position - agent.transform.position;
-
-        blackboard.SetKeyValue(CommonKeys.ChosenFaceAngle, diffVec.normalized);
-
         return Node.NodeStatus.Success;
     }
 }
@@ -655,25 +574,6 @@ public class GroupUpStrategy : IStrategy
         return new Vector3(pCenter.x + xOffset, pCenter.y, pCenter.z + zOffset);
     }
 }
-
-public class MessageAllyStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-    private GameObject ally;
-
-    public MessageAllyStrategy(EnemyBlackboard pBlackboard, GameObject pAlly) {
-        blackboard = pBlackboard;
-        ally = pAlly;
-    }
-
-    public Node.NodeStatus Process() {
-        //todo: message ally
-        if (ally.TryGetComponent(out EnemyController _ally)) { }
-
-        return Node.NodeStatus.Success;
-    }
-}
-
 public class ModifyWeightStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
@@ -745,26 +645,9 @@ public class SetTargetAllyStrategy : IStrategy
     }
 }
 
-public class MoveToPositionStrategy : IStrategy
-{
-    private EnemyBlackboard blackboard;
-    private Vector3 destination;
-
-    public MoveToPositionStrategy(EnemyBlackboard pBlackboard, Vector3 position) {
-        blackboard = pBlackboard;
-        destination = position;
-    }
-
-    public Node.NodeStatus Process() {
-        blackboard.SetKeyValue(CommonKeys.ChosenPosition, destination);
-        return Node.NodeStatus.Success;
-    }
-}
-
 public class ProcessMessagesStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
-    private ComProtocol protocol;
     private EnemyController agent;
     private int bandwidth;
 
@@ -772,7 +655,6 @@ public class ProcessMessagesStrategy : IStrategy
         blackboard = pBlackboard;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         bandwidth = pBandwidth;
-        blackboard.TryGetValue(CommonKeys.ComProtocol, out protocol);
     }
 
     public Node.NodeStatus Process() {
