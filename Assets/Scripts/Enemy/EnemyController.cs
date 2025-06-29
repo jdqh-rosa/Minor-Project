@@ -50,7 +50,7 @@ public class EnemyController : MonoBehaviour
         Parallel _parallel = new("BaseLogic/Parallel", 2);
         Parallel _actionParallel = new("BaseLogic/ActionParallel", 2);
         Leaf _distanceSelfFromWeapons = new("Combat/DistanceWeapon", new DistanceSelfFromWeaponsStrategy(blackboard));
-        Leaf _moveToPosition = new("BaseLogic//MoveToPosition",
+        Leaf _moveInDirection = new("BaseLogic//MoveToPosition",
             new ActionStrategy(() => enemyCharacter.SetCharacterDirection(processDirections())));
         Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle",
             new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
@@ -62,7 +62,7 @@ public class EnemyController : MonoBehaviour
         _parallel.AddChild(new DeciderTree(blackboard));
         _parallel.AddChild(_actionParallel);
         _actionParallel.AddChild(_distanceSelfFromWeapons);
-        _actionParallel.AddChild(_moveToPosition);
+        _actionParallel.AddChild(_moveInDirection);
         _actionParallel.AddChild(_positionWeapon);
         tree.Reset();
 

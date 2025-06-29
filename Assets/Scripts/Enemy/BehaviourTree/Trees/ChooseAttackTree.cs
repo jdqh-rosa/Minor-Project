@@ -16,10 +16,10 @@ public class ChooseAttackTree : BehaviourTree
     {
         PrioritySelector _baseSelector = new("AttackSelector");
         Sequence _stabSequence = new("StabSequence", ()=> agent.TreeValues.CombatAttack.StabWeight);
-        Sequence _swingSequence = new("SwingSequence", ()=> agent.TreeValues.CombatAttack.SwingWeight);
+        //Sequence _swingSequence = new("SwingSequence", ()=> agent.TreeValues.CombatAttack.SwingWeight);
         Leaf _stabCheck = new Leaf("ChooseAttack//StabCheck", new ConditionStrategy(stabCheck)); 
         RandomSelector _stabSelector = new("ChooseAttack///JabSelector");
-        RandomSelector _swingSelector = new("ChooseAttack///SwingSelector");
+        RandomSelector _swingSelector = new("ChooseAttack///SwingSelector", ()=> agent.TreeValues.CombatAttack.SwingWeight);
         Leaf _weakStab = new("ChooseAttack////WeakStab", new ActionStrategy(() => chooseAttack(ActionType.Jab)), ()=> agent.TreeValues.CombatAttack.WeakStabWeight);
         Leaf _strongStab = new("ChooseAttack////StrongStab", new ActionStrategy(() => chooseAttack(ActionType.Thrust)), ()=> agent.TreeValues.CombatAttack.StrongStabWeight);
         Leaf _weakSwing = new("ChooseAttack////WeakSwing", new ActionStrategy(() => chooseAttack(ActionType.Swipe)), ()=> agent.TreeValues.CombatAttack.WeakSwingWeight);
@@ -27,12 +27,12 @@ public class ChooseAttackTree : BehaviourTree
 
         AddChild(_baseSelector);
         _baseSelector.AddChild(_stabSequence);
-        _baseSelector.AddChild(_swingSequence);
+        _baseSelector.AddChild(_swingSelector);
         _stabSequence.AddChild(_stabCheck);
         _stabSequence.AddChild(_stabSelector);
         _stabSelector.AddChild(_weakStab);
         _stabSelector.AddChild(_strongStab);
-        _swingSequence.AddChild(_swingSelector);
+        //_swingSequence.AddChild(_swingSelector);
         _swingSelector.AddChild(_weakSwing);
         _swingSelector.AddChild(_strongSwing);
 

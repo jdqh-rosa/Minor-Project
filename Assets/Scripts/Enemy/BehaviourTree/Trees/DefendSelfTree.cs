@@ -22,20 +22,20 @@ public class DefendSelfTree : BehaviourTree
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         Sequence _sequence = new("DefendSelf/Sequence");
         Leaf _detectAttack = new("DefendSelf//DetectAttack", new DetectAttackStrategy(blackboard));
-        PrioritySelector _defendSelector = new("DefendSelf//Selector");
+        PrioritySelector _defendPrioSelector = new("DefendSelf//Selector");
         Leaf _evadeAction = new("DefendSelf///Evade", new DodgeStrategy(blackboard), ()=> agent.TreeValues.Defense.EvadeWeight);
         Leaf _interceptAction = new("DefendSelf///StrikeParry", new StrikeParry(blackboard), ()=> agent.TreeValues.Defense.ParryWeight);
         //Leaf _blockAction = new("DefendSelf///Block",  , ()=> agent.TreeValues.Defense.BlockWeight);
-        Leaf _retreatAction = new("", new RetreatFromPositionStrategy(blackboard), ()=> agent.TreeValues.Defense.RetreatWeight);
-        Leaf _modifyDefendWeight = new("", new ActionStrategy(() => agent.TreeValues.CombatTactic.IsDefendSelfModified = false));
+        Leaf _retreatAction = new("DefendSelf///Retreat", new RetreatFromPositionStrategy(blackboard), ()=> agent.TreeValues.Defense.RetreatWeight);
+        Leaf _modifyDefendWeight = new("DefendSelf//ModifyWeight", new ActionStrategy(() => agent.TreeValues.CombatTactic.IsDefendSelfModified = false));
         
         AddChild(_sequence);
         _sequence.AddChild(_detectAttack);
-        _sequence.AddChild(_defendSelector);
+        _sequence.AddChild(_defendPrioSelector);
         _sequence.AddChild(_modifyDefendWeight);
-        _defendSelector.AddChild(_evadeAction);
-        _defendSelector.AddChild(_interceptAction);
-        //_defendSelector.AddChild(_blockAction);
-        _defendSelector.AddChild(_retreatAction);
+        _defendPrioSelector.AddChild(_evadeAction);
+        _defendPrioSelector.AddChild(_interceptAction);
+        //_defendPrioSelector.AddChild(_blockAction);
+        _defendPrioSelector.AddChild(_retreatAction);
     }
 }
