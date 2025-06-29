@@ -89,7 +89,7 @@ public class Character : MonoBehaviour
         bodyFunctions();
         weaponFunctions();
 
-        CumulativeVelocity();
+        cumulativeVelocity();
     }
 
     private void bodyFunctions() {
@@ -122,7 +122,7 @@ public class Character : MonoBehaviour
         Weapon.UpdatePosition();
     }
 
-    private void CumulativeVelocity() {
+    private void cumulativeVelocity() {
         cumulVelocity = Body.Velocity + Weapon.Velocity;
     }
 

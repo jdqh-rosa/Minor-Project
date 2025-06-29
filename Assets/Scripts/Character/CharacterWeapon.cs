@@ -232,8 +232,8 @@ public class CharacterWeapon : MonoBehaviour
         float _otherMass = pCharacterHit.Weapon.GetMass();
         float _invMassSum = (1f / _myMass) + (1f / _otherMass);
 
-        float dKnockback = _relAngVel * _sign * _invMassSum * angularFactor;
-        KnockbackVelocity += dKnockback;
+        float _dKnockback = _relAngVel * _sign * _invMassSum * angularFactor;
+        KnockbackVelocity += _dKnockback;
         KnockbackVelocity = Math.Clamp(KnockbackVelocity, -Character.GetCharacterData().MaxRotationSpeed, Character.GetCharacterData().MaxRotationSpeed);
     }
 

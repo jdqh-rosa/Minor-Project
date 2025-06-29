@@ -1,7 +1,5 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
-
 
 [CreateAssetMenu(menuName = "AI/TreeValues")]
 [Serializable]
