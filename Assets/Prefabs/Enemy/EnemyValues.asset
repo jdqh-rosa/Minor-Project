@@ -74,7 +74,7 @@ MonoBehaviour:
     EnterRangeForce: 3
     ChooseObjectForce: 0.1
     DistanceSelfForce: -5
-    AvoidObjectForce: -5
+    AvoidObjectForce: -4
     FlankForce: 3
     GroupUpForce: 3
     TargetAllyForce: 0

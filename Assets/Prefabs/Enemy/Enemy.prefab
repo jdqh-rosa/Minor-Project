@@ -99,9 +99,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 3915197369426287010, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       insertIndex: 2
       addedObject: {fileID: 5652565591399292471}
-    - targetCorrespondingSourceObject: {fileID: 3915197369426287010, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 7033172849522095928}
   m_SourcePrefab: {fileID: 100100000, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
 --- !u!1 &1744839716775370550 stripped
 GameObject:
@@ -124,18 +121,7 @@ MonoBehaviour:
   tickWait: 0.1
   treeValues: {fileID: 11400000, guid: 85a75e15a038ca84c8fe96e0508b89b6, type: 2}
   enemyCharacter: {fileID: 8801623956880581924}
---- !u!114 &7033172849522095928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1744839716775370550}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d27657ae315bbb94484d1d74baacd6ee, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  movementSlerpFactor: 0.8
 --- !u!114 &3284012945164892330 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 283816275321781822, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}

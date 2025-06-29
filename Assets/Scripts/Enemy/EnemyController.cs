@@ -66,8 +66,6 @@ public class EnemyController : MonoBehaviour
         _actionParallel.AddChild(_positionWeapon);
         tree.Reset();
 
-        addBTDebugHUD();
-
         StartCoroutine(TreeTick());
     }
 
@@ -160,10 +158,6 @@ public class EnemyController : MonoBehaviour
             Gizmos.DrawLine(pPos, childPos);
             drawNodeGizmo(pNode.children[i], childPos);
         }
-    }
-
-    private void addBTDebugHUD() {
-        GetComponent<BTDebugHUD>().tree = tree;
     }
 
     private void OnDestroy() {
