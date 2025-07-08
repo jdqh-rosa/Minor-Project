@@ -3,7 +3,7 @@ using UnityEngine;
 public class IdleCombatState : CombatState
 {
     public IdleCombatState(string pName) : base(pName) {
-        Interruptible = true;
+        isInterruptible = true;
     }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {

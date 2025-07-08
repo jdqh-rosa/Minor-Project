@@ -47,12 +47,12 @@ public class Character : MonoBehaviour
         CombatSM.SetWeapon(Weapon);
         var _idle = new IdleCombatState("Idle");
         CombatSM.AddState(_idle);
-        CombatSM.AddState(new JabState("Jab"), Weapon.GetWeaponData().JabState);
-        CombatSM.AddState(new SwipeState("Swipe"), Weapon.GetWeaponData().SwipeState);
-        CombatSM.AddState(new ThrustState("Thrust"), Weapon.GetWeaponData().ThrustState);
-        CombatSM.AddState(new SwingState("Swing"), Weapon.GetWeaponData().SwingState);
-        CombatSM.AddState(new StrideState("Stride"), characterData.StrideState);
-        CombatSM.AddState(new DodgeState("Dodge"), characterData.DodgeState);
+        CombatSM.AddState(new JabState(), Weapon.GetWeaponData().JabState);
+        CombatSM.AddState(new SwipeState(), Weapon.GetWeaponData().SwipeState);
+        CombatSM.AddState(new ThrustState(), Weapon.GetWeaponData().ThrustState);
+        CombatSM.AddState(new SwingState(), Weapon.GetWeaponData().SwingState);
+        CombatSM.AddState(new StrideState(), characterData.StrideState);
+        CombatSM.AddState(new DodgeState(), characterData.DodgeState);
         CombatSM.InitialState = _idle;
 
         healthBar.ChangeHealth(charInfo.Health / charInfo.MaxHealth);
@@ -71,7 +71,7 @@ public class Character : MonoBehaviour
             }
         }
 
-        var _actionType = CombatSM.GetCurrentState().actionType;
+        var _actionType = CombatSM.GetCurrentState().GetActionType();
         isAttacking = _actionType != ActionType.None && _actionType != ActionType.Stride &&
                       _actionType != ActionType.Dodge;
 

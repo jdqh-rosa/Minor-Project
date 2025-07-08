@@ -11,6 +11,10 @@ public class CombatSM : BaseStateMachine<CombatSM>
     private float bufferTime = 1f;
     private float bufferClock;
     private CombatState currentCombatState;
+    
+#if UNITY_EDITOR
+    public List<CombatState> EditorStates = new();
+#endif
 
     protected override void Start() {
         base.Start();
@@ -52,7 +56,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
     public void InputState(string pInput, float pAttackAngle=0f) {
         inputState = (CombatState)GetState(pInput);
         
-        if (currentCombatState.HoldAction) {
+        if (currentCombatState.IsHoldAction()) {
             currentCombatState.SetAttackAngle(pAttackAngle);
         }
     }
@@ -60,7 +64,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
     private void HandleInput() {
         if (inputState == null && bufferedState == null) return;
 
-        if (!currentCombatState.Interruptible) {
+        if (!currentCombatState.IsInterruptible()) {
             bufferedState = inputState;
             return;
         }
@@ -145,4 +149,30 @@ public class CombatSM : BaseStateMachine<CombatSM>
     public void SetBufferTime(float pBufferTime) {
         bufferTime = pBufferTime;
     }
+    
+    
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (EditorStates == null || EditorStates.Count == 0) return;
+
+        foreach (var state in EditorStates)
+        {
+            if (state == null) continue;
+
+            // Ensure state data is applied
+            if (state.name != state.Name)
+            {
+                Debug.LogWarning($"State name mismatch: Asset: {state.name}, Data: {state.Name}", this);
+            }
+
+            if (state.StateMachine == null)
+            {
+                state.Enter(this);
+            }
+
+            AddState(state);
+        }
+    }
+#endif
 }

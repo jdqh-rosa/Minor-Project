@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New CombatState", menuName = "Character/CombatState")]
+[CreateAssetMenu(fileName = "New CombatStateData", menuName = "Character/CombatStateData")]
+[Serializable]
 public class CombatStateData : ScriptableObject
 {
+    public string Name;
     public ActionType ActionType;
     public float AttackForce;
     public float Duration;

@@ -1,42 +1,52 @@
+using System;
 using UnityEngine;
 
-public abstract class CombatState : BaseState<CombatSM>
+[CreateAssetMenu(fileName = "New CombatState", menuName = "Character/CombatState")]
+public class CombatState : BaseState<CombatSM>
 {
-    public ActionType actionType;
+    protected ActionType actionType;
     protected float attackForce;
     protected float duration;
     protected float attackAngle;
     protected float attackRange;
     protected float interruptTime;
-    public bool Interruptible;
-    public bool HoldAction;
+    protected bool isInterruptible;
+    protected bool isHoldAction;
     protected float elapsedTime = 0f;
     protected float extendTime =0.1f;
     protected float retractTime =0.1f;
     
-    CombatStateData stateData;
+    [SerializeField]CombatStateData stateData;
 
-    public CombatState(string pName) : base(pName){}
+    protected CombatState(string pName) : base(pName){}
+    protected CombatState() : base(){}
+
+    public void Awake() {
+        if (stateData != null) {
+            AddStateData(stateData);
+        }
+    }
+
     public virtual void Enter(CombatSM pStateMachine, float pAttackAngle)
     {
         base.Enter(pStateMachine);
         StateMachine.GetWeapon().CurrentState = WeaponState.Active;
         attackAngle = pAttackAngle;
-        Interruptible = false;
+        isInterruptible = false;
     }
 
     public virtual void AddStateData(CombatStateData pData)
     {
         stateData = pData;
+        Name = stateData.Name;
         attackForce = stateData.AttackForce;
         actionType = stateData.ActionType;
         duration = stateData.Duration;
         extendTime = stateData.ExtendTime;
         retractTime = stateData.RetractTime;
-        actionType = stateData.ActionType;
         attackRange = stateData.AttackRange;
         interruptTime = stateData.InteruptTime;
-        HoldAction = stateData.HoldAction;
+        isHoldAction = stateData.HoldAction;
     }
 
     public override void UpdateLogic(float delta)
@@ -59,5 +69,17 @@ public abstract class CombatState : BaseState<CombatSM>
         
         attackAngle = pAttackAngle;
     }
-    
+
+    public bool IsInterruptible() {
+        return isInterruptible;
+    }
+
+    public bool IsHoldAction() {
+        return isHoldAction;
+    }
+
+    public ActionType GetActionType() {
+        return actionType;
+    }
+
 }

@@ -3,7 +3,7 @@ using UnityEngine;
 public class ThrustState : CombatState
 {
     
-    public ThrustState(string pName) : base(pName) { }
+    public ThrustState() : base() { }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine, pAttackAngle);
@@ -14,7 +14,7 @@ public class ThrustState : CombatState
     public override void UpdateLogic(float delta) {
         if (elapsedTime < duration) {
             if (elapsedTime >= interruptTime) {
-                Interruptible = true;
+                isInterruptible = true;
             }
         }
         else {
@@ -32,6 +32,6 @@ public class ThrustState : CombatState
         StateMachine.GetWeapon().ApplyThrust(0, retractTime);
         elapsedTime = 0f;
         attackAngle = 0f;
-        Interruptible = true;
+        isInterruptible = true;
     }
 }

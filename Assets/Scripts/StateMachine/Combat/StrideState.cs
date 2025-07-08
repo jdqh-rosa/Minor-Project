@@ -4,11 +4,11 @@ public class StrideState : CombatState
 {
     private Vector3 moveDir;
     private Vector3 moveVec;
-    public StrideState(string pName) : base(pName) { }
+    public StrideState() : base() { }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine);
-        Interruptible = false;
+        isInterruptible = false;
         StateMachine.Character.Body.SetSpecialMovement(true);
         moveDir = StateMachine.Character.GetCharacterDirection();
     }
@@ -17,7 +17,7 @@ public class StrideState : CombatState
         elapsedTime += delta;
         if (elapsedTime < duration) {
             if (elapsedTime >= interruptTime) {
-                Interruptible = true;
+                isInterruptible = true;
             }
             moveVec = StateMachine.Character.Body.Stride(moveDir, attackRange, duration, elapsedTime);
         }
@@ -36,7 +36,7 @@ public class StrideState : CombatState
     public override void Exit() {
         base.Exit();
         elapsedTime = 0f;
-        Interruptible = true;
+        isInterruptible = true;
         moveDir = Vector3.zero;
         StateMachine.Character.Body.SetSpecialMovement(false);
     }

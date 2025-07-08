@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6184da4e0f07b6b4d89bacc6156f9760, type: 3}
   m_Name: Jab
   m_EditorClassIdentifier: 
+  Name: MaceJab
   ActionType: 1
   AttackForce: 0
   Duration: 0.5

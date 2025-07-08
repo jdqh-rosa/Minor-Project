@@ -9,7 +9,7 @@ public abstract class BaseStateMachine<TStateMachine> : MonoBehaviour
     public BaseState<TStateMachine> InitialState;
     protected BaseState<TStateMachine> currentState;
     protected BaseState<TStateMachine> nextState;
-    protected Dictionary<string, BaseState<TStateMachine>> states = new Dictionary<string, BaseState<TStateMachine>>();
+    [SerializeField] protected Dictionary<string, BaseState<TStateMachine>> states = new();
 
     protected virtual void Start()
     {

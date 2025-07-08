@@ -4,11 +4,11 @@ public class DodgeState : CombatState
 {
     private Vector3 moveDir;
     private Vector3 moveVec;
-    public DodgeState(string pName) : base(pName) { }
+    public DodgeState() : base() { }
 
     public override void Enter(CombatSM pStateMachine, float pAttackAngle) {
         base.Enter(pStateMachine);
-        Interruptible = false;
+        isInterruptible = false;
         StateMachine.Character.Body.SetSpecialMovement(false);
         moveDir = StateMachine.Character.GetCharacterDirection();
     }
@@ -17,7 +17,7 @@ public class DodgeState : CombatState
         elapsedTime += delta;
         if (elapsedTime < duration) {
             if (elapsedTime >= interruptTime) {
-                Interruptible = true;
+                isInterruptible = true;
             }
             moveVec = StateMachine.Character.Body.Dodge(moveDir,attackRange, duration, elapsedTime);
         }
@@ -34,7 +34,7 @@ public class DodgeState : CombatState
     public override void Exit() {
         base.Exit();
         elapsedTime = 0f;
-        Interruptible = true;
+        isInterruptible = true;
         moveDir = Vector3.zero;
         StateMachine.Character.Body.SetSpecialMovement(false);
     }
