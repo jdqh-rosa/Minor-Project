@@ -91,7 +91,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
             _actionType = linearAttack ? ActionType.Thrust : ActionType.Swing;
         }
 
-        Debug.Log($"Attack Action Type: {_actionType}");
+        //Debug.Log($"Attack Action Type: {_actionType}");
 
         Attack(_actionType, pTargetAngle);
     }

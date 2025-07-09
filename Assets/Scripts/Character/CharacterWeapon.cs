@@ -38,24 +38,24 @@ public class CharacterWeapon : MonoBehaviour
         if (hilt != null) {
             hilt.Weapon = this;
             Physics.IgnoreCollision(Character.Body.GetComponent<Collider>(), hilt.GetComponent<Collider>());
-            Debug.Log($"Ignoring: {Character.Body.transform.root.name} ↔ {hilt.transform.root.name}");
+            //Debug.Log($"Ignoring: {Character.Body.transform.root.name} ↔ {hilt.transform.root.name}");
         }
 
         if (blade != null) {
             blade.Weapon = this;
             Physics.IgnoreCollision(Character.Body.GetComponent<Collider>(), blade.GetComponent<Collider>());
-            Debug.Log($"Ignoring: {Character.Body.transform.root.name} ↔ {blade.transform.root.name}");
+            //Debug.Log($"Ignoring: {Character.Body.transform.root.name} ↔ {blade.transform.root.name}");
         }
 
         if (tip != null) tip.Weapon = this;
         if (blade != null && tip != null) {
             Physics.IgnoreCollision(blade.GetComponent<Collider>(), tip.GetComponent<Collider>());
-            Debug.Log($"Ignoring: {blade.transform.root.name} ↔ {tip.transform.root.name}");
+            //Debug.Log($"Ignoring: {blade.transform.root.name} ↔ {tip.transform.root.name}");
         }
 
         if (hilt != null && blade != null) {
             Physics.IgnoreCollision(hilt.GetComponent<Collider>(), blade.GetComponent<Collider>());
-            Debug.Log($"Ignoring: {hilt.transform.root.name} ↔ {blade.transform.root.name}");
+            //Debug.Log($"Ignoring: {hilt.transform.root.name} ↔ {blade.transform.root.name}");
         }
 
         weaponJoint.connectedBody = Character.GetComponent<Rigidbody>();
@@ -132,6 +132,7 @@ public class CharacterWeapon : MonoBehaviour
     }
 
     public void UpdatePosition() {
+        if(!isActiveAndEnabled) return;
         currentAngle += OrbitalVelocity * Time.fixedDeltaTime;
         currentAngle += KnockbackVelocity;
         currentAngle = RadialHelper.NormalizeAngle(currentAngle);
@@ -232,20 +233,21 @@ public class CharacterWeapon : MonoBehaviour
         float _otherMass = pCharacterHit.Weapon.GetMass();
         float _invMassSum = (1f / _myMass) + (1f / _otherMass);
 
-        float _dKnockback = _relAngVel * _sign * _invMassSum * angularFactor;
+        float _dKnockback = Mathf.Abs(_relAngVel * _invMassSum * angularFactor) * _sign;
         KnockbackVelocity += _dKnockback;
+        //Debug.Log($"Knoockback: {_dKnockback}, _relAngVel: {_relAngVel}, _invMassSum: {_invMassSum}, Orbital: {OrbitalVelocity}, OtherOrbital: {pCharacterHit.Weapon.OrbitalVelocity}", this);
         KnockbackVelocity = Math.Clamp(KnockbackVelocity, -Character.GetCharacterData().MaxRotationSpeed, Character.GetCharacterData().MaxRotationSpeed);
     }
 
     private void bodyHit(WeaponPart pPart, Character pCharacterHit, Vector2 pMomentum) {
         float AverageHealth = 1000f;
-        float HighestSpeed = 4000f;
+        float HighestSpeed = 1000f;
         float DamageRatio = 0.5f;
 
-        Debug.Log($"Velocity {pMomentum}, {pMomentum.magnitude}");
-        Debug.Log($"Momentum {momentum}");
+        //Debug.Log($"Velocity {pMomentum}, {pMomentum.magnitude}");
+        //Debug.Log($"Momentum {momentum}");
         
-        float _strength = Mathf.Clamp01(momentum / HighestSpeed);
+        float _strength = Mathf.Clamp01(OrbitalVelocity / HighestSpeed);
 
         float _damageMod = 0;
         switch (pPart.PartType) {
@@ -286,9 +288,8 @@ public class CharacterWeapon : MonoBehaviour
             GameObject _otherObj = contact.otherCollider.transform.root.gameObject;
             _otherObj = contact.otherCollider.gameObject;
 
-            // Skip if same root or already handled
             if (_thisObj == _otherObj || !CollisionTracker.TryRegisterCollision(_thisObj, _otherObj)) {
-                Debug.Log($"[Collision Skipped] Already handled collision between {_thisObj.name} and {_otherObj.name}");
+                //Debug.Log($"[Collision Skipped] Already handled collision between {_thisObj.name} and {_otherObj.name}");
                 return;
             }
 

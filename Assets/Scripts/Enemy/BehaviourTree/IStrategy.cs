@@ -784,15 +784,22 @@ public class RetreatFromTargetStrategy : RetreatFromPositionStrategy
 {
     private EnemyBlackboard blackboard;
     private GameObject target;
+    private Func<GameObject> targetMethod;
 
     public RetreatFromTargetStrategy(EnemyBlackboard pBlackboard, GameObject pTarget, float pRetreatDistance = 5.0f) : base(pBlackboard, pRetreatDistance) {
         blackboard = pBlackboard;
         target = pTarget;
     }
+    
+    public RetreatFromTargetStrategy(EnemyBlackboard pBlackboard, Func<GameObject> pTarget, float pRetreatDistance = 5.0f) : base(pBlackboard, pRetreatDistance) {
+        blackboard = pBlackboard;
+        targetMethod = pTarget;
+    }
 
     public override Node.NodeStatus Process () {
         agent.TreeValues.Messenger.IsRetreatModified = true;
-        if (!target) return Node.NodeStatus.Failure;
+        if (!target && targetMethod == null) return Node.NodeStatus.Failure;
+        target ??= targetMethod();
         blackboard.SetKeyValue(CommonKeys.RetreatThreatPosition, target.transform.position);
         return base.Process();
     }
@@ -851,7 +858,7 @@ public class SendMessageToAllyStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
     private ComMessage message;
-    private Func<ComMessage> messageMethod;
+    protected Func<ComMessage> messageMethod;
     protected GameObject recipient;
     protected Func<GameObject> recipientMethod;
 
@@ -870,9 +877,9 @@ public class SendMessageToAllyStrategy : IStrategy
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
         if (recipient == null && recipientMethod == null) return Node.NodeStatus.Failure;
         recipient ??= recipientMethod();
+        if(message == null && messageMethod == null){ return Node.NodeStatus.Failure; }
+        message ??= messageMethod();
         if (recipient.TryGetComponent(out EnemyController _allyAgent)) {
-            if(message == null && messageMethod == null){ return Node.NodeStatus.Failure; }
-            message ??= messageMethod();
             _agent.SendComMessage(_allyAgent, message);
             return Node.NodeStatus.Success;
         }
@@ -881,9 +888,9 @@ public class SendMessageToAllyStrategy : IStrategy
 
     public void Reset() {
     message = null;
-    messageMethod = null;
+    //messageMethod = null;
     recipient = null;
-    recipientMethod = null;
+    //recipientMethod = null;
     }
 }
 

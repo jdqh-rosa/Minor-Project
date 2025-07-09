@@ -290,7 +290,7 @@ public class BehaviourTree : Node
             var status = child.Process();
             child.IsActive = status == NodeStatus.Running;
             if (status != NodeStatus.Success) {
-                Debug.Log($"{Name} : {children[currentChild].children[children[currentChild].GetCurrentChildIndex()].Path}=>{status}");
+                //Debug.Log($"{Name} : {children[currentChild].children[children[currentChild].GetCurrentChildIndex()].Path}=>{status}");
                 return status;
             }
         }

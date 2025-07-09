@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class MessengerTree : BehaviourTree
@@ -52,7 +53,7 @@ public class MessengerTree : BehaviourTree
             blackboard.TryGetValue(CommonKeys.SurroundFlag, out bool surroundFlag);
             return blackboard.AlliesAvailable() && _visibleEnemies.Count > 0 && _visibleEnemies.Count < 2;
         }));
-        Leaf _surroundMessage = new("MessageTree//Surround/SendMessage", new SendMessageToAlliesStrategy(blackboard, surroundMessage));
+        Leaf _surroundMessage = new("MessageTree//Surround/SendMessage", new SendMessageToAlliesStrategy(blackboard, ()=> surroundMessage()));
         Leaf _surroundModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsSurroundModified = true));
         
         
@@ -107,10 +108,12 @@ public class MessengerTree : BehaviourTree
 
     private ComMessage groupUpMessage() {
         if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies)) return null;
-        
+        List<GameObject> _allyList = new List<GameObject>();
+        _allyList.AddRange(_allies); 
+        _allyList.Add(agent.gameObject);
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
-            { MessageInfoType.Allies, _allies },
+            { MessageInfoType.Allies, _allyList },
             { MessageInfoType.Position, agent.transform.position },
         };
 
@@ -146,11 +149,13 @@ public class MessengerTree : BehaviourTree
     private ComMessage surroundMessage() {
         if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies)) return null;
         if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy)) return null;
-        
+        List<GameObject> _allyList = new List<GameObject>();
+        _allyList.AddRange(_allies); 
+        _allyList.Add(agent.gameObject);
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
             { MessageInfoType.Enemy, _enemy },
-            { MessageInfoType.Allies, _allies }, 
+            { MessageInfoType.Allies, _allyList }, 
             { MessageInfoType.DirectionAngle, 270f }, //surroundAngle
             { MessageInfoType.Distance, 5f } //surroundRadius
         };

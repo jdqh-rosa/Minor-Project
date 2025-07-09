@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2adc992dc2f2bf64a86adbcd049092db, type: 3}
   m_Name: MaceSwing
   m_EditorClassIdentifier: 
-  Name: MaceSwing
+  Name: Swing
   StateMachine: {fileID: 0}
   stateData: {fileID: 0}

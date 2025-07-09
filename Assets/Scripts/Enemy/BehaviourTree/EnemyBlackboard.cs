@@ -73,7 +73,7 @@ public class EnemyBlackboard : Blackboard
     public bool CheckLowHealth() {
         TryGetValue(CommonKeys.MaxHealth, out float _maxHealth);
         TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
-        return GetCurrentHealth() < _maxHealth * _agent.TreeValues.Health.LowHealthThreshold;
+        return GetCurrentHealth() <= _maxHealth * _agent.TreeValues.Health.LowHealthThreshold;
     }
     
     public void AddForce(Vector3 pDirection, float pStrength, string pName="")
