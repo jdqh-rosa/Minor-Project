@@ -12,7 +12,7 @@ public class EnemyBlackboard : Blackboard
         SetKeyValue(CommonKeys.FlankFlag, false);
         SetKeyValue(CommonKeys.GroupUpFlag, false);
         SetKeyValue(CommonKeys.SurroundFlag, false);
-        SetKeyValue(CommonKeys.SurroundFlag, false);
+        SetKeyValue(CommonKeys.RetreatFlag, false);
     }
     public void AddCharacterData(CharacterData pData)
     {

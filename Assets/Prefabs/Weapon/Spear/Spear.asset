@@ -14,11 +14,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Mass: 2
   WeaponDistance: 0.1
-  MaxTurnVelocity: 300
-  MaxOrbitalVelocity: 700
+  MaxTurnVelocity: 250
+  MaxOrbitalVelocity: 400
   MaxReach: 4
   SwingDampingFactor: 0.98
   ThrustDampingFactor: 0.98
+  TipDamageFactor: 1.3
+  MainDamageFactor: 1
+  HiltDamageFactor: 0.5
+  BluntDamageFactor: 0.8
+  ChopDamageFactor: 1.3
+  PokeDamageFactor: 1.1
+  SlashDamageFactor: 1.2
   JabState: {fileID: 11400000, guid: e7ea0c0496e8e9f4586a37b123e6c5fd, type: 2}
   ThrustState: {fileID: 11400000, guid: 746008705b5d0eb4794d834f0ce0d6d5, type: 2}
   SwipeState: {fileID: 11400000, guid: c775a61109d0ca743aa2eb6effca929a, type: 2}

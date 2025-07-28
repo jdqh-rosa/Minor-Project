@@ -128,7 +128,7 @@ public class MessengerTree : BehaviourTree
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
             { MessageInfoType.Position, _enemy.transform.position },
-            { MessageInfoType.Distance, 10f }
+            { MessageInfoType.Distance, agent.TreeValues.Miscellaneous.RetreatDistance }
         };
 
         return new ComMessage(agent, _allyAgent, MessageType.Retreat, _payload, Time.time);
@@ -152,12 +152,15 @@ public class MessengerTree : BehaviourTree
         List<GameObject> _allyList = new List<GameObject>();
         _allyList.AddRange(_allies); 
         _allyList.Add(agent.gameObject);
+        
+        float _faceAngle = RadialHelper.CartesianToPol((_enemy.transform.position - agent.transform.position).normalized).y;
+        
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
             { MessageInfoType.Enemy, _enemy },
             { MessageInfoType.Allies, _allyList }, 
-            { MessageInfoType.DirectionAngle, 270f }, //surroundAngle
-            { MessageInfoType.Distance, 5f } //surroundRadius
+            { MessageInfoType.DirectionAngle, _faceAngle },
+            { MessageInfoType.Distance, agent.TreeValues.Miscellaneous.SurroundDistance }
         };
 
         return new ComMessage(agent, null, MessageType.SurroundTarget, _payload, Time.time);

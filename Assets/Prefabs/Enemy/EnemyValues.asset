@@ -20,7 +20,7 @@ MonoBehaviour:
     GroupUpMod: 10
     IsGroupUpModified: 0
     RetreatWeight: 10
-    RetreatMod: 10
+    RetreatMod: 20
     IsRetreatModified: 0
     BackUpWeight: 10
     BackUpMod: 10
@@ -53,9 +53,9 @@ MonoBehaviour:
     DefendSelfMod: 10
     IsDefendSelfModified: 0
     RetreatWeight: 5
-    RetreatMod: 30
+    RetreatMod: 100
     IsRetreatModified: 0
-    RetreatSelfWeight: 60
+    RetreatSelfWeight: 100
     RetreatGroupWeight: 40
   CombatAttack:
     StabWeight: 25
@@ -82,3 +82,6 @@ MonoBehaviour:
     SurroundForce: 3
   Miscellaneous:
     FindRange: 40
+    RetreatDistance: 20
+    SurroundAngle: 100
+    SurroundDistance: 10

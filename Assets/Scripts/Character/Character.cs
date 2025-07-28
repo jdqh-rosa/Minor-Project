@@ -114,8 +114,8 @@ public class Character : MonoBehaviour
     }
 
     public void Move(Vector3 pMove) {
+        pMove.y = 0;
         RigidBody.Move(transform.position += pMove, transform.rotation);
-        //transform.position += pMove; //todo: use rigidbody for movement
     }
 
     private void weaponFunctions() {

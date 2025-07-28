@@ -859,6 +859,14 @@ PrefabInstance:
       propertyPath: Weapon
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 7336856281401438087, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_Center.y
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7336856281401438087, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7559539973242311158, guid: 2b3aab64a24b325478abff4676e1cae2, type: 3}
       propertyPath: m_Name
       value: Dummy

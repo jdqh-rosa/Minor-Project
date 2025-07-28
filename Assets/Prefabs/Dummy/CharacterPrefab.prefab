@@ -558,6 +558,7 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: d52c6f45048aa464da808a836bebca8a, type: 2}
   weaponJoint: {fileID: 6558871749632413352}
   Velocity: {x: 0, y: 0, z: 0}
+  angularFactor: 0.1
   currentAngle: 0
   OrbitalVelocity: 0
   ThrustVelocity: 0
@@ -703,9 +704,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1153490375796642830}
   - component: {fileID: 8276641798847181612}
+  - component: {fileID: 7336856281401438087}
   - component: {fileID: 791417117847432164}
   - component: {fileID: 7287280391059010363}
-  - component: {fileID: 7336856281401438087}
   m_Layer: 0
   m_Name: CharacterPrefab
   m_TagString: Character
@@ -757,40 +758,6 @@ Rigidbody:
   m_Interpolate: 1
   m_Constraints: 112
   m_CollisionDetection: 1
---- !u!114 &791417117847432164
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7559539973242311158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 981268b96e5c7cb4da8dc0499183bef6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RigidBody: {fileID: 8276641798847181612}
-  Body: {fileID: 4064070902432672261}
-  Weapon: {fileID: 1986152834130756565}
-  CombatSM: {fileID: 7287280391059010363}
-  unitData: {fileID: 0}
-  characterData: {fileID: 0}
-  lookDirection: {x: 0, y: 0}
---- !u!114 &7287280391059010363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7559539973242311158}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d42a6e83ed50237449bad413f68fb3b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  customName: CombatSM
-  Character: {fileID: 791417117847432164}
-  Weapon: {fileID: 1986152834130756565}
 --- !u!65 &7336856281401438087
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -812,3 +779,39 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.1, y: 0.1, z: 0.1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &791417117847432164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559539973242311158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 981268b96e5c7cb4da8dc0499183bef6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RigidBody: {fileID: 8276641798847181612}
+  Body: {fileID: 4064070902432672261}
+  Weapon: {fileID: 1986152834130756565}
+  CombatSM: {fileID: 7287280391059010363}
+  unitData: {fileID: 0}
+  characterData: {fileID: 0}
+  healthBar: {fileID: 0}
+  lookDirection: {x: 0, y: 0}
+--- !u!114 &7287280391059010363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7559539973242311158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d42a6e83ed50237449bad413f68fb3b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customName: CombatSM
+  InitialState: {fileID: 0}
+  Character: {fileID: 791417117847432164}
+  EditorStates: []

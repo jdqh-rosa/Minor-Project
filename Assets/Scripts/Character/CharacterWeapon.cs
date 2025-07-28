@@ -15,7 +15,6 @@ public class CharacterWeapon : MonoBehaviour
 
     public Vector3 Velocity;
 
-    private float acceleration = 0.1f;
     [SerializeField] private float angularFactor = 0.1f;
     [SerializeField] private float currentAngle = 0f;
     private float currentDistance = 0;
@@ -133,6 +132,10 @@ public class CharacterWeapon : MonoBehaviour
 
     public void UpdatePosition() {
         if(!isActiveAndEnabled) return;
+        
+        UpdatePositionSimple();
+        return;
+        
         currentAngle += OrbitalVelocity * Time.fixedDeltaTime;
         currentAngle += KnockbackVelocity;
         currentAngle = RadialHelper.NormalizeAngle(currentAngle);
@@ -173,6 +176,28 @@ public class CharacterWeapon : MonoBehaviour
         if (Mathf.Abs(ThrustVelocity) < 0.001f) ThrustVelocity = 0;
         //if (Mathf.Abs(ThrustKnockback) < 0.01f) ThrustKnockback = 0;
 
+        updateVelocity();
+        momentum = VelocityToMomentum(OrbitalVelocity, currentDistance);
+    }
+
+    public void UpdatePositionSimple() {
+        currentAngle += OrbitalVelocity * Time.fixedDeltaTime;
+        currentAngle += KnockbackVelocity;
+        currentAngle = RadialHelper.NormalizeAngle(currentAngle);
+        currentDistance = Mathf.Clamp(data.WeaponDistance + ThrustVelocity + ThrustKnockback, data.WeaponDistance, data.MaxReach);
+        
+        Vector2 _orbitPos = RadialHelper.PolarToCart(currentAngle, currentDistance);
+        
+        weaponJoint.targetPosition = new Vector3(_orbitPos.x, transform.position.y, _orbitPos.y);
+        weaponJoint.targetRotation = Quaternion.Euler(0, -currentAngle+90, 0);
+        
+        OrbitalVelocity *= data.SwingDampingFactor;
+        ThrustVelocity *= data.ThrustDampingFactor;
+        KnockbackVelocity *= data.SwingDampingFactor * 0.5f;
+        if (Mathf.Abs(OrbitalVelocity) < 0.01f) OrbitalVelocity = 0;
+        if (Mathf.Abs(KnockbackVelocity) < 0.001f) KnockbackVelocity = 0;
+        if (Mathf.Abs(ThrustVelocity) < 0.001f) ThrustVelocity = 0;
+        
         updateVelocity();
         momentum = VelocityToMomentum(OrbitalVelocity, currentDistance);
     }

@@ -82,3 +82,6 @@ MonoBehaviour:
     SurroundForce: 0
   Miscellaneous:
     FindRange: 40
+    RetreatDistance: 20
+    SurroundAngle: 100
+    SurroundDistance: 10

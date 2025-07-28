@@ -969,7 +969,7 @@ public class SurroundTargetStrategy : IStrategy
         Vector3 targetPos = target.transform.position;
         Vector3 forward = direction.normalized;
 
-        Vector3 desiredPosition = GetSectorPosition(targetPos, index, allies.Count, radius, sectorAngle, forward);
+        Vector3 desiredPosition = GetCirclePosition(targetPos, index, allies.Count, radius);
         Vector3 directionToPosition = desiredPosition - agent.transform.position;
         float distance = directionToPosition.magnitude;
 
@@ -996,7 +996,7 @@ public class SurroundTargetStrategy : IStrategy
     }
 
     private Vector3 GetCirclePosition(Vector3 pCenter, int pIndex, int pTotal, float pRadius) {
-        float _angle = 2 * Mathf.PI * pIndex / pTotal;
+        float _angle = 2 * Mathf.PI * ((float)pIndex / pTotal) *Mathf.Rad2Deg;
         Vector2 _pos = new Vector2(pCenter.x, pCenter.z) + RadialHelper.PolarToCart(_angle, pRadius);
         return new Vector3(_pos.x, pCenter.y, _pos.y);
     }

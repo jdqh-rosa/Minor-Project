@@ -15,7 +15,7 @@ MonoBehaviour:
   Mass: 1
   WeaponDistance: 0.1
   MaxTurnVelocity: 200
-  MaxOrbitalVelocity: 400
+  MaxOrbitalVelocity: 300
   MaxReach: 2
   SwingDampingFactor: 0.98
   ThrustDampingFactor: 0.98

@@ -28,6 +28,7 @@ public class CombatTree : BehaviourTree
         Leaf _targetCheck = new Leaf("Combat/TargetCheck", new ConditionStrategy(() => targetEnemy()));
         PrioritySelector _combatTacticSelector = new PrioritySelector("Combat/TargetSeq/CombatTacticSel");
         Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
+        Leaf _pointWeapon = new("Combat/PointWeapon", new ActionStrategy(()=> pointWeapon()));
         
         Sequence _flankSequence = new Sequence("Combat///FlankSeq", ()=> agent.TreeValues.CombatTactic.FlankWeight + (agent.TreeValues.CombatTactic.IsFlankModified ? agent.TreeValues.CombatTactic.FlankMod : 0));
         Leaf _flankCheck = new("Combat///FlankCheck", new ConditionStrategy(() =>
@@ -49,12 +50,13 @@ public class CombatTree : BehaviourTree
         Leaf _healthCheck = new Leaf("Combat/TargetSeq/HealthCheck", new ConditionStrategy(() => blackboard.CheckLowHealth()));
         //PrioritySelector _retreatSelector = new("Combat//FleeBranch/Selector");
         Leaf _regroup = new("Combat/FleeBranch/Regroup", new GroupUpStrategy(blackboard), ()=> agent.TreeValues.CombatTactic.RetreatGroupWeight);
-        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy), ()=> agent.TreeValues.CombatTactic.RetreatSelfWeight);
+        Leaf _retreat = new("Combat/FleeBranch/Retreat", new RetreatFromTargetStrategy(blackboard, targetEnemy, 20f), ()=> agent.TreeValues.CombatTactic.RetreatSelfWeight);
         
         AddChild(_baseCombatSequence);
         _baseCombatSequence.AddChild(_obtainEnemy);
         _baseCombatSequence.AddChild(_combatParallel);
         _baseCombatSequence.AddChild(_distanceSelfFromWeapon);
+        _baseCombatSequence.AddChild(_pointWeapon);
         
         _combatParallel.AddChild(_targetCheck);
         _combatParallel.AddChild(_combatTacticSelector);
@@ -86,5 +88,13 @@ public class CombatTree : BehaviourTree
     private GameObject targetEnemy() {
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
         return _target;
+    }
+    
+    void pointWeapon()
+    {
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
+        Vector3 _agentPos = agent.transform.position;
+        Vector3 _difVector = _target.transform.position - _agentPos;
+        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.CartesianToPol(new Vector2(_difVector.x, _difVector.z)).y);
     }
 }

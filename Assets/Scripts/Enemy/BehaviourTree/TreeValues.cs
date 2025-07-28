@@ -117,7 +117,10 @@ public class TreeValuesSO : ScriptableObject
     [Serializable]
     public class MiscellaneousValues
     {
-        [Range(0, 100)] public float FindRange = 10;
+        [Range(0, 100)] public float FindRange = 10f;
+        [Range(0, 100)] public float RetreatDistance = 20f;
+        [Range(0, 100)] public float SurroundAngle = 270f;
+        [Range(0, 100)] public float SurroundDistance = 10f;
     }
     
     public class TreeValuesRuntime

@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: SurroundValues
   m_EditorClassIdentifier: 
   Messenger:
-    FlankWeight: 0
-    FlankMod: 0
+    FlankWeight: 10
+    FlankMod: 10
     IsFlankModified: 0
-    GroupUpWeight: 0
-    GroupUpMod: 0
+    GroupUpWeight: 10
+    GroupUpMod: 10
     IsGroupUpModified: 0
-    RetreatWeight: 0
-    RetreatMod: 0
+    RetreatWeight: 10
+    RetreatMod: 20
     IsRetreatModified: 0
-    BackUpWeight: 0
-    BackUpMod: 0
+    BackUpWeight: 10
+    BackUpMod: 10
     IsBackUpModified: 0
-    SurroundWeight: 10
+    SurroundWeight: 20
     SurroundMod: 10
     IsSurroundModified: 0
   Health:
@@ -34,51 +34,54 @@ MonoBehaviour:
     IsLowHealth: 0
   Decider:
     CombatWeight: 30
-    PatrolWeight: 0
-    AssembleWeight: 0
-    AssembleMod: 0
+    PatrolWeight: 25
+    AssembleWeight: 15
+    AssembleMod: 20
     IsAssembleModified: 0
-    IdleWeight: 0
+    IdleWeight: 10
   CombatTactic:
     SurroundWeight: 50
-    SurroundMod: 10
+    SurroundMod: 20
     IsSurroundModified: 1
-    FlankWeight: 0
-    FlankMod: 0
+    FlankWeight: 20
+    FlankMod: 20
     IsFlankModified: 0
-    AttackTargetWeight: 0
-    AttackTargetMod: 0
+    AttackTargetWeight: 30
+    AttackTargetMod: 30
     IsAttackTargetModified: 0
-    DefendSelfWeight: 0
-    DefendSelfMod: 0
+    DefendSelfWeight: 10
+    DefendSelfMod: 10
     IsDefendSelfModified: 0
-    RetreatWeight: 0
-    RetreatMod: 0
+    RetreatWeight: 5
+    RetreatMod: 100
     IsRetreatModified: 0
-    RetreatSelfWeight: 0
-    RetreatGroupWeight: 0
+    RetreatSelfWeight: 100
+    RetreatGroupWeight: 40
   CombatAttack:
-    StabWeight: 0
-    SwingWeight: 0
-    StrongStabWeight: 0
-    WeakStabWeight: 0
-    StrongSwingWeight: 0
-    WeakSwingWeight: 0
+    StabWeight: 25
+    SwingWeight: 20
+    StrongStabWeight: 10
+    WeakStabWeight: 30
+    StrongSwingWeight: 10
+    WeakSwingWeight: 30
   Defense:
-    EvadeWeight: 0
-    ParryWeight: 0
-    BlockWeight: 0
-    RetreatWeight: 0
+    EvadeWeight: 10
+    ParryWeight: 10
+    BlockWeight: 10
+    RetreatWeight: 10
   Movement:
-    AlignAttackForce: 0
-    EnterRangeForce: 0
+    AlignAttackForce: 3
+    EnterRangeForce: 3
     ChooseObjectForce: 0.1
     DistanceSelfForce: -5
     AvoidObjectForce: -4
-    FlankForce: 0
-    GroupUpForce: 0
+    FlankForce: 3
+    GroupUpForce: 3
     TargetAllyForce: 0
-    RetreatForce: 0
-    SurroundForce: 8
+    RetreatForce: -3
+    SurroundForce: 4
   Miscellaneous:
     FindRange: 40
+    RetreatDistance: 20
+    SurroundAngle: 270
+    SurroundDistance: 10

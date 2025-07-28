@@ -3,9 +3,10 @@ using UnityEngine;
 public class CheckerTree : BehaviourTree
 {
     EnemyBlackboard blackboard;
+    private EnemyController agent;
     public CheckerTree(EnemyBlackboard pBlackboard, int pPriority = 0) : base("CheckerTree", pPriority) {
         blackboard = pBlackboard;
-        
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
         setup();
     }
 
@@ -27,7 +28,10 @@ public class CheckerTree : BehaviourTree
         Parallel _selfCheckParallel = new("Checker//SelfChecks", 1);
         
         //Leaf _patrolTimeCheck = new("Checker//PatrolTimeCheck", new ConditionStrategy());
+        Sequence _healthCheckSequence = new("Checker//SelfChecksSeq");
         Leaf _healthCheck = new("Checker//HealthCheck", new ConditionStrategy(()=> blackboard.CheckLowHealth()));
+        Leaf _healthModify = new ("Checker//HealthModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsRetreatModified = true));
+        
         Leaf _checkMessages = new("Checker//MessageCheck", new ProcessMessagesStrategy(blackboard, 5));
         Leaf _detectAttacks = new("Checker//DetectAttack", new DetectAttackStrategy(blackboard));
         
@@ -47,6 +51,9 @@ public class CheckerTree : BehaviourTree
         _allySequence.AddChild(_getClosestAlly);
         
         //_selfCheckParallel.AddChild(_patrolTimeCheck);
+        _selfCheckParallel.AddChild(_healthCheckSequence);
+        _healthCheckSequence.AddChild(_healthCheck);
+        _healthCheckSequence.AddChild(_healthModify);
         _selfCheckParallel.AddChild(_healthCheck);
         _selfCheckParallel.AddChild(_checkMessages);
         _selfCheckParallel.AddChild(_detectAttacks);
