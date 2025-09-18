@@ -947,8 +947,7 @@ public class SurroundTargetStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
     private EnemyController agent;
-    private float arrivalThreshold = 0.5f;
-    private float sectorAngle = 170;
+    private float arrivalThreshold = 0.1f;
 
     public SurroundTargetStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;

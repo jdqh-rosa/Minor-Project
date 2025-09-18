@@ -119,7 +119,7 @@ public class Character : MonoBehaviour
     }
 
     private void weaponFunctions() {
-        Weapon.UpdatePosition();
+        Weapon.UpdatePositionSimple();
     }
 
     private void cumulativeVelocity() {

@@ -130,11 +130,9 @@ public class CharacterWeapon : MonoBehaviour
         ) * (pAngularDifference * currentDistance);
     }
 
-    public void UpdatePosition() {
-        if(!isActiveAndEnabled) return;
-        
-        UpdatePositionSimple();
-        return;
+    public void UpdatePosition()
+    {
+        if (!isActiveAndEnabled) return;
         
         currentAngle += OrbitalVelocity * Time.fixedDeltaTime;
         currentAngle += KnockbackVelocity;
@@ -181,6 +179,8 @@ public class CharacterWeapon : MonoBehaviour
     }
 
     public void UpdatePositionSimple() {
+        if (!isActiveAndEnabled) return;
+        
         currentAngle += OrbitalVelocity * Time.fixedDeltaTime;
         currentAngle += KnockbackVelocity;
         currentAngle = RadialHelper.NormalizeAngle(currentAngle);
