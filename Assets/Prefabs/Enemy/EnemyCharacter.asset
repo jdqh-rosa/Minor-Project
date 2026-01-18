@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a65377a2b4a2cae4f895d5721db2892a, type: 3}
   m_Name: EnemyCharacter
   m_EditorClassIdentifier: 
-  RotationSpeed: 50
+  RotationSpeed: 100
   MaxRotationSpeed: 100
   DampingFactor: 0.2
   VelocityDamping: 0.9
@@ -22,6 +22,6 @@ MonoBehaviour:
   AngularFactor: 0.5
   CombatBufferTime: 0.5
   HitInvulerabilityTime: 0.3
-  AttackTolerance: 0.1
+  AttackTolerance: 3
   StrideState: {fileID: 11400000, guid: 7db2a48b63101a244b9b859a7d43f23c, type: 2}
   DodgeState: {fileID: 11400000, guid: 4fa6a5ab450a46446b0bfef2e544404c, type: 2}

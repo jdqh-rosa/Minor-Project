@@ -1,13 +1,11 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AttackTargetTree : BehaviourTree
 {
     EnemyBlackboard blackboard;
     private EnemyController agent;
-
-    private float enemyWeaponRange = 0;
-    private GameObject enemyWeapon;
     
     public AttackTargetTree(EnemyBlackboard pBlackboard, EnemyController pAgent, Func<int> pDynamicPriority, int pFallback = 0) : base("Combat", pDynamicPriority, pFallback) {
         blackboard = pBlackboard;
@@ -15,34 +13,46 @@ public class AttackTargetTree : BehaviourTree
         setup();
     }
 
-    private void setup()
-    {
-        Parallel _parallel = new("AttackTarget/Parallel", 1);
-        _parallel.AddChild(new Leaf("AttackTarget/Parallel/TargetCheck", new ConditionStrategy(() => targetEnemy())));
-        _parallel.AddChild(new EnterRangeTree(blackboard, targetEnemy,agent.GetWeaponRange()));
-        _parallel.AddChild(new Leaf("AttackTarget//PointWeapon",  new ActionStrategy(pointWeapon)));
-        _parallel.AddChild(new Leaf("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon, enemyWeaponRange)));
-        AddChild(_parallel);
-        AddChild(new Leaf("AttackTarget/RangeCheck", new ConditionStrategy(()=> (blackboard.GetTargetEnemy().transform.position - agent.transform.position).magnitude < agent.GetWeaponRange())));
+    private void setup() {
+        AddChild(new Leaf("AttackTarget/TargetCheck", new ConditionStrategy(() => HasValidTarget())));
+        AddChild(new EnterRangeTree(blackboard, targetEnemy,agent.GetWeaponRange()-0.5f));
+        AddChild(new Leaf("AttackTarget/WeaponAwareCombat", new WeaponAwareCombatStrategy(blackboard)));
+        //AddChild(new Leaf("AttackTarget/DistanceWeapon", new DistanceSelfFromTargetWeaponStrategy(blackboard)));
+        AddChild(new Leaf("AttackTarget/PointWeapon",  new ActionStrategy(()=> pointWeapon())));
+        AddChild(new Leaf("AttackTarget/RangeCheck", new ConditionStrategy(()=>
+        {
+            if (!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _targetEnemy) || !_targetEnemy) {
+                Debug.Log($"no target found for {agent.name}");
+                return false;
+            }
+            Vector3 _delta = _targetEnemy.transform.position - agent.transform.position;
+            _delta.y = 0;
+            Debug.Log($"{_delta.magnitude < agent.GetWeaponMaxRange()} weapon max range {agent.GetWeaponMaxRange()} at {_delta.magnitude}");
+            return _delta.magnitude < agent.GetWeaponMaxRange();
+        })));
         AddChild(new ChooseAttackTree(blackboard));
         AddChild(new AttackTree(blackboard, agent));
+        //Selector attackOrParry = new Selector("AttackOrParry");
+        //attackOrParry.AddChild(new Leaf("OffensiveParry", new OffensiveParryStrategy(blackboard)));
+        //attackOrParry.AddChild(new AttackTree(blackboard, agent));
+        //AddChild(attackOrParry);
     }
 
     private GameObject targetEnemy() {
-        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy); 
-        if( !_enemy) return null;
-        if(!_enemy.TryGetComponent(out Character _character)) return null;
-        enemyWeaponRange = _character.GetWeaponRange();
-        enemyWeapon = _character.Weapon.gameObject;
-        
-        return _enemy;
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy);
+        return !_enemy ? null : _enemy;
     }
     
     void pointWeapon()
     {
-        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
-        Vector3 _agentPos = agent.transform.position;
-        Vector3 _difVector = _target.transform.position - _agentPos;
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target) || !_target) return;
+        
+        Vector3 _difVector = _target.transform.position - agent.transform.position;
         blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.CartesianToPol(new Vector2(_difVector.x, _difVector.z)).y);
+    }
+    
+    bool HasValidTarget()
+    {
+        return blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject enemy)&& enemy && enemy.TryGetComponent(out Character _);
     }
 }

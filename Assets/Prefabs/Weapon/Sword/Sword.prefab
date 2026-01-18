@@ -30,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0.73600006}
-  m_LocalScale: {x: 12.730549, y: 12.730549, z: 12.730549}
+  m_LocalScale: {x: 15, y: 15, z: 15}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5131232707193704830}
@@ -348,7 +348,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: -0, y: -0, z: 0.736}
-  m_LocalScale: {x: 12.730549, y: 12.730549, z: 12.730549}
+  m_LocalScale: {x: 15, y: 15, z: 15}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5131232707193704830}
@@ -473,7 +473,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0.73600006}
-  m_LocalScale: {x: 12.730549, y: 12.730549, z: 12.730549}
+  m_LocalScale: {x: 15, y: 15, z: 15}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 5131232707193704830}
@@ -567,4 +567,4 @@ MonoBehaviour:
   PartType: 1
   ContactType: 1
   Weapon: {fileID: 0}
-  PartDistance: 3.1
+  PartDistance: 3.6

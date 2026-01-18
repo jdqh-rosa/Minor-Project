@@ -104,6 +104,7 @@ public enum CommonKeys
 {
     Error,
     AttackActions,
+    AttackTolerance,
     MovementActions,
     ActiveTarget,
     AgentSelf,
@@ -162,6 +163,7 @@ public enum TargetType
     Ally,
     Enemy,
     Object,
+    Position,
 }
 
 public struct DirectionalForce

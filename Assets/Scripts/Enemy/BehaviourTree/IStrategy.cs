@@ -50,8 +50,8 @@ public class AlignAttackStrategy : IStrategy {
         blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType attackType);
         blackboard.TryGetValue(CommonKeys.AttackActions, out Dictionary<ActionType, CombatStateData> actions);
         
-        if (blackboard.AttackFeasible(target, attackType))
-            return Node.NodeStatus.Success;
+        //if (blackboard.AttackFeasible(target, attackType))
+        //    return Node.NodeStatus.Success;
 
         Vector3 toTarget = target.transform.position - agent.transform.position;
 
@@ -95,6 +95,64 @@ public class AlignAttackStrategy : IStrategy {
         return Node.NodeStatus.Running;
     }
 
+}
+
+public class AvoidAndParryStrategy : IStrategy
+{
+    private EnemyBlackboard blackboard;
+    private float avoidAngle = 20f;
+    private float sidestepForce = 1f;
+
+    public AvoidAndParryStrategy(EnemyBlackboard pBlackboard)
+    {
+        blackboard = pBlackboard;
+    }
+
+    public Node.NodeStatus Process()
+    {
+        if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent) || !_agent)
+            return Node.NodeStatus.Failure;
+
+        if (!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy)
+            return Node.NodeStatus.Failure;
+
+        if (!_enemy.TryGetComponent(out Character _enemyChar)) 
+            return Node.NodeStatus.Failure;
+
+        if (!_enemyChar.Weapon || !_enemyChar.Weapon.gameObject)
+            return Node.NodeStatus.Failure;
+
+        bool _actionTaken = false;
+
+        Vector2 _enemyToSelf = MiscHelper.Vec3ToVec2Pos(_agent.transform.position - _enemy.transform.position).normalized;
+        float _selfAngle = RadialHelper.CartesianToPol(_enemyToSelf).y;
+        float _weaponAngle = _enemyChar.GetWeaponAngle();
+
+        float _delta = Mathf.Abs(Mathf.DeltaAngle(_selfAngle, _weaponAngle));
+        if (_delta <= avoidAngle)
+        {
+            Vector2 _perpA = Vector2.Perpendicular(_enemyToSelf);
+            Vector2 _escapeDir = Mathf.Abs(Mathf.DeltaAngle(_weaponAngle, RadialHelper.CartesianToPol(_perpA).y)) > Mathf.Abs(Mathf.DeltaAngle(_weaponAngle, RadialHelper.CartesianToPol(-_perpA).y)) ? _perpA : -_perpA;
+
+            blackboard.AddForce(MiscHelper.Vec3ToVec2Pos(_escapeDir), sidestepForce * _agent.TreeValues.Movement.AvoidObjectForce, "Avoid_Weapon_Sidestep");
+            _actionTaken = true;
+        }
+
+        Vector3 _attackTargetPos = _enemy.transform.position;
+        Vector3 _diffVec = _attackTargetPos - _agent.transform.position;
+        float _attackAngle = RadialHelper.CartesianToPol(new Vector2(_diffVec.x, _diffVec.z)).y;
+
+        float _angleToWeapon = Mathf.DeltaAngle(_enemyChar.GetWeaponAngle(), _attackAngle);
+        float _parryThreshold = _enemyChar.Weapon.OrbitalVelocity / 2f;
+
+        if (Mathf.Abs(_angleToWeapon) <= _parryThreshold)
+        {
+            _agent.InitiateAttackAction(ActionType.Parry, _attackAngle);
+            _actionTaken = true;
+        }
+
+        return _actionTaken ? Node.NodeStatus.Success : Node.NodeStatus.Failure;
+    }
 }
 
 public class CheckMessageStrategy : IStrategy
@@ -217,37 +275,39 @@ public class DetectAttackStrategy : IStrategy
         List<Character> _tryHitters = new List<Character>();
 
         foreach (var _enemy in enemies) {
-            if (!_enemy || !_enemy.TryGetComponent(out Character _character)) continue;
+            if (!_enemy || !_enemy.TryGetComponent(out Character _enemyChar)) continue;
+            if (!_enemyChar.IsAttacking()) continue;
 
-            if (_character.IsAttacking()) {
-                //todo: see if enemy attack makes contact
-                Vector3 _diffVec = MiscHelper.DifferenceVector(agent.transform.position, _character.transform.position);
-                Vector3 _diffFromWeaponVec = _character.transform.position + MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(_character.GetWeaponAngle(), _character.GetWeaponRange())) - agent.transform.position;
-                if (_diffVec.magnitude > _character.GetWeaponRange()) continue;
-                if (_diffFromWeaponVec.magnitude > _character.GetWeaponRange()) continue;
+            Vector2 _enemyPos2D = MiscHelper.Vec3ToVec2Pos(_enemyChar.transform.position);
+            Vector2 _agentPos2D = MiscHelper.Vec3ToVec2Pos(agent.transform.position);
 
-                float _angle = RadialHelper.CartesianToPol(_diffVec.normalized).y;
+            float _weaponAngle = _enemyChar.GetWeaponAngle();
+            float _orbitalVelocity = _enemyChar.Weapon.OrbitalVelocity; 
+            float _weaponDistance = _enemyChar.Weapon.GetCurrentReach();
 
-                if (Mathf.Abs(_angle - _character.GetWeaponAngle()) > 180f) continue;
+            float _sweepRadians = Mathf.Abs(_orbitalVelocity * Mathf.Deg2Rad * Time.fixedDeltaTime);
+            float _attackWidth = _sweepRadians * _weaponDistance;
 
-                _tryHitters.Add(_character);
-            }
+            Vector2 _enemyToAgent = (_agentPos2D - _enemyPos2D).normalized;
+            float _lateralDist = Mathf.Abs(Vector2.Dot(_enemyToAgent, Vector2.Perpendicular(RadialHelper.PolarToCart(_weaponAngle, 1f))) * (_agentPos2D - _enemyPos2D).magnitude);
+
+            if (_lateralDist <= _attackWidth && Vector2.Distance(_agentPos2D, _enemyPos2D) <= _weaponDistance) _tryHitters.Add(_enemyChar);
         }
-
-        switch (_tryHitters.Count) {
-            case 0:
-                agent.TreeValues.CombatTactic.IsDefendSelfModified = false;
-                blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.None);
-                return Node.NodeStatus.Failure;
-            case >= 2:
-                agent.TreeValues.CombatTactic.IsDefendSelfModified = true;
-                blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
-                blackboard.SetKeyValue(CommonKeys.TargetEnemy, FindClosestCharacter(_tryHitters).gameObject);
-                break;
-            default:
-                agent.TreeValues.CombatTactic.IsDefendSelfModified = true;
-                blackboard.SetKeyValue(CommonKeys.TargetEnemy, _tryHitters[0].gameObject);
-                break;
+        
+        if (_tryHitters.Count == 0)
+        {
+            agent.TreeValues.CombatTactic.IsDefendSelfModified = false;
+            blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.None);
+            return Node.NodeStatus.Failure;
+        }
+        
+        Character _closest = FindClosestCharacter(_tryHitters);
+        blackboard.SetKeyValue(CommonKeys.TargetEnemy, _closest.gameObject);
+        agent.TreeValues.CombatTactic.IsDefendSelfModified = true;
+        
+        if (_tryHitters.Count >= 2)
+        {
+            blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
         }
 
         return Node.NodeStatus.Success;
@@ -255,7 +315,7 @@ public class DetectAttackStrategy : IStrategy
 
     private Character FindClosestCharacter(List<Character> characters) {
         //stolen from getclosestcharacter
-        Character closestCharacter = characters[0];
+        Character closestCharacter = null;
         float closestCharDistance = float.MaxValue;
         foreach (Character character in characters) {
             float charDistance = Mathf.Abs((agent.transform.position - character.transform.position).magnitude);
@@ -280,8 +340,9 @@ public class DistanceSelfFromObjectStrategy : IStrategy
         minDistance = pMinDistance;
     }
 
-    public virtual Node.NodeStatus Process() {
+    public Node.NodeStatus Process() {
         if (!avoidObject) return Node.NodeStatus.Failure;
+        if (minDistance <= 0) return Node.NodeStatus.Failure;
 
         blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent);
         Vector2 diffVec = MiscHelper.Vec2ToVec3Pos(avoidObject.transform.position - agent.transform.position);
@@ -291,22 +352,79 @@ public class DistanceSelfFromObjectStrategy : IStrategy
     }
 }
 
-public class DistanceSelfFromWeaponsStrategy : DistanceSelfFromObjectStrategy
+public class DistanceSelfFromTargetWeaponStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
-
-    public DistanceSelfFromWeaponsStrategy(EnemyBlackboard pBlackboard) : base(pBlackboard, null, 0.1f) {
+    private float avoidAngle = 20;
+    public DistanceSelfFromTargetWeaponStrategy(EnemyBlackboard pBlackboard) {
         blackboard = pBlackboard;
     }
 
-    public override Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.VisibleWeapons, out List<CharacterWeapon> _weapons);
+    public Node.NodeStatus Process() {
+        if (!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject enemy) || !enemy) return Node.NodeStatus.Failure;
+
+        if (!enemy.TryGetComponent(out Character character)) return Node.NodeStatus.Failure;
+        
+        if (!character.Weapon || !character.Weapon.gameObject) return Node.NodeStatus.Failure;
+
+        GameObject weapon = character.Weapon.gameObject;
+
+        DistanceSelfFromObjectStrategy strategy = new DistanceSelfFromObjectStrategy(blackboard, weapon, character.GetWeaponRange());
+        strategy.Process();
+
+        AngleAway(enemy, character);
+        
+        return Node.NodeStatus.Success;
+    }
+
+    private void AngleAway(GameObject pEnemy, Character pECharacter) {
+        if(!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent) || !_agent) return;
+        Vector2 enemyToSelf = MiscHelper.Vec3ToVec2Pos(_agent.transform.position - pEnemy.transform.position).normalized;
+        
+        float weaponAngle = pECharacter.GetWeaponAngle();
+        float selfAngle = RadialHelper.CartesianToPol(enemyToSelf).y;
+        
+        float delta = Mathf.Abs(Mathf.DeltaAngle(weaponAngle, selfAngle));
+        if (delta > avoidAngle)
+            return;
+
+        Vector2 perpA = Vector2.Perpendicular(enemyToSelf);
+        
+        float deltaA = Mathf.Abs(Mathf.DeltaAngle(weaponAngle, RadialHelper.CartesianToPol(perpA).y));
+        float deltaB = Mathf.Abs(Mathf.DeltaAngle(weaponAngle, RadialHelper.CartesianToPol(-perpA).y));
+        
+        Vector2 weaponForward = RadialHelper.PolarToCart(weaponAngle, 1f).normalized;
+        float side = Mathf.Sign(Vector3.Cross(weaponForward, enemyToSelf).z);
+
+        Vector2 escapeDir = side > 0
+            ? Vector2.Perpendicular(enemyToSelf)
+            : -Vector2.Perpendicular(enemyToSelf);
+        //Vector2 escapeDir = deltaA > deltaB ? perpA : -perpA;
+        
+        if (Mathf.Abs(side) < 0.001f)
+        {
+            escapeDir = Vector2.Perpendicular(enemyToSelf);
+        }
+        
+        blackboard.AddForce(escapeDir, _agent.TreeValues.Movement.AvoidObjectForce+2, "DistanceSelf_Weapon_Turn");
+    }
+}
+
+public class DistanceSelfFromWeaponsStrategy : IStrategy
+{
+    private EnemyBlackboard blackboard;
+
+    public DistanceSelfFromWeaponsStrategy(EnemyBlackboard pBlackboard) {
+        blackboard = pBlackboard;
+    }
+
+    public virtual Node.NodeStatus Process() {
+        if(!blackboard.TryGetValue(CommonKeys.VisibleWeapons, out List<CharacterWeapon> _weapons) || _weapons == null) return Node.NodeStatus.Failure;
         
         foreach (CharacterWeapon _weapon in _weapons) {
-            if(!_weapon) continue;
-            avoidObject = _weapon.gameObject;
-            minDistance = _weapon.GetMaxReach();
-            base.Process();
+            if(!_weapon || !_weapon.gameObject) continue;
+            DistanceSelfFromObjectStrategy strategy = new DistanceSelfFromObjectStrategy(blackboard, _weapon.gameObject, _weapon.GetMaxReach());
+            strategy.Process();
         }
         return Node.NodeStatus.Success;
     }
@@ -316,34 +434,41 @@ public class MovementActionStrategy : IStrategy
 {
     EnemyBlackboard blackboard;
     private EnemyController agent;
-    private Vector2 moveDirection;
+    private Func<Vector2> moveDirectionProvider;
     private float moveRange;
 
-    public MovementActionStrategy(EnemyBlackboard pBlackboard, Vector2 pMoveDirection, float pMoveRange) {
+    public MovementActionStrategy(EnemyBlackboard pBlackboard, Func<Vector2> pMoveDirectionProvider, float pMoveRange) {
         blackboard = pBlackboard;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
-        moveDirection = pMoveDirection;
+        moveDirectionProvider = pMoveDirectionProvider;
         moveRange = pMoveRange;
     }
 
     public Node.NodeStatus Process() {
         
-        blackboard.TryGetValue(CommonKeys.MovementActions, out Dictionary<ActionType, CombatStateData> movementActions);
+        if(!blackboard.TryGetValue(CommonKeys.MovementActions, out Dictionary<ActionType, CombatStateData> movementActions) || movementActions.Count == 0) return Node.NodeStatus.Failure;
 
+        Vector2 moveDirection = moveDirectionProvider.Invoke();
+        if (moveDirection == Vector2.zero) return Node.NodeStatus.Failure;
+        
         ActionType _chosenAction = ActionType.None;
         float _furthestDistance = 0;
             
         foreach (var moveAction in movementActions) {
-            float _moveDistance = moveAction.Value.AttackRange;
-            if (_moveDistance > moveRange) {
-                continue;
-            }
+            float moveDistanceThisTick = moveAction.Value.AttackRange * (Time.deltaTime / moveAction.Value.Duration);
 
-            if (_chosenAction != ActionType.None && !(_furthestDistance < _moveDistance)) continue;
+            if (moveDistanceThisTick > moveRange)
+                continue;
+
+            if (_chosenAction != ActionType.None && !(_furthestDistance < moveDistanceThisTick)) 
+                continue;
+            
             _chosenAction = moveAction.Key;
-            _furthestDistance = _moveDistance;
-            Debug.Log($"moveAction: {moveAction.Key}, furthestDistance: {_furthestDistance}, moveRange: {moveRange}");
+            _furthestDistance = moveDistanceThisTick;
+            //Debug.Log($"moveAction: {moveAction.Key}, furthestDistance: {_furthestDistance}, moveRange: {moveRange}");
         }
+        
+        if (_chosenAction == ActionType.None) return Node.NodeStatus.Failure;
         
         agent.ChooseMovementAction(_chosenAction, moveDirection.normalized);
         return Node.NodeStatus.Success;
@@ -748,6 +873,43 @@ public class SetTargetAllyStrategy : IStrategy
     }
 }
 
+public class OffensiveParryStrategy : IStrategy
+{
+    private EnemyBlackboard blackboard;
+
+    private float parryThresholdAngle = 30f;
+
+    public OffensiveParryStrategy(EnemyBlackboard pBlackboard)
+    {
+        blackboard = pBlackboard;
+    }
+
+    public Node.NodeStatus Process()
+    {
+        if (!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy) return Node.NodeStatus.Failure;
+        if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent) || !_agent) return Node.NodeStatus.Failure;
+        if (!_enemy.TryGetComponent(out Character _enemyCharacter) || _enemyCharacter.Weapon == null) return Node.NodeStatus.Failure;
+
+        Vector3 _agentPos = _agent.transform.position;
+        Vector3 _enemyPos = _enemy.transform.position;
+        Vector2 _agentToEnemy2D = MiscHelper.Vec3ToVec2Pos(_enemyPos - _agentPos).normalized;
+
+        float _weaponAngle = _enemyCharacter.GetWeaponAngle();
+        float _orbitalVelocity = _enemyCharacter.Weapon.OrbitalVelocity;
+        float _weaponDistance = _enemyCharacter.Weapon.GetCurrentReach();
+        float _sweepDegrees = Mathf.Abs(_orbitalVelocity * Time.fixedDeltaTime);
+
+        float _agentAngle = RadialHelper.CartesianToPol(_agentToEnemy2D).y;
+        float _deltaAngle = Mathf.DeltaAngle(_agentAngle, _weaponAngle);
+
+        if (!(Mathf.Abs(_deltaAngle) <= _sweepDegrees + parryThresholdAngle)) return Node.NodeStatus.Failure;
+        
+        blackboard.SetKeyValue(CommonKeys.ChosenAttack, ActionType.Parry);
+        blackboard.SetKeyValue(CommonKeys.TargetEnemy, _enemy);
+        return Node.NodeStatus.Success;
+    }
+}
+
 public class ProcessMessagesStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
@@ -977,16 +1139,14 @@ public class SendMessageToAllyStrategy : IStrategy
     }
 
     public virtual Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        if(!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent) || !_agent) return Node.NodeStatus.Failure;
         if (recipient == null && recipientMethod == null) return Node.NodeStatus.Failure;
         recipient ??= recipientMethod();
         if(message == null && messageMethod == null){ return Node.NodeStatus.Failure; }
         message ??= messageMethod();
-        if (recipient.TryGetComponent(out EnemyController _allyAgent)) {
-            _agent.SendComMessage(_allyAgent, message);
-            return Node.NodeStatus.Success;
-        }
-        return Node.NodeStatus.Failure;
+        if (!recipient || !recipient.TryGetComponent(out EnemyController _allyAgent) || !_allyAgent) return Node.NodeStatus.Failure;
+        _agent.SendComMessage(_allyAgent, message);
+        return Node.NodeStatus.Success;
     }
 
     public void Reset() {
@@ -1009,8 +1169,8 @@ public class SendMessageToAlliesStrategy : SendMessageToAllyStrategy
     }
 
     public override Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies);
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        if(!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies) || _allies.Count<=0) return Node.NodeStatus.Failure;
+        if(!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent) || !_agent) return Node.NodeStatus.Failure;
         
         foreach (var _ally in _allies) {
             recipient = _ally;
@@ -1033,15 +1193,32 @@ public class StrikeParry : IStrategy
     }
 
     public Node.NodeStatus Process() {
-        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
-        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target) || !_target) return Node.NodeStatus.Failure;
+        if(!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent) || !_agent) return Node.NodeStatus.Failure;
+        if (!_target || !_target.TryGetComponent(out Character _enemyCharacter)) return Node.NodeStatus.Failure;
+        if (!_enemyCharacter.Weapon) return Node.NodeStatus.Failure;
+        
+        Vector2 _agentPos2D = MiscHelper.Vec3ToVec2Pos(_agent.transform.position);
+        Vector2 _enemyPos2D = MiscHelper.Vec3ToVec2Pos(_target.transform.position);
+        Vector2 _enemyToSelf = (_agentPos2D - _enemyPos2D).normalized;
 
-        if (!_target || !_target.TryGetComponent(out Character _character)) return Node.NodeStatus.Failure;
+        float _weaponAngle = _enemyCharacter.GetWeaponAngle();
+        float _orbitalVelocity = _enemyCharacter.Weapon.OrbitalVelocity;
+        float _weaponDistance = _enemyCharacter.GetWeaponCurrentRange();
 
-        Vector3 diffVec = _character.Weapon.transform.position - _agent.transform.position;
+        float _sweepDegrees = Mathf.Abs(_orbitalVelocity * Time.fixedDeltaTime);
+        float _sweepWidth = _sweepDegrees * _weaponDistance;
 
-        _agent.InitiateAttackAction(ActionInput.Press, RadialHelper.CartesianToPol(diffVec.normalized).y);
+        Vector2 _weaponDir = RadialHelper.PolarToCart(_weaponAngle, 1f).normalized;
+        float _lateralDist = Mathf.Abs(Vector2.Dot(_enemyToSelf, Vector2.Perpendicular(_weaponDir)) * (_enemyPos2D - _agentPos2D).magnitude);
 
+        if (_lateralDist > _sweepWidth)
+            return Node.NodeStatus.Failure;
+
+        Vector2 _perpA = Vector2.Perpendicular(_enemyToSelf);
+        Vector2 _escapeDir = Vector2.Dot(_perpA, _agent.transform.right) > 0 ? _perpA : -_perpA;
+
+        blackboard.AddForce(_escapeDir, _agent.TreeValues.Movement.AvoidObjectForce, "DistanceSelf_Weapon_Turn");
         return Node.NodeStatus.Success;
     }
 }
@@ -1059,8 +1236,7 @@ public class SurroundTargetStrategy : IStrategy
 
     public Node.NodeStatus Process() {
         if (!blackboard.TryGetValue(CommonKeys.SurroundTarget, out GameObject target)) return Node.NodeStatus.Failure;
-        if (!blackboard.TryGetValue(CommonKeys.SurroundAllies, out List<GameObject> allies))
-            return Node.NodeStatus.Failure;
+        if (!blackboard.TryGetValue(CommonKeys.SurroundAllies, out List<GameObject> allies)) return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.SurroundRadius, out float radius)) radius = 5f;
         if (!agent) return Node.NodeStatus.Failure;
         if (!blackboard.TryGetValue(CommonKeys.SurroundDirection, out Vector3 direction)) direction = Vector3.forward;
@@ -1105,6 +1281,72 @@ public class SurroundTargetStrategy : IStrategy
 
     private void endSurround() {
         agent.TreeValues.CombatTactic.IsSurroundModified = false;
+    }
+}
+
+public class WeaponAwareCombatStrategy : IStrategy
+{
+    private EnemyBlackboard blackboard;
+
+    private float baseAvoidAngle = 20f;
+    private float sidestepForceMultiplier = 1f;
+
+    public WeaponAwareCombatStrategy(EnemyBlackboard pBlackboard)
+    {
+        blackboard = pBlackboard;
+    }
+
+    public Node.NodeStatus Process()
+    {
+        if (!blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController agent) || !agent) return Node.NodeStatus.Failure;
+        if (!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject enemy) || !enemy) return Node.NodeStatus.Failure;
+        if (!enemy.TryGetComponent(out Character enemyChar) || !enemyChar.Weapon) return Node.NodeStatus.Failure;
+
+        CharacterWeapon weapon = enemyChar.Weapon;
+
+        bool actionTaken = false;
+
+        Vector2 enemyToSelf = MiscHelper.Vec3ToVec2Pos(agent.transform.position - enemy.transform.position).normalized;
+        float selfAngle = RadialHelper.CartesianToPol(enemyToSelf).y;
+
+        float weaponAngle = enemyChar.GetWeaponAngle();
+        float weaponAngularVelocity = Mathf.Abs(weapon.OrbitalVelocity * Mathf.Rad2Deg);
+
+        float dynamicAvoidAngle = Mathf.Max(baseAvoidAngle, weaponAngularVelocity);
+        float delta = Mathf.Abs(Mathf.DeltaAngle(selfAngle, weaponAngle));
+
+        if (delta <= dynamicAvoidAngle)
+        {
+            Vector2 perpA = Vector2.Perpendicular(enemyToSelf);
+            Vector2 escapeDir = Mathf.Abs(Mathf.DeltaAngle(weaponAngle, RadialHelper.CartesianToPol(perpA).y)) >Mathf.Abs(Mathf.DeltaAngle(weaponAngle, RadialHelper.CartesianToPol(-perpA).y))? perpA : -perpA;
+
+            blackboard.AddForce(MiscHelper.Vec3ToVec2Pos(escapeDir), sidestepForceMultiplier * agent.TreeValues.Movement.AvoidObjectForce, "Avoid_Weapon_Sidestep");
+            actionTaken = true;
+        }
+
+        Vector3 attackTargetPos = enemy.transform.position;
+        Vector3 diffVec = attackTargetPos - agent.transform.position;
+        float attackAngle = RadialHelper.CartesianToPol(new Vector2(diffVec.x, diffVec.z)).y;
+
+        float weaponAttackWidth = Mathf.Abs(weapon.OrbitalVelocity) * Mathf.Rad2Deg * Time.fixedDeltaTime;
+        weaponAttackWidth = Mathf.Max(weaponAttackWidth, weapon.OrbitalVelocity);
+
+        float angleToWeapon = Mathf.DeltaAngle(weaponAngle, attackAngle);
+
+        if (Mathf.Abs(angleToWeapon) <= weaponAttackWidth / 2f)
+        {
+            agent.InitiateAttackAction(ActionType.Parry, attackAngle);
+            actionTaken = true;
+        }
+
+        if (!actionTaken && weaponAngularVelocity > 50f)
+        {
+            blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
+            blackboard.SetKeyValue(CommonKeys.TargetEnemy, enemy);
+            actionTaken = true;
+        }
+
+        return actionTaken ? Node.NodeStatus.Success : Node.NodeStatus.Failure;
     }
 }
 

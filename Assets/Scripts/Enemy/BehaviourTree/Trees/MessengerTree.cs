@@ -87,13 +87,15 @@ public class MessengerTree : BehaviourTree
     }
 
     private GameObject targetAlly() {
-        blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject ally);
+        if(!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject ally) || !ally) {
+            return null;
+        }
         return ally;
     }
     private ComMessage flankMessage() {
-        if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally)) return null;
-        if(!_ally.TryGetComponent(out EnemyController _allyAgent)) return null;
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy)) return null;
+        if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally) || !_ally) return null;
+        if(!_ally.TryGetComponent(out EnemyController _allyAgent) || !_allyAgent) return null;
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || _enemy) return null;
         
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
@@ -106,7 +108,7 @@ public class MessengerTree : BehaviourTree
     }
 
     private ComMessage groupUpMessage() {
-        if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies)) return null;
+        if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies) || _allies.Count <= 0) return null;
         List<GameObject> _allyList = new List<GameObject>();
         _allyList.AddRange(_allies); 
         _allyList.Add(agent.gameObject);
@@ -120,9 +122,9 @@ public class MessengerTree : BehaviourTree
     }
 
     private ComMessage retreatMessage() {
-        if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally)) return null;
-        if(!_ally.TryGetComponent(out EnemyController _allyAgent)) return null;
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy)) return null;
+        if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally) || !_ally) return null;
+        if(!_ally.TryGetComponent(out EnemyController _allyAgent) || !_allyAgent) return null;
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy) return null;
         
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
@@ -133,9 +135,9 @@ public class MessengerTree : BehaviourTree
         return new ComMessage(agent, _allyAgent, MessageType.Retreat, _payload, Time.time);
     }
     private ComMessage backUpMessage() {
-        if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally)) return null;
-        if(!_ally.TryGetComponent(out EnemyController _allyAgent)) return null;
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy)) return null;
+        if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally) || !_ally) return null;
+        if(!_ally.TryGetComponent(out EnemyController _allyAgent) || !_allyAgent) return null;
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy) return null;
         
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
@@ -146,8 +148,8 @@ public class MessengerTree : BehaviourTree
     }
 
     private ComMessage surroundMessage() {
-        if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies)) return null;
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy)) return null;
+        if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies) || _allies.Count <=0) return null;
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy) return null;
         List<GameObject> _allyList = new List<GameObject>();
         _allyList.AddRange(_allies); 
         _allyList.Add(agent.gameObject);

@@ -17,11 +17,18 @@ public class AttackTree : BehaviourTree
     private void setup()
     {
         Sequence _attackSequence = new("AttackSequence");
-        Parallel _attackParallel = new("Attack//Parallel", 1);
-        Leaf _atkRangeCheck = new("Attack//RangeCheck", new ConditionStrategy(()=> (getTarget().transform.position - agent.transform.position).magnitude < agent.GetWeaponRange()));
-        Parallel _parallel = new("Attack///AttackParallel", 2);
+        Leaf _atkRangeCheck = new("Attack//RangeCheck", new ConditionStrategy(()=>
+        {
+            Vector3 delta = getTarget().transform.position - agent.transform.position;
+            delta.y = 0;
+            Debug.Log($"attack range check delta: {delta}");
+            return delta.magnitude < agent.GetWeaponRange();
+        }));
+        Sequence _sequence = new("Attack///AttackSequence", 2);
         Leaf _executeAttack = new("ExecuteAttack", new ActionStrategy(()=>
         {
+            Debug.Log($"execute attack");
+
             blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType _attackType);
             agent.InitiateAttackAction(_attackType, targetAngle());
         }));
@@ -29,13 +36,14 @@ public class AttackTree : BehaviourTree
             float _deltaAngle = deltaAngle();
             float _attackAngle = idealAttackAngle();
             return _deltaAngle >= -_attackAngle && _deltaAngle <= _attackAngle ; }));
-        RandomSelector _randomSelector = new("DoAttack//RandomSelector");
+        //RandomSelector _randomSelector = new("DoAttack//RandomSelector");
+        Selector _alignSelector = new("DoAttack//AlignSelector");
         Leaf _adjustAngle = new("DoAttack//RandSelector/AdjustAngle", new ActionStrategy(() =>
         {
-            float _attackAngle = agent.GetWeaponAngle();
+            float _currAngle = agent.GetWeaponAngle();
             float _deltaAngle = deltaAngle();
-            _attackAngle += (_deltaAngle >= 0) ? _deltaAngle : -_deltaAngle;
-            blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_attackAngle));
+            _currAngle += _deltaAngle;
+            blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_currAngle));
         }));
         Leaf _adjustPosition = new("DoAttack//RandSelector/AdjustPosition", new ActionStrategy(() =>
         {
@@ -47,16 +55,19 @@ public class AttackTree : BehaviourTree
             blackboard.AddForce(dir, agent.TreeValues.Movement.AlignAttackForce, "Aligned_AttackPosition");
             blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
         }));
+        Selector _attackSelector = new("Attack/AttackSelector");
+        Leaf _offensiveParry = new Leaf( "Attack/OffensiveParry", new OffensiveParryStrategy(blackboard));
 
         AddChild(_attackSequence);
-        _attackSequence.AddChild(_attackParallel);
-        _attackSequence.AddChild(_executeAttack);
-        _attackParallel.AddChild(_atkRangeCheck);
-        _attackParallel.AddChild(_parallel);
-        _parallel.AddChild(_angleCheck);
-        _parallel.AddChild(_randomSelector);
-        _randomSelector.AddChild(_adjustAngle);
-        _randomSelector.AddChild(_adjustPosition);
+        _attackSequence.AddChild(_atkRangeCheck);
+        _attackSequence.AddChild(_alignSelector);
+        _attackSequence.AddChild(_attackSelector);
+        _attackSelector.AddChild(_offensiveParry);
+        _attackSelector.AddChild(_executeAttack);
+        _alignSelector.AddChild(_angleCheck);
+        _alignSelector.AddChild(_sequence);
+        _sequence.AddChild(_adjustAngle);
+        _sequence.AddChild(_adjustPosition);
     }
     
     float deltaAngle()
@@ -84,32 +95,12 @@ public class AttackTree : BehaviourTree
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
         return _target;
     }
-
     
-
     float idealAttackAngle()
     {
         blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType _attackType);
         blackboard.TryGetValue(CommonKeys.AttackActions, out Dictionary<ActionType, CombatStateData> _actions);
         float _attackAngle = _actions[_attackType].IdealAttackAngle;
         return _attackAngle;
-    }
-
-    void alignAttackAngle()
-    {
-        float _attackAngle = agent.GetWeaponAngle();
-        float _deltaAngle = deltaAngle();
-        _attackAngle += (_deltaAngle >= 0) ? _deltaAngle : -_deltaAngle;
-        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.NormalizeAngle(_attackAngle));
-    }
-    void alignAttackPosition()
-    {
-        Vector3 _weaponTipPosition = MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(agent.GetWeaponAngle(), agent.GetWeaponRange()));
-        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
-        Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
-        blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
-        Vector2 dir = (positionOffset).normalized;
-        blackboard.AddForce(dir, agent.TreeValues.Movement.AlignAttackForce, "Aligned_AttackPosition");
-        blackboard.SetKeyValue(CommonKeys.ActiveTarget, TargetType.None);
     }
 }

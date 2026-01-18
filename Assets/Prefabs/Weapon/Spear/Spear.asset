@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Mass: 2
   WeaponDistance: 0.1
-  MaxTurnVelocity: 150
+  MaxTurnVelocity: 200
   MaxOrbitalVelocity: 300
   MaxReach: 4
   SwingDampingFactor: 0.98

@@ -248,6 +248,9 @@ public class Sequence : Node
     public override NodeStatus Process() {
         IsActive = true;
         if (currentChild < children.Count) {
+            if (children.Count() >= 8) {
+                //Debug.Log("gferwag");
+            }
             switch (children[currentChild].Process()) {
                 case NodeStatus.Running:
                     return NodeStatus.Running;
@@ -290,7 +293,24 @@ public class BehaviourTree : Node
             var status = child.Process();
             child.IsActive = status == NodeStatus.Running;
             if (status != NodeStatus.Success) {
-                //Debug.Log($"{Name} : {children[currentChild].children[children[currentChild].GetCurrentChildIndex()].Path}=>{status}");
+                string childPath = child.Path;
+                if (child.children.Count > 0) {
+                    childPath = child.children[children[currentChild].GetCurrentChildIndex()].Path;
+                }
+                
+                string pathPath(Node kid) {
+                    if (kid.children.Count > 0) {
+                        int index = kid.GetCurrentChildIndex();
+                        if (index >= kid.children.Count) {
+                            index = kid.children.Count - 1;
+                        }
+                        pathPath(kid.children[index]);
+                    }
+                    return kid.Path;
+                }
+                childPath = pathPath(child);
+                
+                //Debug.Log($"{Name} : {childPath}=>{status}");
                 return status;
             }
         }

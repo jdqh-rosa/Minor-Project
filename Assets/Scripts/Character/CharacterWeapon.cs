@@ -227,8 +227,21 @@ public class CharacterWeapon : MonoBehaviour
         return data.Mass;
     }
 
-    public float GetRange() {
+    public float GetLength() {
         return tip.PartDistance;
+    }
+    
+    public float GetMaxReach()
+    {
+        return GetLength() + data.MaxReach;
+    }
+
+    public float GetReach() {
+        return data.WeaponDistance + tip.PartDistance;
+    }
+
+    public float GetCurrentReach() {
+        return currentDistance + tip.PartDistance;
     }
 
     public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, bool pIsClash, Vector3 pContactNormal) {

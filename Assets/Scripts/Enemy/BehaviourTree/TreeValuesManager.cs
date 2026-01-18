@@ -19,7 +19,6 @@ public class TreeValuesManager : MonoBehaviour
     {
         runtimeValues = Instantiate(baseValues);
         
-        // 3) Immediately push “AgentSelf” into blackboard so strategies can read it
         blackboard.SetKeyValue(CommonKeys.AgentSelf, self);
     }
 }

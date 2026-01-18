@@ -21,19 +21,15 @@ public class CharacterBody : MonoBehaviour
         transform.localRotation = Quaternion.Euler(0, pAngle, 0);
     }
 
-    public Vector3 Step(Vector3 pDir) {
-        return isMovementSpecial ? Vector3.zero : Move(pDir, data.StepLength, data.StepDuration);
+    public Vector3 Step(Vector3 pDir, float pDeltaTime) {
+        return isMovementSpecial ? Vector3.zero : Move(pDir, data.StepLength, data.StepDuration, pDeltaTime);
     }
     
-    public Vector3 Stride(Vector3 pDir, float pStepLength, float pStepDuration, float pElapsedTime) {
-        return Move(pDir, pStepLength, pStepDuration, pElapsedTime);
-    }
-
-    public Vector3 Dodge(Vector3 pDir, float pStepLength, float pStepDuration, float pElapsedTime) {
+    public Vector3 SpecialMove(Vector3 pDir, float pStepLength, float pStepDuration, float pElapsedTime) {
         return Move(pDir, pStepLength, pStepDuration, pElapsedTime);
     }
     
-    private Vector3 Move(Vector3 pDir, float pStepLength, float pStepDuration, float pTime = -1) {
+    private Vector3 Move(Vector3 pDir, float pStepLength, float pStepDuration, float pDeltaTime, float pTime = -1) {
         
         if (pDir.sqrMagnitude < Mathf.Epsilon) {
             return Vector3.zero;
@@ -48,7 +44,7 @@ public class CharacterBody : MonoBehaviour
             _minFraction = data.StepFraction;
         }
         
-        elapsedTime += Time.deltaTime;
+        elapsedTime += pDeltaTime;
         if(pTime>=0) {
             elapsedTime = pTime;
         }
@@ -61,9 +57,14 @@ public class CharacterBody : MonoBehaviour
             return Vector3.zero;
         }
         
-        float _sineWave = Mathf.Sin(_t * Mathf.PI * 2);
+        float _sineWave = Mathf.Sin(_t * Mathf.PI * 0.5f);
         float _normalizedMagnitude = (_sineWave + 1) * 0.5f;
         float _dynamicMagnitude = Mathf.Lerp(_minFraction * pStepLength, pStepLength, _normalizedMagnitude);
+        
+        float _distanceThisFrame = _normalizedMagnitude * pStepLength - Vector3.Magnitude(Velocity);
+        _distanceThisFrame = Mathf.Max(_distanceThisFrame, 0f);
+        Velocity = pDir.normalized * _distanceThisFrame;
+        return Velocity;
         
         Velocity = pDir.normalized * _dynamicMagnitude;
         return Velocity;

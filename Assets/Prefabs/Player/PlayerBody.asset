@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: PlayerBody
   m_EditorClassIdentifier: 
   StepLength: 0.2
-  StepDuration: 0.5
+  StepDuration: 1
   StepFraction: 0.4

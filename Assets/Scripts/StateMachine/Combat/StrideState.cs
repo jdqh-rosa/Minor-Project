@@ -19,7 +19,7 @@ public class StrideState : CombatState
             if (elapsedTime >= interruptTime) {
                 isInterruptible = true;
             }
-            moveVec = StateMachine.Character.Body.Stride(moveDir, attackRange, duration, elapsedTime);
+            moveVec = StateMachine.Character.Body.SpecialMove(moveDir, attackRange, duration, elapsedTime);
         }
         else {
             StateMachine.EndCurrentState();

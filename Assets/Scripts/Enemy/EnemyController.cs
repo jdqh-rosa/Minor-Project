@@ -18,6 +18,8 @@ public class EnemyController : MonoBehaviour
 
     [SerializeField] private float movementSlerpFactor= 0.8f;
     private Vector3 previousDirection = Vector3.zero;
+    
+    private float deltaTime = 0f;
 
     private void Awake() {
         if (!enemyCharacter) enemyCharacter = GetComponent<Character>();
@@ -50,10 +52,8 @@ public class EnemyController : MonoBehaviour
         Parallel _parallel = new("BaseLogic/Parallel", 2);
         Parallel _actionParallel = new("BaseLogic/ActionParallel", 2);
         Leaf _distanceSelfFromWeapons = new("Combat/DistanceWeapon", new DistanceSelfFromWeaponsStrategy(blackboard));
-        Leaf _moveInDirection = new("BaseLogic//MoveToPosition",
-            new ActionStrategy(() => enemyCharacter.SetCharacterDirection(processDirections())));
-        Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle",
-            new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
+        Leaf _moveInDirection = new("BaseLogic//MoveToPosition", new ActionStrategy(() => enemyCharacter.SetCharacterDirection(processDirections())));
+        Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
 
         tree.AddChild(_repeater);
         _repeater.AddChild(_parallel);
@@ -85,6 +85,7 @@ public class EnemyController : MonoBehaviour
         Vector3 _blendedDirection = blackboard.GetBlendedDirection();
         Vector3 _slerpedDir = Vector3.Slerp(previousDirection, _blendedDirection, movementSlerpFactor);
         previousDirection = _blendedDirection;
+        //Debug.Log(_slerpedDir);
         return _slerpedDir;
     }
 
@@ -99,19 +100,11 @@ public class EnemyController : MonoBehaviour
     }
     
     public float GetWeaponMaxRange() {
-        return enemyCharacter.GetWeaponMaxRange();
-    }
-    
-    public float GetWeaponMinRange() {
-        return enemyCharacter.GetWeaponMinRange();
+        return enemyCharacter.GetWeaponRange();
     }
 
     public float GetWeaponAngle() {
         return enemyCharacter.GetWeaponAngle();
-    }
-
-    public Vector3 GetWeaponTipWorldPosition(float angleOverride) {
-        return enemyCharacter.Weapon.GetWeaponTipWorldPosition(angleOverride);
     }
 
     public void InitiateAttackAction(ActionType pActionType, float pAttackAngle) {

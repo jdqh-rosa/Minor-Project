@@ -16,9 +16,9 @@ MonoBehaviour:
   ActionType: 7
   AttackForce: 0
   Duration: 0.2
-  ExtendTime: 0.3
-  RetractTime: 0.1
-  InteruptTime: 0.1
-  AttackRange: 0.8
+  ExtendTime: 0
+  RetractTime: 0
+  InteruptTime: 0.01
+  AttackRange: 0.5
   IdealAttackAngle: 0
   HoldAction: 0

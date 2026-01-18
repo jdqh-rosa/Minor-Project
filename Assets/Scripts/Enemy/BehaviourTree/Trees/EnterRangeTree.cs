@@ -22,27 +22,32 @@ public class EnterRangeTree : BehaviourTree
 
     private void setup()
     {
-        Parallel _parallel = new("EnterRange/Parallel", 2);
-        Parallel _targetParallel = new Parallel("EnterRange//TargetParallel", 1, 1);
         Leaf _targetCheck = new("EnterRange///TargetCheck", new ConditionStrategy(targetCheck));
         Selector _rangeSelector  = new("EnterRange///RangeSelector", 1);
-        Leaf _withinRange = new Leaf("EnterRange////RangeCheck", new ConditionStrategy(()=> (GetTargetPosition() - agent.transform.position).magnitude < preferredRange));
-        Leaf _movementAction = new("EnterRange////MovementAction", new MovementActionStrategy(blackboard, getTargetDifVector(), preferredRange));
+        Leaf _withinRange = new Leaf("EnterRange////RangeCheck", new ConditionStrategy(()=>
+        {
+            Vector3 delta = GetTargetPosition() - agent.transform.position;
+            delta.y = 0;
+            if (delta.magnitude < preferredRange) {
+                Debug.Log($"Delta is {delta.magnitude}");
+            }
+            return delta.magnitude < preferredRange;
+        }));
+        Leaf _movementAction = new("EnterRange////MovementAction", new MovementActionStrategy(blackboard,()=> getTargetDifVector(), preferredRange));
         Leaf _prefPosition = new Leaf("EnterRange//PreferredPosition", new ActionStrategy(calcPrefPos));
         
-        AddChild(_parallel);
-        _parallel.AddChild(_targetParallel);
-        _targetParallel.AddChild(_targetCheck);
-        _targetParallel.AddChild(_rangeSelector);
+        AddChild(_targetCheck);
+        AddChild(_rangeSelector);
         _rangeSelector.AddChild(_withinRange);
         _rangeSelector.AddChild(_movementAction);
-        _parallel.AddChild(_prefPosition);
+        AddChild(_prefPosition);
     }
 
     private void calcPrefPos()
     {
         Vector3 _difVector = getTargetDifVector();
-        Vector3 _prefDif = _difVector - _difVector.normalized * (agent.GetWeaponRange());
+        if (_difVector.magnitude < preferredRange) return;
+        Vector3 _prefDif = _difVector - _difVector.normalized * agent.GetWeaponRange();
         blackboard.SetKeyValue(CommonKeys.ChosenPosition, _prefDif + agent.transform.position);
         blackboard.AddForce(_prefDif, agent.TreeValues.Movement.EnterRangeForce, "EnterRange");
     }
@@ -54,40 +59,38 @@ public class EnterRangeTree : BehaviourTree
         targetPosition = _target.transform.position;
         Vector3 _agentPos = agent.transform.position;
         Vector3 _difVector = targetPosition - _agentPos;
+        _difVector.y = 0;
         return _difVector;
     }
 
     private bool targetCheck() {
         switch (blackboard.GetActiveTargetType()) {
             case TargetType.Enemy:
-                blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _targetEnemy);
-                return _targetEnemy is null;
+                return blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _targetEnemy) && _targetEnemy;
             case TargetType.Object:
-                blackboard.TryGetValue(CommonKeys.TargetObject, out GameObject _targetObject);
-                return _targetObject is null;
+                return blackboard.TryGetValue(CommonKeys.TargetObject, out GameObject _targetObject) && _targetObject;
             case TargetType.Ally:
-                blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _targetAlly);
-                return _targetAlly is null;
+                return blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _targetAlly) && _targetAlly;
             default:
-                blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 _targetPosition);
-                return _targetPosition != Vector3.zero;
+                return blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 _targetPosition) && _targetPosition != Vector3.zero;
         }
     }
 
     private Vector3 GetTargetPosition() {
         switch (blackboard.GetActiveTargetType()) {
             case TargetType.Enemy:
-                blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _targetEnemy);
-                return _targetEnemy.transform.position;
+                if(blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _targetEnemy) && _targetEnemy) return _targetEnemy.transform.position;
+                break;
             case TargetType.Object:
-                blackboard.TryGetValue(CommonKeys.TargetObject, out GameObject _targetObject);
-                return _targetObject.transform.position;
+                if(blackboard.TryGetValue(CommonKeys.TargetObject, out GameObject _targetObject) && _targetObject) return _targetObject.transform.position;
+                break;
             case TargetType.Ally:
-                blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _targetAlly);
-                return _targetAlly.transform.position;
+                if(blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _targetAlly) && _targetAlly) return _targetAlly.transform.position;
+                break;
             default:
-                blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 _targetPosition);
-                return _targetPosition;
+                if(blackboard.TryGetValue(CommonKeys.TargetPosition, out Vector3 _targetPosition) && _targetPosition != Vector3.zero) return _targetPosition;
+                break;
         }
+        return agent.transform.position;
     }
 }

@@ -28,7 +28,8 @@ public class CombatTree : BehaviourTree
         Sequence _targetSequence = new Sequence("Combat//TargetSequence");
         Leaf _targetCheck = new Leaf("Combat/TargetCheck", new ConditionStrategy(() => targetEnemy()));
         PrioritySelector _combatTacticSelector = new PrioritySelector("Combat/TargetSeq/CombatTacticSel");
-        Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
+        //Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
+        Leaf _weaponAware = new Leaf("Combat/WeaponAware", new WeaponAwareCombatStrategy(blackboard));
         Leaf _pointWeapon = new("Combat/PointWeapon", new ActionStrategy(()=> pointWeapon()));
         
         Sequence _flankSequence = new Sequence("Combat///FlankSeq", ()=> agent.TreeValues.CombatTactic.FlankWeight + (agent.TreeValues.CombatTactic.IsFlankModified ? agent.TreeValues.CombatTactic.FlankMod : 0));
@@ -56,9 +57,9 @@ public class CombatTree : BehaviourTree
         AddChild(_baseCombatSequence);
         _baseCombatSequence.AddChild(_obtainEnemy);
         _baseCombatSequence.AddChild(_combatParallel);
-        _baseCombatSequence.AddChild(_distanceSelfFromWeapon);
         
         _combatParallel.AddChild(_targetSequence);
+        //_targetSequence.AddChild(_weaponAware);
         _targetSequence.AddChild(_targetCheck);
         _targetSequence.AddChild(_pointWeapon);
         _combatParallel.AddChild(_combatTacticSelector);
@@ -77,14 +78,6 @@ public class CombatTree : BehaviourTree
         _combatTacticSelector.AddChild(_flankSequence);
         _flankSequence.AddChild(_flankCheck);
         _flankSequence.AddChild(_flankTarget);
-    }
-
-    private float _enemyWeaponRange = 0;
-    private GameObject enemyWeapon() {
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy)) return null;
-        if(!_enemy.TryGetComponent(out Character _character)) return null;
-        _enemyWeaponRange = _character.GetWeaponRange();
-        return _character.Weapon.gameObject;
     }
 
     private GameObject targetEnemy() {

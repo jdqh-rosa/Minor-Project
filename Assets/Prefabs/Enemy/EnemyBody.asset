@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: EnemyBody
   m_EditorClassIdentifier: 
   StepLength: 0.3
-  StepDuration: 1
+  StepDuration: 1.5
   StepFraction: 0.3

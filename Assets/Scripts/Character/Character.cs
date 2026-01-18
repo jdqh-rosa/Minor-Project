@@ -94,23 +94,23 @@ public class Character : MonoBehaviour
 
     private void bodyFunctions() {
         if (usePosition) {
-            moveToPoint(movePosition);
+            moveToPoint(movePosition, Time.deltaTime);
         }
         else {
-            moveInDirection(moveDirection.normalized);
+            moveInDirection(moveDirection.normalized, Time.deltaTime);
         }
 
         usePosition = false;
     }
 
-    private void moveToPoint(Vector3 pPoint) {
+    private void moveToPoint(Vector3 pPoint, float pDeltaTime) {
         Vector3 _diffVec = pPoint - transform.position;
-        Vector3 _movementVec = Body.Step(_diffVec.normalized) * Mathf.Min(_diffVec.magnitude, Body.GetStepLength());
+        Vector3 _movementVec = Body.Step(_diffVec.normalized, pDeltaTime) * Mathf.Min(_diffVec.magnitude, Body.GetStepLength());
         Move(_movementVec);
     }
 
-    private void moveInDirection(Vector3 pDirection) {
-        Move(Body.Step(pDirection));
+    private void moveInDirection(Vector3 pDirection, float pDeltaTime) {
+        Move(Body.Step(pDirection, pDeltaTime));
     }
 
     public void Move(Vector3 pMove) {
@@ -211,7 +211,15 @@ public class Character : MonoBehaviour
     }
 
     public float GetWeaponRange() {
-        return Weapon.GetRange();
+        return Weapon.GetReach();
+    }
+    
+    public float GetWeaponMaxRange() {
+        return Weapon.GetMaxReach();
+    }
+    
+    public float GetWeaponCurrentRange() {
+        return Weapon.GetCurrentReach();
     }
 
     public Vector3 GetWeaponPosition() {
