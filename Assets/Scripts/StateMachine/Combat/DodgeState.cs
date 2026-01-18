@@ -14,7 +14,7 @@ public class DodgeState : CombatState
     }
 
     public override void UpdateLogic(float delta) {
-        elapsedTime += delta;
+           elapsedTime += delta;
         if (elapsedTime < duration) {
             if (elapsedTime >= interruptTime) {
                 isInterruptible = true;

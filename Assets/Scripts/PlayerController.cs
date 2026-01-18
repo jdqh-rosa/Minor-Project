@@ -139,13 +139,13 @@ public class PlayerController : MonoBehaviour
     {
         if (pContext.interaction is HoldInteraction)
         {
-            Debug.Log($"Hold Attack");
+            //Debug.Log($"Hold Attack");
             player.Attack(ActionInput.Hold, targetAngle);
         }
 
         if (pContext.interaction is PressInteraction)
         {
-            Debug.Log($"Press Attack");
+            //Debug.Log($"Press Attack");
             player.Attack(ActionInput.Press, targetAngle);
         }
     }
@@ -159,13 +159,13 @@ public class PlayerController : MonoBehaviour
     {
         if (pContext.interaction is HoldInteraction)
         {
-            Debug.Log($"Hold MoveAction");
+            //Debug.Log($"Hold MoveAction");
             player.Attack(ActionType.Dodge, 0);
         }
 
         if (pContext.interaction is PressInteraction)
         {
-            Debug.Log($"Press MoveAction");
+            //Debug.Log($"Press MoveAction");
             player.Attack(ActionType.Stride, 0);
         }
     }

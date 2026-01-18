@@ -25,6 +25,7 @@ public class CombatTree : BehaviourTree
         Leaf _obtainEnemy = new Leaf("Combat/ObtainTarget", new GetClosestEnemyStrategy(blackboard));
 
         Parallel _combatParallel = new("Combat//Parallel", 2, 1);
+        Sequence _targetSequence = new Sequence("Combat//TargetSequence");
         Leaf _targetCheck = new Leaf("Combat/TargetCheck", new ConditionStrategy(() => targetEnemy()));
         PrioritySelector _combatTacticSelector = new PrioritySelector("Combat/TargetSeq/CombatTacticSel");
         Leaf _distanceSelfFromWeapon = new("Combat/DistanceWeapon", new DistanceSelfFromObjectStrategy(blackboard, enemyWeapon(), _enemyWeaponRange));
@@ -56,9 +57,10 @@ public class CombatTree : BehaviourTree
         _baseCombatSequence.AddChild(_obtainEnemy);
         _baseCombatSequence.AddChild(_combatParallel);
         _baseCombatSequence.AddChild(_distanceSelfFromWeapon);
-        _baseCombatSequence.AddChild(_pointWeapon);
         
-        _combatParallel.AddChild(_targetCheck);
+        _combatParallel.AddChild(_targetSequence);
+        _targetSequence.AddChild(_targetCheck);
+        _targetSequence.AddChild(_pointWeapon);
         _combatParallel.AddChild(_combatTacticSelector);
         _combatTacticSelector.AddChild(_surroundSequence);
         _surroundSequence.AddChild(_surroundCheck);

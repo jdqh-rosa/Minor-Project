@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "New CombatState", menuName = "Character/CombatState")]
 public class CombatState : BaseState<CombatSM>
 {
     protected ActionType actionType;
@@ -81,5 +80,4 @@ public class CombatState : BaseState<CombatSM>
     public ActionType GetActionType() {
         return actionType;
     }
-
 }

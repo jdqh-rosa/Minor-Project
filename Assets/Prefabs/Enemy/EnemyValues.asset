@@ -20,7 +20,7 @@ MonoBehaviour:
     GroupUpMod: 10
     IsGroupUpModified: 0
     RetreatWeight: 10
-    RetreatMod: 20
+    RetreatMod: 10
     IsRetreatModified: 0
     BackUpWeight: 10
     BackUpMod: 10
@@ -29,8 +29,8 @@ MonoBehaviour:
     SurroundMod: 10
     IsSurroundModified: 0
   Health:
-    LowHealthWeight: 20
-    LowHealthThreshold: 0.4
+    LowHealthWeight: 10
+    LowHealthThreshold: 0.1
     IsLowHealth: 0
   Decider:
     CombatWeight: 30
@@ -70,11 +70,11 @@ MonoBehaviour:
     BlockWeight: 10
     RetreatWeight: 10
   Movement:
-    AlignAttackForce: 3
+    AlignAttackForce: 4
     EnterRangeForce: 3
     ChooseObjectForce: 0.1
-    DistanceSelfForce: -5
-    AvoidObjectForce: -4
+    DistanceSelfForce: -2
+    AvoidObjectForce: -3
     FlankForce: 3
     GroupUpForce: 3
     TargetAllyForce: 0

@@ -97,9 +97,21 @@ public class EnemyController : MonoBehaviour
     public float GetWeaponRange() {
         return enemyCharacter.GetWeaponRange();
     }
+    
+    public float GetWeaponMaxRange() {
+        return enemyCharacter.GetWeaponMaxRange();
+    }
+    
+    public float GetWeaponMinRange() {
+        return enemyCharacter.GetWeaponMinRange();
+    }
 
     public float GetWeaponAngle() {
         return enemyCharacter.GetWeaponAngle();
+    }
+
+    public Vector3 GetWeaponTipWorldPosition(float angleOverride) {
+        return enemyCharacter.Weapon.GetWeaponTipWorldPosition(angleOverride);
     }
 
     public void InitiateAttackAction(ActionType pActionType, float pAttackAngle) {

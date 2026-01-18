@@ -32,6 +32,71 @@ public class ActionStrategy : IStrategy
         return Node.NodeStatus.Success;
     }
 }
+
+public class AlignAttackStrategy : IStrategy {
+    private EnemyBlackboard blackboard;
+    private EnemyController agent;
+    public AlignAttackStrategy(EnemyBlackboard pBlackboard) {
+        blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out EnemyController _agent);
+        agent = _agent;
+    }
+
+    public Node.NodeStatus Process()
+    {
+        blackboard.TryGetValue(CommonKeys.RotationSpeed, out float rotationSpeed);
+        blackboard.TryGetValue(CommonKeys.AttackTolerance, out float tolerance);
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
+        blackboard.TryGetValue(CommonKeys.ChosenAttack, out ActionType attackType);
+        blackboard.TryGetValue(CommonKeys.AttackActions, out Dictionary<ActionType, CombatStateData> actions);
+        
+        if (blackboard.AttackFeasible(target, attackType))
+            return Node.NodeStatus.Success;
+
+        Vector3 toTarget = target.transform.position - agent.transform.position;
+
+        float desiredAngle =
+            RadialHelper.CartesianToPol(new Vector2(toTarget.x, toTarget.z)).y;
+
+        float maxAngle = actions[attackType].IdealAttackAngle;
+
+        float clampedDesired =
+            Mathf.Clamp(
+                Mathf.DeltaAngle(agent.GetWeaponAngle(), desiredAngle),
+                -maxAngle,
+                maxAngle
+            ) + agent.GetWeaponAngle();
+
+        float newAngle =
+            Mathf.MoveTowardsAngle(agent.GetWeaponAngle(), clampedDesired, rotationSpeed);
+
+        blackboard.SetKeyValue(
+            CommonKeys.ChosenWeaponAngle,
+            RadialHelper.NormalizeAngle(newAngle)
+        );
+
+        Vector3 weaponTip =
+            agent.transform.position +
+            MiscHelper.Vec2ToVec3Pos(
+                RadialHelper.PolarToCart(newAngle, agent.GetWeaponRange())
+            );
+
+        Vector3 positionalError = target.transform.position - weaponTip;
+
+        if (positionalError.magnitude <= tolerance)
+            return Node.NodeStatus.Success;
+
+        blackboard.AddForce(
+            positionalError.normalized,
+            agent.TreeValues.Movement.AlignAttackForce,
+            "AlignForAttack"
+        );
+
+        return Node.NodeStatus.Running;
+    }
+
+}
+
 public class CheckMessageStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
@@ -173,7 +238,7 @@ public class DetectAttackStrategy : IStrategy
             case 0:
                 agent.TreeValues.CombatTactic.IsDefendSelfModified = false;
                 blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.None);
-                break;
+                return Node.NodeStatus.Failure;
             case >= 2:
                 agent.TreeValues.CombatTactic.IsDefendSelfModified = true;
                 blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
@@ -240,9 +305,47 @@ public class DistanceSelfFromWeaponsStrategy : DistanceSelfFromObjectStrategy
         foreach (CharacterWeapon _weapon in _weapons) {
             if(!_weapon) continue;
             avoidObject = _weapon.gameObject;
-            minDistance = _weapon.GetRange();
+            minDistance = _weapon.GetMaxReach();
             base.Process();
         }
+        return Node.NodeStatus.Success;
+    }
+}
+
+public class MovementActionStrategy : IStrategy
+{
+    EnemyBlackboard blackboard;
+    private EnemyController agent;
+    private Vector2 moveDirection;
+    private float moveRange;
+
+    public MovementActionStrategy(EnemyBlackboard pBlackboard, Vector2 pMoveDirection, float pMoveRange) {
+        blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
+        moveDirection = pMoveDirection;
+        moveRange = pMoveRange;
+    }
+
+    public Node.NodeStatus Process() {
+        
+        blackboard.TryGetValue(CommonKeys.MovementActions, out Dictionary<ActionType, CombatStateData> movementActions);
+
+        ActionType _chosenAction = ActionType.None;
+        float _furthestDistance = 0;
+            
+        foreach (var moveAction in movementActions) {
+            float _moveDistance = moveAction.Value.AttackRange;
+            if (_moveDistance > moveRange) {
+                continue;
+            }
+
+            if (_chosenAction != ActionType.None && !(_furthestDistance < _moveDistance)) continue;
+            _chosenAction = moveAction.Key;
+            _furthestDistance = _moveDistance;
+            Debug.Log($"moveAction: {moveAction.Key}, furthestDistance: {_furthestDistance}, moveRange: {moveRange}");
+        }
+        
+        agent.ChooseMovementAction(_chosenAction, moveDirection.normalized);
         return Node.NodeStatus.Success;
     }
 }

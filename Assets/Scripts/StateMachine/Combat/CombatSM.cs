@@ -53,10 +53,11 @@ public class CombatSM : BaseStateMachine<CombatSM>
         attackAngle = pAttackAngle;
     }
 
-    public void InputState(string pInput, float pAttackAngle=0f) {
+    public void InputState(string pInput, float pAttackAngle = 0f) {
         inputState = (CombatState)GetState(pInput);
-        
-        if (currentCombatState.IsHoldAction()) {
+        if (inputState == null) Debug.Log($"Combat state not found: {pInput}");
+
+    if (currentCombatState.IsHoldAction()) {
             currentCombatState.SetAttackAngle(pAttackAngle);
         }
     }
@@ -149,30 +150,4 @@ public class CombatSM : BaseStateMachine<CombatSM>
     public void SetBufferTime(float pBufferTime) {
         bufferTime = pBufferTime;
     }
-    
-    
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        if (EditorStates == null || EditorStates.Count == 0) return;
-
-        foreach (var state in EditorStates)
-        {
-            if (state == null) continue;
-
-            // Ensure state data is applied
-            if (state.name != state.Name)
-            {
-                Debug.LogWarning($"State name mismatch: Asset: {state.name}, Data: {state.Name}", this);
-            }
-
-            if (state.StateMachine == null)
-            {
-                state.Enter(this);
-            }
-
-            AddState(state);
-        }
-    }
-#endif
 }

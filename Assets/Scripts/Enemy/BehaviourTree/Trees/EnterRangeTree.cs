@@ -25,13 +25,17 @@ public class EnterRangeTree : BehaviourTree
         Parallel _parallel = new("EnterRange/Parallel", 2);
         Parallel _targetParallel = new Parallel("EnterRange//TargetParallel", 1, 1);
         Leaf _targetCheck = new("EnterRange///TargetCheck", new ConditionStrategy(targetCheck));
-        Leaf _withinRange = new Leaf("EnterRange///RangeCheck", new ConditionStrategy(()=> (GetTargetPosition() - agent.transform.position).magnitude < preferredRange));
-        Leaf _prefPosition = new Leaf("EnterRange///PreferredPosition", new ActionStrategy(calcPrefPos));
+        Selector _rangeSelector  = new("EnterRange///RangeSelector", 1);
+        Leaf _withinRange = new Leaf("EnterRange////RangeCheck", new ConditionStrategy(()=> (GetTargetPosition() - agent.transform.position).magnitude < preferredRange));
+        Leaf _movementAction = new("EnterRange////MovementAction", new MovementActionStrategy(blackboard, getTargetDifVector(), preferredRange));
+        Leaf _prefPosition = new Leaf("EnterRange//PreferredPosition", new ActionStrategy(calcPrefPos));
         
         AddChild(_parallel);
         _parallel.AddChild(_targetParallel);
         _targetParallel.AddChild(_targetCheck);
-        _targetParallel.AddChild(_withinRange);
+        _targetParallel.AddChild(_rangeSelector);
+        _rangeSelector.AddChild(_withinRange);
+        _rangeSelector.AddChild(_movementAction);
         _parallel.AddChild(_prefPosition);
     }
 

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class BaseState<TStateMachine> : ScriptableObject
+public abstract class BaseState<TStateMachine>
     where TStateMachine : BaseStateMachine<TStateMachine> 
 {
     public string Name;

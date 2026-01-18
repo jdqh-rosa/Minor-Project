@@ -15,6 +15,8 @@ public class CharacterData : ScriptableObject
 
     public float HitInvulerabilityTime = 0.3f;
     
+    public float AttackTolerance = 0.1f;
+    
     public CombatStateData StrideState;
     public CombatStateData DodgeState;
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PlayerCharacter
   m_EditorClassIdentifier: 
   RotationSpeed: 50
-  MaxRotationSpeed: 300
+  MaxRotationSpeed: 150
   DampingFactor: 0.2
   VelocityDamping: 0.9
   DeadZoneThreshold: 0

@@ -919,15 +919,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2619093171409599173, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5159050353757194108, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
