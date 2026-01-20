@@ -1317,10 +1317,13 @@ public class WeaponAwareCombatStrategy : IStrategy
 
         if (delta <= dynamicAvoidAngle)
         {
-            Vector2 perpA = Vector2.Perpendicular(enemyToSelf);
-            Vector2 escapeDir = Mathf.Abs(Mathf.DeltaAngle(weaponAngle, RadialHelper.CartesianToPol(perpA).y)) >Mathf.Abs(Mathf.DeltaAngle(weaponAngle, RadialHelper.CartesianToPol(-perpA).y))? perpA : -perpA;
+            
+            Vector2 _perpA = Vector2.Perpendicular(enemyToSelf);
+            float perpAngle = RadialHelper.CartesianToPol(_perpA).y;
+            float negPerpAngle = RadialHelper.CartesianToPol(-_perpA).y;
+            Vector2 _escapeDir = Mathf.Abs(Mathf.DeltaAngle(weaponAngle, perpAngle)) > Mathf.Abs(Mathf.DeltaAngle(weaponAngle, negPerpAngle)) ? _perpA : -_perpA;
 
-            blackboard.AddForce(MiscHelper.Vec3ToVec2Pos(escapeDir), sidestepForceMultiplier * agent.TreeValues.Movement.AvoidObjectForce, "Avoid_Weapon_Sidestep");
+            blackboard.AddForce(MiscHelper.Vec3ToVec2Pos(_escapeDir), sidestepForceMultiplier * agent.TreeValues.Movement.AvoidObjectForce, "Avoid_Weapon_Sidestep");
             actionTaken = true;
         }
 
@@ -1329,17 +1332,17 @@ public class WeaponAwareCombatStrategy : IStrategy
         float attackAngle = RadialHelper.CartesianToPol(new Vector2(diffVec.x, diffVec.z)).y;
 
         float weaponAttackWidth = Mathf.Abs(weapon.OrbitalVelocity) * Mathf.Rad2Deg * Time.fixedDeltaTime;
-        weaponAttackWidth = Mathf.Max(weaponAttackWidth, weapon.OrbitalVelocity);
+        weaponAttackWidth = Mathf.Max(weaponAttackWidth, baseAvoidAngle);
 
         float angleToWeapon = Mathf.DeltaAngle(weaponAngle, attackAngle);
 
         if (Mathf.Abs(angleToWeapon) <= weaponAttackWidth / 2f)
         {
-            agent.InitiateAttackAction(ActionType.Parry, attackAngle);
+            agent.InitiateAttackAction(ActionType.Parry, weaponAngle);
             actionTaken = true;
         }
 
-        if (!actionTaken && weaponAngularVelocity > 50f)
+        if (!actionTaken && weaponAngularVelocity > 50f && delta < 90f)
         {
             blackboard.SetKeyValue(CommonKeys.ChosenAction, ActionType.Dodge);
             blackboard.SetKeyValue(CommonKeys.TargetEnemy, enemy);

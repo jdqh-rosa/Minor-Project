@@ -15,10 +15,10 @@ MonoBehaviour:
   Name: Dodge
   ActionType: 8
   AttackForce: 0
-  Duration: 0.3
+  Duration: 0.5
   ExtendTime: 0
   RetractTime: 0
   InteruptTime: 0.001
-  AttackRange: 1.5
+  AttackRange: 1
   IdealAttackAngle: 0
   HoldAction: 1

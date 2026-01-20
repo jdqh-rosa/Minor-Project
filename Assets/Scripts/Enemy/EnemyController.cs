@@ -52,6 +52,8 @@ public class EnemyController : MonoBehaviour
         Parallel _parallel = new("BaseLogic/Parallel", 2);
         Parallel _actionParallel = new("BaseLogic/ActionParallel", 2);
         Leaf _distanceSelfFromWeapons = new("Combat/DistanceWeapon", new DistanceSelfFromWeaponsStrategy(blackboard));
+        Sequence _movementSequence = new("Movement");
+        Leaf _perpendicularizeDirection = new("Combat//PerpendicularizeDirection", new ActionStrategy(() => sideStep()));
         Leaf _moveInDirection = new("BaseLogic//MoveToPosition", new ActionStrategy(() => enemyCharacter.SetCharacterDirection(processDirections())));
         Leaf _positionWeapon = new Leaf("BaseLogic//AlignWeaponAngle", new ActionStrategy(() => enemyCharacter.RotateWeaponTowardsAngle(weaponAngle())));
 
@@ -62,7 +64,9 @@ public class EnemyController : MonoBehaviour
         _parallel.AddChild(new DeciderTree(blackboard));
         _parallel.AddChild(_actionParallel);
         _actionParallel.AddChild(_distanceSelfFromWeapons);
-        _actionParallel.AddChild(_moveInDirection);
+        _actionParallel.AddChild(_movementSequence);
+        _movementSequence.AddChild(_perpendicularizeDirection);
+        _movementSequence.AddChild(_moveInDirection);
         _actionParallel.AddChild(_positionWeapon);
         tree.Reset();
 
@@ -89,6 +93,22 @@ public class EnemyController : MonoBehaviour
         return _slerpedDir;
     }
 
+    private Vector3 lastPerpDir = Vector3.right;
+    private void sideStep() {
+        Vector3 _blendedDirection = blackboard.GetBlendedDirection();
+        float alignment = Vector3.Dot(previousDirection, _blendedDirection); 
+        float lateralStrength = 0.15f;
+
+        if (alignment > 0.98f)
+        {
+            Vector3 perp = Vector3.Cross(_blendedDirection, Vector3.up).normalized;
+
+            float sideSign = Mathf.Sign(Vector3.Dot(perp, lastPerpDir));
+            perp *= sideSign == 0 ? 1f : sideSign;
+
+            blackboard.AddForce(perp, lateralStrength);
+        }
+    }
 
     private float weaponAngle() {
         blackboard.TryGetValue(CommonKeys.ChosenWeaponAngle, out float _weaponAngle);

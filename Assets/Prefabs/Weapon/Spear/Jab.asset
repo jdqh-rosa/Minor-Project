@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Jab
   ActionType: 1
-  AttackForce: 0
+  AttackForce: 300
   Duration: 0.1
   ExtendTime: 0.1
   RetractTime: 0.1

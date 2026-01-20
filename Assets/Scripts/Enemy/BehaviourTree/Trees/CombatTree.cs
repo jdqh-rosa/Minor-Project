@@ -87,7 +87,7 @@ public class CombatTree : BehaviourTree
     
     void pointWeapon()
     {
-        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target);
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target) || _target) return;
         Vector3 _agentPos = agent.transform.position;
         Vector3 _difVector = _target.transform.position - _agentPos;
         blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.CartesianToPol(new Vector2(_difVector.x, _difVector.z)).y);

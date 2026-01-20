@@ -22,7 +22,7 @@ public class EnemyBlackboard : Blackboard
         
         Dictionary<ActionType, CombatStateData> _actionDictionary = new(){
             { ActionType.Stride, pData.StrideState},
-            { ActionType.Dodge , pData.DodgeState },
+            //{ ActionType.Dodge , pData.DodgeState },
         };
         SetKeyValue(CommonKeys.MovementActions, _actionDictionary);
         
