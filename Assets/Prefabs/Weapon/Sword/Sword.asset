@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6e90039c8b39714e93d1f2a9df25596, type: 3}
   m_Name: Sword
   m_EditorClassIdentifier: 
+  WeaponLength: 3.8
   Mass: 1
   WeaponDistance: 0.1
   MaxTurnVelocity: 200

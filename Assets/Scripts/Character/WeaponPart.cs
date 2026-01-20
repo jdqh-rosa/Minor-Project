@@ -6,7 +6,6 @@ public class WeaponPart : MonoBehaviour
     public WeaponPartType PartType;
     public ContactType ContactType;
     public CharacterWeapon Weapon;
-    public float PartDistance;
 }
 
 public enum WeaponPartType

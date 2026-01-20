@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Name: Swing
   ActionType: 4
-  AttackForce: 300
+  AttackForce: 200
   Duration: 1
   ExtendTime: 0.1
   RetractTime: 0.1

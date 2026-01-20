@@ -19,6 +19,6 @@ MonoBehaviour:
   ExtendTime: 0
   RetractTime: 0
   InteruptTime: 0.01
-  AttackRange: 0.5
+  AttackRange: 0.8
   IdealAttackAngle: 0
   HoldAction: 0

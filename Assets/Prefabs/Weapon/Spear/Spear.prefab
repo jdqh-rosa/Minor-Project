@@ -295,7 +295,6 @@ MonoBehaviour:
   PartType: 1
   ContactType: 2
   Weapon: {fileID: 0}
-  PartDistance: 4.9
 --- !u!65 &8051026522483383
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -316,7 +315,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.02, y: 0.08063279, z: 0.02}
-  m_Center: {x: 0, y: 0.026213089, z: -4.656614e-10}
+  m_Center: {x: 0, y: 0.026213089, z: 0}
 --- !u!1 &6328771656759430338
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +419,6 @@ MonoBehaviour:
   PartType: 3
   ContactType: 4
   Weapon: {fileID: 0}
-  PartDistance: 3.1
 --- !u!65 &1249016818735439555
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -440,5 +438,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.02, y: 0.30970043, z: 0.02}
-  m_Center: {x: 0, y: -0.04983337, z: -0.000000013853427}
+  m_Size: {x: 0.02, y: 0.35, z: 0.02}
+  m_Center: {x: 0, y: -0.07, z: 0}

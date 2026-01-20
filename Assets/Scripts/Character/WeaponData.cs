@@ -3,6 +3,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "New Weapon", menuName = "Character/Weapon")]
 public class WeaponData : ScriptableObject
 {
+    public float WeaponLength = 0f;
     public float Mass = 1;
     public float WeaponDistance = 0.1f;
     public float MaxTurnVelocity = 400f;
