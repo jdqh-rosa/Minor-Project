@@ -13,20 +13,20 @@ MonoBehaviour:
   m_Name: FlankValues
   m_EditorClassIdentifier: 
   Messenger:
-    FlankWeight: 10
+    FlankWeight: 40
     FlankMod: 10
     IsFlankModified: 0
-    GroupUpWeight: 0
-    GroupUpMod: 0
+    GroupUpWeight: 10
+    GroupUpMod: 10
     IsGroupUpModified: 0
-    RetreatWeight: 0
-    RetreatMod: 0
+    RetreatWeight: 10
+    RetreatMod: 10
     IsRetreatModified: 0
-    BackUpWeight: 0
-    BackUpMod: 0
+    BackUpWeight: 10
+    BackUpMod: 10
     IsBackUpModified: 0
-    SurroundWeight: 0
-    SurroundMod: 0
+    SurroundWeight: 10
+    SurroundMod: 10
     IsSurroundModified: 0
   Health:
     LowHealthWeight: 20
@@ -70,15 +70,18 @@ MonoBehaviour:
     BlockWeight: 0
     RetreatWeight: 0
   Movement:
-    AlignAttackForce: 0
+    AlignAttackForce: 1
     EnterRangeForce: 3
-    ChooseObjectForce: 0
-    DistanceSelfForce: 0
+    ChooseObjectForce: 1
+    DistanceSelfForce: 1
     AvoidObjectForce: 5
     FlankForce: 5
-    GroupUpForce: 0
-    TargetAllyForce: 0
-    RetreatForce: 0
-    SurroundForce: 0
+    GroupUpForce: 1
+    TargetAllyForce: 1
+    RetreatForce: 1
+    SurroundForce: 1
   Miscellaneous:
     FindRange: 40
+    RetreatDistance: 20
+    SurroundAngle: 270
+    SurroundDistance: 10

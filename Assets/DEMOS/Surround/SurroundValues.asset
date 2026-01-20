@@ -25,7 +25,7 @@ MonoBehaviour:
     BackUpWeight: 10
     BackUpMod: 10
     IsBackUpModified: 0
-    SurroundWeight: 20
+    SurroundWeight: 40
     SurroundMod: 10
     IsSurroundModified: 0
   Health:
@@ -83,5 +83,5 @@ MonoBehaviour:
   Miscellaneous:
     FindRange: 40
     RetreatDistance: 20
-    SurroundAngle: 270
+    SurroundAngle: 100
     SurroundDistance: 10

@@ -160,7 +160,7 @@ public class EnemyController : MonoBehaviour
 
     void OnDrawGizmos() {
         if (tree == null) return;
-        drawNodeGizmo(tree, enemyCharacter.transform.position);
+        DrawNodeGizmo(tree, enemyCharacter.transform.position);
         DrawForces();
     }
     
@@ -173,6 +173,48 @@ public class EnemyController : MonoBehaviour
 
         Gizmos.color = Color.blue;
         Gizmos.DrawLine(transform.position, transform.position + blackboard.GetBlendedDirection() * 2);
+    }
+    
+    private float GetSubtreeWidth(Node node)
+    {
+        if (node.children == null || node.children.Count == 0)
+            return 1f;
+
+        float width = 0f;
+        foreach (var child in node.children)
+            width += GetSubtreeWidth(child);
+
+        return Mathf.Max(width, 1f);
+    }
+    
+    private void DrawNodeGizmo(Node node, Vector3 pos)
+    {
+        Gizmos.color = node.IsActive ? Color.green : Color.gray;
+        Gizmos.DrawSphere(pos, 0.1f);
+
+        if (node.children == null || node.children.Count == 0)
+            return;
+
+        float totalWidth = 0f;
+        foreach (var child in node.children)
+            totalWidth += GetSubtreeWidth(child);
+
+        float xOffset = -totalWidth / 2f;
+        float yStep = -0.6f; // depth spacing
+        float xSpacing = 0.6f; // horizontal spacing
+
+        foreach (var child in node.children)
+        {
+            float childWidth = GetSubtreeWidth(child);
+            float childCenter = xOffset + childWidth / 2f;
+
+            Vector3 childPos = pos + new Vector3(childCenter * xSpacing, 0, yStep);
+
+            Gizmos.DrawLine(pos, childPos);
+            DrawNodeGizmo(child, childPos);
+
+            xOffset += childWidth;
+        }
     }
 
     private void drawNodeGizmo(Node pNode, Vector3 pPos) {

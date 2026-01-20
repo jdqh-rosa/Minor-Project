@@ -78,7 +78,7 @@ MonoBehaviour:
     FlankForce: 3
     GroupUpForce: 3
     TargetAllyForce: 0
-    RetreatForce: -3
+    RetreatForce: -2
     SurroundForce: 3
   Miscellaneous:
     FindRange: 40

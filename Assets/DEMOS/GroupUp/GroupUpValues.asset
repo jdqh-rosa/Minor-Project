@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: GroupUpValues
   m_EditorClassIdentifier: 
   Messenger:
-    FlankWeight: 0
-    FlankMod: 0
+    FlankWeight: 10
+    FlankMod: 10
     IsFlankModified: 0
-    GroupUpWeight: 10
+    GroupUpWeight: 40
     GroupUpMod: 10
     IsGroupUpModified: 0
-    RetreatWeight: 0
-    RetreatMod: 0
+    RetreatWeight: 10
+    RetreatMod: 10
     IsRetreatModified: 0
-    BackUpWeight: 0
-    BackUpMod: 0
+    BackUpWeight: 10
+    BackUpMod: 10
     IsBackUpModified: 0
-    SurroundWeight: 0
+    SurroundWeight: 10
     SurroundMod: 0
     IsSurroundModified: 0
   Health:
@@ -33,8 +33,8 @@ MonoBehaviour:
     LowHealthThreshold: 0.4
     IsLowHealth: 0
   Decider:
-    CombatWeight: 0
-    PatrolWeight: 0
+    CombatWeight: 10
+    PatrolWeight: 10
     AssembleWeight: 40
     AssembleMod: 10
     IsAssembleModified: 0
@@ -70,16 +70,16 @@ MonoBehaviour:
     BlockWeight: 0
     RetreatWeight: 0
   Movement:
-    AlignAttackForce: 0
-    EnterRangeForce: 0
-    ChooseObjectForce: 0
-    DistanceSelfForce: 0
-    AvoidObjectForce: 0
-    FlankForce: 0
-    GroupUpForce: 0
-    TargetAllyForce: 0
-    RetreatForce: 0
-    SurroundForce: 0
+    AlignAttackForce: 1
+    EnterRangeForce: 1
+    ChooseObjectForce: 1
+    DistanceSelfForce: 1
+    AvoidObjectForce: 1
+    FlankForce: 1
+    GroupUpForce: 1
+    TargetAllyForce: 1
+    RetreatForce: 1
+    SurroundForce: 1
   Miscellaneous:
     FindRange: 40
     RetreatDistance: 20
