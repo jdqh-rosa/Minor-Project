@@ -5,5 +5,6 @@ public class UnitData : ScriptableObject
 {
     public string CharacterName;
     public CharacterTeam CharacterTeam;
+    public UnitType UnitType;
     public float MaxHealth;
 }

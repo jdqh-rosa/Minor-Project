@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CharacterWeapon : MonoBehaviour
 {
@@ -32,6 +33,9 @@ public class CharacterWeapon : MonoBehaviour
         get => state;
         set => state = value;
     }
+    
+    [SerializeField] private TrailRenderer weaponTrail;
+    private float trailVelocityThreshold = 50f;
 
     private void Start() {
         if (hilt != null) {
@@ -200,6 +204,8 @@ public class CharacterWeapon : MonoBehaviour
         
         updateVelocity();
         momentum = VelocityToMomentum(OrbitalVelocity, currentDistance);
+        
+        updateTrail();
     }
 
     public float VelocityToMomentum(float pOrbitalVelocity, float pDistance) {
@@ -244,7 +250,24 @@ public class CharacterWeapon : MonoBehaviour
         return currentDistance + GetLength();
     }
 
-    public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, bool pIsClash, Vector3 pContactNormal) {
+    public float GetRelativeAngle() {
+        return Vector3.Angle(transform.position, GetTipPosition());
+    }
+
+    public Vector3 GetTipPosition() {
+        if (tip) {
+            return tip.transform.position;
+        }
+        if (blade) {
+            return blade.transform.position;
+        }
+        if (hilt) {
+            return hilt.transform.position;
+        }
+        return gameObject.transform.position;
+    }
+
+    public void CollisionDetected(WeaponPart pPart, Character pCharacterHit, bool pIsClash, Vector3 pContactPoint, Vector3 pContactNormal) {
         Vector3 _relVel3D = Velocity - pCharacterHit.Weapon.Velocity;
         Vector2 _relVel2D = MiscHelper.Vec3ToVec2Pos(_relVel3D);
 
@@ -255,9 +278,11 @@ public class CharacterWeapon : MonoBehaviour
             weaponHit(pCharacterHit, pContactNormal);
         }
         else {
-            bodyHit(pPart, pCharacterHit, _pMomentum);
+            bodyHit(pPart, pCharacterHit, _pMomentum, pContactPoint, pContactNormal);
         }
     }
+    
+    private float _clashEffectCooldown = 0f;
 
     private void weaponHit(Character pCharacterHit, Vector3 pContactNormal) {
 
@@ -272,12 +297,25 @@ public class CharacterWeapon : MonoBehaviour
         float _invMassSum = (1f / _myMass) + (1f / _otherMass);
 
         float _dKnockback = Mathf.Abs(_relAngVel * _invMassSum * angularFactor) * _sign;
-        KnockbackVelocity += _dKnockback;
+        float _dampening = 1f / (1f + Mathf.Abs(KnockbackVelocity) * data.KnockbackScaleFactor);
+        KnockbackVelocity += _dKnockback * data.KnockbackFactor * _dampening;
         //Debug.Log($"Knoockback: {_dKnockback}, _relAngVel: {_relAngVel}, _invMassSum: {_invMassSum}, Orbital: {OrbitalVelocity}, OtherOrbital: {pCharacterHit.Weapon.OrbitalVelocity}", this);
         KnockbackVelocity = Math.Clamp(KnockbackVelocity, -Character.GetCharacterData().MaxRotationSpeed, Character.GetCharacterData().MaxRotationSpeed);
+        
+        if (data.ClashEffectPrefab != null && _clashEffectCooldown <= 0f) {
+            Vector3 spawnPos = GetTipPosition();
+            Quaternion rotation = Quaternion.identity;
+            if (pContactNormal != Vector3.zero) {
+               rotation = Quaternion.LookRotation(pContactNormal);
+            }
+             
+            var effect = Instantiate(data.ClashEffectPrefab, spawnPos, rotation);
+            Destroy(effect, 1f);
+            _clashEffectCooldown = 0.1f;
+        }
     }
 
-    private void bodyHit(WeaponPart pPart, Character pCharacterHit, Vector2 pMomentum) {
+    private void bodyHit(WeaponPart pPart, Character pCharacterHit, Vector2 pMomentum, Vector3 pContactPoint, Vector3 pContactNormal) {
         float AverageHealth = 1000f;
         float HighestSpeed = 1000f;
         float DamageRatio = 0.5f;
@@ -318,6 +356,12 @@ public class CharacterWeapon : MonoBehaviour
         }
 
         pCharacterHit.TakeDamage(_strength * (AverageHealth * DamageRatio) * _damageMod);
+        
+        if (data.ImpactEffectPrefab != null) {
+            Quaternion rotation = Quaternion.LookRotation(pContactNormal);
+            var effect = Instantiate(data.ImpactEffectPrefab, pContactPoint, rotation);
+            Destroy(effect, 1f);
+        }
     }
 
     private void OnCollisionEnter(Collision collision) {
@@ -357,7 +401,7 @@ public class CharacterWeapon : MonoBehaviour
 
             bool isClash = _otherTrans.GetComponent<WeaponPart>() != null;
 
-            CollisionDetected(_part, _otherChar, isClash, contact.normal);
+            CollisionDetected(_part, _otherChar, isClash, contact.point, contact.normal);
         }
     }
 
@@ -390,6 +434,13 @@ public class CharacterWeapon : MonoBehaviour
     public void SetWeaponCharacter(Character pCharacter) {
         Character = pCharacter;
         weaponJoint.connectedBody = pCharacter.GetComponent<Rigidbody>();
+    }
+    
+    private void updateTrail() {
+        if (weaponTrail == null) return;
+        float speed = Mathf.Abs(OrbitalVelocity);
+        weaponTrail.emitting = speed > trailVelocityThreshold;
+        weaponTrail.widthMultiplier = Mathf.Clamp01(speed / data.MaxOrbitalVelocity);
     }
 }
 

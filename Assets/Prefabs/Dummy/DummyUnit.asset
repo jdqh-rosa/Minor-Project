@@ -13,5 +13,6 @@ MonoBehaviour:
   m_Name: DummyUnit
   m_EditorClassIdentifier: 
   CharacterName: Dummy
-  CharacterTeam: 0
+  CharacterTeam: 4
+  UnitType: 0
   MaxHealth: 1000

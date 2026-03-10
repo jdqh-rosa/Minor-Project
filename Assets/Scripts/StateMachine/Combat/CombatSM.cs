@@ -15,6 +15,8 @@ public class CombatSM : BaseStateMachine<CombatSM>
 #if UNITY_EDITOR
     public List<CombatState> EditorStates = new();
 #endif
+    
+    private Dictionary<ActionType, string> actionMap = new();
 
     protected override void Start() {
         base.Start();
@@ -53,7 +55,7 @@ public class CombatSM : BaseStateMachine<CombatSM>
         attackAngle = pAttackAngle;
     }
 
-    public void InputState(string pInput, float pAttackAngle = 0f) {
+    private void InputState(string pInput, float pAttackAngle = 0f) {
         inputState = (CombatState)GetState(pInput);
         if (inputState == null) Debug.Log($"Combat state not found: {pInput}");
 
@@ -82,48 +84,24 @@ public class CombatSM : BaseStateMachine<CombatSM>
         }
     }
     
-    public void Attack(ActionInput pAttackInput, float pTargetAngle, bool linearAttack) {
-        ActionType _actionType = ActionType.None;
-        if (pAttackInput == ActionInput.Press) {
-            _actionType = linearAttack ? ActionType.Jab : ActionType.Swipe;
-        }
-
-        if (pAttackInput == ActionInput.Hold) {
-            _actionType = linearAttack ? ActionType.Thrust : ActionType.Swing;
-        }
-
-        //Debug.Log($"Attack Action Type: {_actionType}");
-
-        Attack(_actionType, pTargetAngle);
+    public void Attack(ActionInput pAttackInput, float pTargetAngle, bool linear) {
+        var entry = weapon.GetWeaponData().AttackInputMap.Find(e => e.Input == pAttackInput && e.Linear == linear);
+        if (entry != null)
+            Attack(entry.ActionData.ActionType, pTargetAngle);
     }
 
     public void Attack(ActionType pActionType, float pTargetAngle)
     {
         attackAngle = pTargetAngle;
-        switch (pActionType) {
-            case ActionType.Jab:
-                InputState("Jab", pTargetAngle);
-                break;
-            case ActionType.Thrust:
-                InputState("Thrust", pTargetAngle);
-                break;
-            case ActionType.Swipe:
-                InputState("Swipe", pTargetAngle);
-                break;
-            case ActionType.Swing:
-                InputState("Swing", pTargetAngle);
-                break;
-            case ActionType.Stride:
-                InputState("Stride");
-                break;
-            case ActionType.Dodge:
-                InputState("Dodge");
-                break;
+
+        if (actionMap.TryGetValue(pActionType, out string stateName)) {
+            InputState(stateName, pTargetAngle);
         }
     }
     
     public void AddState(CombatState newState, CombatStateData pData) {
         newState.AddStateData(pData);
+        actionMap[pData.ActionType] = pData.Name;
         AddState(newState);
     }
 

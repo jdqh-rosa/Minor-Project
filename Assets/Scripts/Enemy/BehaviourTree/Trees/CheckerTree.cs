@@ -24,6 +24,7 @@ public class CheckerTree : BehaviourTree
         Leaf _findAllies = new("Checker///FindEnemies", new FindAlliesStrategy(blackboard));
         Leaf _alliesAvailable = new("Checker//AlliesAvailable", new ConditionStrategy(() => blackboard.AlliesAvailable()));
         Leaf _getClosestAlly = new("Checker//GetClosestAlly", new GetClosestAllyStrategy(blackboard));
+        Leaf _getLowestAlly = new("Checker//GetLowestAlly", new GetLowestAllyStrategy(blackboard));
         
         Parallel _selfCheckParallel = new("Checker//SelfChecks", 1);
         
@@ -49,6 +50,7 @@ public class CheckerTree : BehaviourTree
         _allySequence.AddChild(_findAllies);
         _allySequence.AddChild(_alliesAvailable);
         _allySequence.AddChild(_getClosestAlly);
+        _allySequence.AddChild(_getLowestAlly);
         
         //_selfCheckParallel.AddChild(_patrolTimeCheck);
         _selfCheckParallel.AddChild(_healthCheckSequence);

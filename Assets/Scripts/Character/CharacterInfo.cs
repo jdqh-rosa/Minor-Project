@@ -8,6 +8,8 @@ public class CharacterInfo
     public float Health { get; private set; }
     public float MaxHealth { get; private set; }
     public CharacterTeam Team { get; private set; }
+    
+    public UnitType UnitType { get; private set; }
 
     public event Action HealthChanged;
     
@@ -16,6 +18,7 @@ public class CharacterInfo
         Health = pData.MaxHealth;
         MaxHealth = pData.MaxHealth;
         Team = pData.CharacterTeam;
+        UnitType = pData.UnitType;
         HealthChanged = null;
     }
 
@@ -24,4 +27,14 @@ public class CharacterInfo
         HealthChanged?.Invoke();
     }
 
+}
+
+public enum CharacterTeam
+{
+    Any,
+    Player,
+    Enemy,
+    Neutral,
+    Blembd,
+    TeamSelf,
 }

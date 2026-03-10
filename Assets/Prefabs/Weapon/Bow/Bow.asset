@@ -1,0 +1,38 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6e90039c8b39714e93d1f2a9df25596, type: 3}
+  m_Name: Bow
+  m_EditorClassIdentifier: 
+  WeaponLength: 1.7
+  Mass: 1
+  WeaponDistance: 0.1
+  MaxTurnVelocity: 400
+  MaxOrbitalVelocity: 700
+  MaxReach: 1
+  SwingDampingFactor: 0.98
+  ThrustDampingFactor: 0.98
+  TipDamageFactor: 0
+  MainDamageFactor: 0
+  HiltDamageFactor: 0.1
+  BluntDamageFactor: 0.8
+  ChopDamageFactor: 1.3
+  PokeDamageFactor: 1.1
+  SlashDamageFactor: 1.2
+  ClashEffectPrefab: {fileID: 0}
+  ImpactEffectPrefab: {fileID: 8066095877916151504, guid: baa76a0c1ee65054f83eb3aef2f6ee15, type: 3}
+  AttackInputMap:
+  - Input: 0
+    Linear: 1
+    ActionData: {fileID: 11400000, guid: 932aa08ad9705df4c844536be37f969a, type: 2}
+  - Input: 1
+    Linear: 1
+    ActionData: {fileID: 11400000, guid: c9d6b076ce2e11d4aaf87660d2451179, type: 2}

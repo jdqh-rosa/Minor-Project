@@ -12,6 +12,8 @@ public class AssembleTree : BehaviourTree
     
     private void setup()
     {
+        AddChild(new Leaf("ShowTactic", new ActionStrategy(() => agent.GetComponent<TacticIndicator>().SetTactic(TacticType.Group))));
+        
         Parallel _baseParallel = new Parallel("AssembleBaseParallel", 2,1);
         
         Leaf _setTargetAlly = new ("Assemble//SetTargetAlly", new SetTargetAllyStrategy(blackboard));

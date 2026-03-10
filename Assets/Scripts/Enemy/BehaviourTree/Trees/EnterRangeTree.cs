@@ -29,7 +29,7 @@ public class EnterRangeTree : BehaviourTree
             Vector3 delta = GetTargetPosition() - agent.transform.position;
             delta.y = 0;
             if (delta.magnitude < preferredRange) {
-                Debug.Log($"Delta is {delta.magnitude}");
+                //Debug.Log($"Delta is {delta.magnitude}");
             }
             return delta.magnitude < preferredRange;
         }));

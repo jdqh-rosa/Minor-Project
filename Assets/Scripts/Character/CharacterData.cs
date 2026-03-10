@@ -21,12 +21,9 @@ public class CharacterData : ScriptableObject
     public CombatStateData DodgeState;
 }
 
-public enum CharacterTeam
+public enum UnitType
 {
-    Any,
-    Player,
-    Enemy,
-    Neutral,
-    Blembd,
-    TeamSelf,
+    Default,
+    Archer,
+    Healer,
 }

@@ -27,8 +27,18 @@ MonoBehaviour:
   ChopDamageFactor: 1.3
   PokeDamageFactor: 1.1
   SlashDamageFactor: 1.2
-  JabState: {fileID: 11400000, guid: 1a9290be566177045960a0210e4a4a50, type: 2}
-  ThrustState: {fileID: 11400000, guid: 2ae19fef35908f94cb2182b7d8d3084f, type: 2}
-  SwipeState: {fileID: 11400000, guid: ecbb7dbae6a425e4f909da4bee7a7d42, type: 2}
-  SwingState: {fileID: 11400000, guid: 41bbdcb3428dbfd4ab71edda3ea202a4, type: 2}
-  BlockState: {fileID: 0}
+  ClashEffectPrefab: {fileID: 8535307324043589956, guid: e1804854ee59420439127159b174bceb, type: 3}
+  ImpactEffectPrefab: {fileID: 8066095877916151504, guid: baa76a0c1ee65054f83eb3aef2f6ee15, type: 3}
+  AttackInputMap:
+  - Input: 0
+    Linear: 1
+    ActionData: {fileID: 11400000, guid: 1a9290be566177045960a0210e4a4a50, type: 2}
+  - Input: 1
+    Linear: 1
+    ActionData: {fileID: 11400000, guid: 2ae19fef35908f94cb2182b7d8d3084f, type: 2}
+  - Input: 0
+    Linear: 0
+    ActionData: {fileID: 11400000, guid: ecbb7dbae6a425e4f909da4bee7a7d42, type: 2}
+  - Input: 1
+    Linear: 0
+    ActionData: {fileID: 11400000, guid: 41bbdcb3428dbfd4ab71edda3ea202a4, type: 2}

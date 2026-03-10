@@ -33,6 +33,7 @@ public class EnemyController : MonoBehaviour
         blackboard.SetKeyValue(CommonKeys.TeamSelf, enemyCharacter.GetCharacterInfo().Team);
         blackboard.SetKeyValue(CommonKeys.SelfHealth, enemyCharacter.GetCharacterInfo().Health);
         blackboard.SetKeyValue(CommonKeys.MaxHealth, enemyCharacter.GetCharacterInfo().MaxHealth);
+        blackboard.SetKeyValue(CommonKeys.UnitType, enemyCharacter.GetCharacterInfo().UnitType);
 
         //if (ValuesManager == null) {
         //    ValuesManager = new TreeValuesManager(blackboard, this);
@@ -112,6 +113,7 @@ public class EnemyController : MonoBehaviour
 
     private float weaponAngle() {
         blackboard.TryGetValue(CommonKeys.ChosenWeaponAngle, out float _weaponAngle);
+        //Debug.Log($"Angle {_weaponAngle}");
         return _weaponAngle;
     }
 
@@ -158,9 +160,29 @@ public class EnemyController : MonoBehaviour
         return enemyCharacter.GetCurrentHealth();
     }
 
+    public CharacterInfo GetCharInfo() {
+        return enemyCharacter.GetCharacterInfo();
+    }
+
+    public bool CanExecute(ActionType pActionType) {
+        if (!blackboard.TryGetValue(CommonKeys.AttackActions, out List<ActionType> _attacks))
+            return blackboard.TryGetValue(CommonKeys.MovementActions, out List<ActionType> _moves) && _moves.Contains(pActionType);
+        return _attacks.Contains(pActionType);
+    }
+    
+    public bool CanExecute(MessageType pMessageType) {
+        return pMessageType switch
+        {
+            MessageType.Flank => treeValues.CombatTactic.FlankWeight != 0,
+            MessageType.SurroundTarget => treeValues.CombatTactic.SurroundWeight != 0,
+            MessageType.RequestBackup => enemyCharacter.GetCharacterInfo().UnitType != UnitType.Healer,
+            _ => true
+        };
+    }
+
     void OnDrawGizmos() {
         if (tree == null) return;
-        DrawNodeGizmo(tree, enemyCharacter.transform.position);
+        //DrawNodeGizmo(tree, enemyCharacter.transform.position);
         DrawForces();
     }
     

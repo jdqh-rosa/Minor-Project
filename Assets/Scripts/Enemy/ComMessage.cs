@@ -18,7 +18,7 @@ public class ComMessage
         Timestamp = pTimestamp;
         Priority = pPriority;
 
-        if (Sender == null || Type == default || Payload == null) {
+        if (Sender == null || Type == default || (Payload == null && (Type != MessageType.Confirm && Type != MessageType.Decline))) {
             Debug.Log("Sender or Type or Payload can't be null");
         }
     }
@@ -34,6 +34,8 @@ public enum MessageType
     RequestBackup,
     Retreat,
     SurroundTarget,
+    Confirm,
+    Decline,
 }
 
 public enum MessageInfoType

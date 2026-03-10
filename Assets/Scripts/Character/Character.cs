@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
 
 public class Character : MonoBehaviour
@@ -33,7 +34,7 @@ public class Character : MonoBehaviour
         }
 
         charInfo = new CharacterInfo(unitData);
-
+        
         Weapon.Character = this;
         Body.Character = this;
 
@@ -47,10 +48,11 @@ public class Character : MonoBehaviour
         CombatSM.SetWeapon(Weapon);
         var _idle = new IdleCombatState("Idle");
         CombatSM.AddState(_idle);
-        CombatSM.AddState(new JabState(), Weapon.GetWeaponData().JabState);
-        CombatSM.AddState(new SwipeState(), Weapon.GetWeaponData().SwipeState);
-        CombatSM.AddState(new ThrustState(), Weapon.GetWeaponData().ThrustState);
-        CombatSM.AddState(new SwingState(), Weapon.GetWeaponData().SwingState);
+
+        foreach (AttackInputEntry attackInput in Weapon.GetWeaponData().AttackInputMap) {
+            CombatSM.AddState(CombatStateFactory.Create(attackInput.ActionData.ActionType), attackInput.ActionData);
+        }
+        
         CombatSM.AddState(new StrideState(), characterData.StrideState);
         CombatSM.AddState(new DodgeState(), characterData.DodgeState);
         CombatSM.InitialState = _idle;
@@ -260,6 +262,11 @@ public class Character : MonoBehaviour
             Destroy(this.gameObject);
         }
     }
+
+    public void Heal(float pHeal) {
+        charInfo.TakeDamage(-pHeal);
+        healthBar.ChangeHealth(charInfo.Health / charInfo.MaxHealth);
+    }
 }
 
 public enum ActionInput
@@ -278,5 +285,8 @@ public enum ActionType
     Parry,
     Block,
     Stride,
-    Dodge
+    Dodge,
+    Heal,
+    Arrow,
+    StrongArrow,
 }

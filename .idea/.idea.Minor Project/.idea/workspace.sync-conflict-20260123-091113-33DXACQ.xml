@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="b2bf7555-e91e-44a2-875f-187917b7f7ee" name="Changes" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DpaMonitoringSettings">
+    <option name="firstShow" value="false" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0900e0d4bb644dafbfd59eb7fd222a681ddc00/49/40a641b4/Vector3.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0900e0d4bb644dafbfd59eb7fd222a681ddc00/5f/fc84ea4e/Object.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0900e0d4bb644dafbfd59eb7fd222a681ddc00/a2/4593a685/SetupCoroutine.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4b581f88908c4d37bb665312990c0d901f4c00/b1/91254dda/LayoutDataStore.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/df4e462ab02c4b6493ccedf77f247b3310fc00/20/beb6ad3d/OrderedEnumerable`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/df4e462ab02c4b6493ccedf77f247b3310fc00/61/77d79adf/EnumerableSorter`2.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/df4e462ab02c4b6493ccedf77f247b3310fc00/ed/c352d9d0/EnumerableSorter`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/ed969b0e627d471da4848289f9c322df46ae00/47/4330294b/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/ed969b0e627d471da4848289f9c322df46ae00/7d/fa477b3e/String.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/ed969b0e627d471da4848289f9c322df46ae00/ca/0171c23e/List`1.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Editor/BlackboardDataEditor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Editor/CombatSMEditor.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/Character/BodyData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/GeneralData.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Assets/Scripts/StateMachine/Combat/DodgeState.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.burst/Editor/BurstDisassembler.Core.ARM64.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.collections/Unity.Collections/DataStreamReader.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ide.rider/Rider/Editor/UnitTesting/RiderTestRunner.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ide.rider/Rider/Editor/UnitTesting/TestsCallback.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ide.rider/Rider/Editor/Util/FileSystemUtil.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.render-pipelines.core/Runtime/Debugging/DebugUpdater.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.timeline/Editor/TimelineHelpers.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.timeline/Runtime/AssetUpgrade/TimelineUpgrade.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Editor/TMP/TMP_MarkupTagUpdateUtility.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Editor/TMP/TMPro_ContextMenus.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Runtime/TMP/TMP_MaterialManager.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Runtime/TMP/TMP_TextUtilities.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Editor/UGUI/RectMask2D/RectMask2DCulling.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Runtime/TMP/TMP_RuntimeTests.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Runtime/UGUI/Canvas/NestedCanvas.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Runtime/UGUI/Canvas/RectTransformValidAfterEnable.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Runtime/UGUI/MaskClipping/RectMask2DClipping.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Runtime/UGUI/ScrollBar/ScrollBarClamp.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/Library/PackageCache/com.unity.ugui/Tests/Runtime/UGUI/Util/GraphicTestHelper.cs" root0="SKIP_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
+  <component name="ProjectId" id="2tGcpu6b2nBzyGfhxe1KZG3QkiV" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Attach to Unity Editor.Attach to Unity Editor &amp; Play.executor&quot;: &quot;Debug&quot;,
+    &quot;Attach to Unity Editor.Attach to Unity Editor.executor&quot;: &quot;Debug&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;XThreadsFramesViewSplitterKey&quot;: &quot;0.65576327&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Post-Minor&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="Attach to Unity Editor.Attach to Unity Editor &amp; Play">
+    <configuration name="Start Unity" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.29f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-projectPath &quot;D:\Shared\School stuff\Y3\Minor\Minor Project&quot; -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="D:\Shared\School stuff\Y3\Minor\Minor Project" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unit Tests (batch mode)" type="RunUnityExe" factoryName="Unity Executable">
+      <option name="EXE_PATH" value="C:\Program Files\Unity\Hub\Editor\6000.0.29f1\Editor\Unity.exe" />
+      <option name="PROGRAM_PARAMETERS" value="-runTests -batchmode -projectPath &quot;D:\Shared\School stuff\Y3\Minor\Minor Project&quot; -testResults Logs/results.xml -logFile Logs/Editor.log -testPlatform EditMode -debugCodeOptimization" />
+      <option name="WORKING_DIRECTORY" value="D:\Shared\School stuff\Y3\Minor\Minor Project" />
+      <option name="PASS_PARENT_ENVS" value="1" />
+      <option name="USE_EXTERNAL_CONSOLE" value="0" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor &amp; Play" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="UNITY_ATTACH_AND_PLAY" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost" ignored-value-for-modified-check="45052">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" value="45052" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+    <configuration name="Attach to Unity Editor" type="UNITY_DEBUG_RUN_CONFIGURATION" factoryName="Unity Debug" show_console_on_std_err="false" show_console_on_std_out="false" port="50000" address="localhost">
+      <option name="allowRunningInParallel" value="false" />
+      <option name="listenPortForConnections" value="false" />
+      <option name="pid" />
+      <option name="projectPathOnTarget" />
+      <option name="selectedOptions">
+        <list />
+      </option>
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b2bf7555-e91e-44a2-875f-187917b7f7ee" name="Changes" comment="" />
+      <created>1739982039107</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1739982039107</updated>
+      <workItem from="1739982041543" duration="1868000" />
+      <workItem from="1740231153051" duration="10000" />
+      <workItem from="1740231179233" duration="2897000" />
+      <workItem from="1740389542973" duration="22659000" />
+      <workItem from="1740475394792" duration="8879000" />
+      <workItem from="1740500356146" duration="17806000" />
+      <workItem from="1740751632613" duration="1711000" />
+      <workItem from="1741121473150" duration="9258000" />
+      <workItem from="1741337808063" duration="9753000" />
+      <workItem from="1741509977115" duration="16340000" />
+      <workItem from="1741691459610" duration="19825000" />
+      <workItem from="1741958443800" duration="1540000" />
+      <workItem from="1742209262592" duration="2967000" />
+      <workItem from="1742308827504" duration="5416000" />
+      <workItem from="1742378357024" duration="24732000" />
+      <workItem from="1742718947907" duration="21352000" />
+      <workItem from="1742903740340" duration="241000" />
+      <workItem from="1742904003913" duration="16877000" />
+      <workItem from="1743150389551" duration="599000" />
+      <workItem from="1743402588682" duration="29534000" />
+      <workItem from="1743581688887" duration="1336000" />
+      <workItem from="1743762818587" duration="5922000" />
+      <workItem from="1744014086220" duration="2822000" />
+      <workItem from="1744108116170" duration="5504000" />
+      <workItem from="1744620099522" duration="10264000" />
+      <workItem from="1744649155121" duration="1694000" />
+      <workItem from="1744977127295" duration="5281000" />
+      <workItem from="1745215225490" duration="17370000" />
+      <workItem from="1745305317903" duration="5176000" />
+      <workItem from="1747213551502" duration="1259000" />
+      <workItem from="1747224570135" duration="5055000" />
+      <workItem from="1747320888321" duration="316000" />
+      <workItem from="1747379813755" duration="3454000" />
+      <workItem from="1747397431514" duration="3399000" />
+      <workItem from="1747640585361" duration="16522000" />
+      <workItem from="1747726879913" duration="28502000" />
+      <workItem from="1747805089378" duration="33871000" />
+      <workItem from="1747981649376" duration="20207000" />
+      <workItem from="1748090286023" duration="5526000" />
+      <workItem from="1748250674706" duration="21039000" />
+      <workItem from="1748514674858" duration="13093000" />
+      <workItem from="1748841665000" duration="15256000" />
+      <workItem from="1748934122161" duration="9540000" />
+      <workItem from="1748982393512" duration="6936000" />
+      <workItem from="1749100461574" duration="19123000" />
+      <workItem from="1749209810214" duration="5500000" />
+      <workItem from="1749454220160" duration="51476000" />
+      <workItem from="1749635878128" duration="7412000" />
+      <workItem from="1749804717719" duration="9855000" />
+      <workItem from="1750055139622" duration="43349000" />
+      <workItem from="1750318140339" duration="16286000" />
+      <workItem from="1750399462463" duration="13863000" />
+      <workItem from="1750599420084" duration="35728000" />
+      <workItem from="1750838850893" duration="11167000" />
+      <workItem from="1750930919589" duration="17958000" />
+      <workItem from="1751008559056" duration="36261000" />
+      <workItem from="1751133214689" duration="3694000" />
+      <workItem from="1751140088155" duration="8432000" />
+      <workItem from="1751151820324" duration="1084000" />
+      <workItem from="1751189168496" duration="14346000" />
+      <workItem from="1751961061804" duration="18908000" />
+      <workItem from="1753102221686" duration="1948000" />
+      <workItem from="1753187586384" duration="605000" />
+      <workItem from="1753341535559" duration="7147000" />
+      <workItem from="1753723024588" duration="6273000" />
+      <workItem from="1768411120420" duration="4831000" />
+      <workItem from="1768542701783" duration="7689000" />
+      <workItem from="1768650201189" duration="46150000" />
+      <workItem from="1768769066787" duration="6389000" />
+      <workItem from="1768889611740" duration="3000" />
+      <workItem from="1768889681880" duration="5000" />
+      <workItem from="1768889700599" duration="1342000" />
+      <workItem from="1768891230206" duration="1399000" />
+      <workItem from="1768893504689" duration="3612000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnityProjectConfiguration" hasMinimizedUI="true" />
+  <component name="UnityProjectDiscoverer">
+    <option name="hasUnityReference" value="true" />
+    <option name="unityProject" value="true" />
+    <option name="unityProjectFolder" value="true" />
+  </component>
+  <component name="UnityUnitTestConfiguration" currentTestLauncher="Both" />
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/BehaviourTree/IStrategy.cs</url>
+          <line>640</line>
+          <properties documentPath="D:\Shared\School stuff\Y3\Minor\Minor Project\Assets\Scripts\BehaviourTree\IStrategy.cs" containingFunctionPresentation="Method 'Process'" />
+          <option name="timeStamp" value="200" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/BehaviourTree/IStrategy.cs</url>
+          <line>643</line>
+          <properties documentPath="D:\Shared\School stuff\Y3\Minor\Minor Project\Assets\Scripts\BehaviourTree\IStrategy.cs" containingFunctionPresentation="Method 'Process'" />
+          <option name="timeStamp" value="201" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Enemy/BehaviourTree/IStrategy.cs</url>
+          <line>1133</line>
+          <properties documentPath="D:\Shared\School stuff\Y3\Minor\Minor Project\Assets\Scripts\Enemy\BehaviourTree\IStrategy.cs" containingFunctionPresentation="Constructor 'SendMessageToAllyStrategy'">
+            <startOffsets>
+              <option value="43701" />
+            </startOffsets>
+            <endOffsets>
+              <option value="43702" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="246" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Assets/Scripts/Enemy/BehaviourTree/IStrategy.cs</url>
+          <line>906</line>
+          <properties documentPath="D:\Shared\School stuff\Y3\Minor\Minor Project\Assets\Scripts\Enemy\BehaviourTree\IStrategy.cs" containingFunctionPresentation="Method 'Process'">
+            <startOffsets>
+              <option value="34652" />
+            </startOffsets>
+            <endOffsets>
+              <option value="34718" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="481" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+</project>

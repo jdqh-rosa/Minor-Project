@@ -5,6 +5,7 @@ public class MessengerTree : BehaviourTree
 {
     EnemyBlackboard blackboard;
     private EnemyController agent;
+    private ComMessage message;
     public MessengerTree(EnemyBlackboard pBlackboard, int pPriority = 0) : base("MessageTree", pPriority) {
         blackboard = pBlackboard;
         blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
@@ -21,9 +22,15 @@ public class MessengerTree : BehaviourTree
         Leaf _flankViable = new("MessageTree//Flank/ViableCheck", new ConditionStrategy(() =>
         {
             blackboard.TryGetValue(CommonKeys.FlankFlag, out bool flankFlag);
-            return blackboard.EnemiesAvailable() && !flankFlag;
+            blackboard.TryGetValue(CommonKeys.PendingCoordination, out ComMessage pending);
+            return blackboard.EnemiesAvailable() && !flankFlag && pending==null;
         })); //todo: check if appropriate flag is off
-        Leaf _flankMessage = new("MessageTree//Flank/SendMessage", new SendMessageToAllyStrategy(blackboard, ()=> targetAlly(), ()=> flankMessage()));
+        Leaf _flankCreate = new("MessageTree//Surround/SendMessage", new ActionStrategy(() =>
+        {
+            message = flankMessage();
+        }));
+        Leaf _flankMessage = new("MessageTree//Flank/SendMessage", new SendMessageToAllyStrategy(blackboard, ()=> targetAlly(),
+            () => message));
         Leaf _flankModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsFlankModified = true));
         
         Sequence _groupUpSequence = new("MessageTree//GroupUp", ()=> agent.TreeValues.Messenger.GroupUpWeight + (agent.TreeValues.Messenger.IsGroupUpModified ? agent.TreeValues.Messenger.GroupUpMod : 0));
@@ -31,7 +38,15 @@ public class MessengerTree : BehaviourTree
         {
             blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> visibleAllies);
             blackboard.TryGetValue(CommonKeys.GroupUpFlag, out bool groupUpFlag);
-            return visibleAllies.Count >= 2 && !groupUpFlag;
+            blackboard.TryGetValue(CommonKeys.PendingCoordination, out ComMessage pending);
+
+            int farAllies = 0;
+            foreach (GameObject ally in visibleAllies) {
+                if(!ally) continue;
+                if((ally.transform.position - agent.transform.position).magnitude >= 15) farAllies++;
+            }
+            
+            return farAllies >= 2 && !groupUpFlag && pending==null;
         }));
         Leaf _groupUpMessage = new("MessageTree//GroupUp/SendMessage", new SendMessageToAlliesStrategy(blackboard, groupUpMessage));
         Leaf _groupUpModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.Decider.IsAssembleModified = true));
@@ -50,15 +65,31 @@ public class MessengerTree : BehaviourTree
         {
             blackboard.TryGetValue(CommonKeys.VisibleEnemies, out List<GameObject> _visibleEnemies);
             blackboard.TryGetValue(CommonKeys.SurroundFlag, out bool surroundFlag);
-            return blackboard.AlliesAvailable() && _visibleEnemies.Count > 0 && _visibleEnemies.Count < 2;
+            blackboard.TryGetValue(CommonKeys.PendingCoordination, out ComMessage pending);
+            return blackboard.AlliesAvailable() && _visibleEnemies.Count > 0 && _visibleEnemies.Count < 2 && pending == null;
         }));
-        Leaf _surroundMessage = new("MessageTree//Surround/SendMessage", new SendMessageToAlliesStrategy(blackboard, ()=> surroundMessage()));
+        Leaf _surroundCreate = new("MessageTree//Surround/SendMessage", new ActionStrategy(() =>
+        {
+            message = surroundMessage();
+        }));
+        Leaf _surroundMessage = new("MessageTree//Surround/SendMessage", new SendMessageToAlliesStrategy(blackboard, message));
         Leaf _surroundModified = new("MessageTree//Flank/FlankModify", new ActionStrategy(()=> agent.TreeValues.CombatTactic.IsSurroundModified = true));
+
+        Leaf _messageReset = new("MessageTree/MessageReset", new ActionStrategy(() => message = null));
+        Leaf _pendingMessage = new("MessageTree/Pending", new ActionStrategy(() =>
+        {
+            if (message != null) {
+                blackboard.SetKeyValue(CommonKeys.PendingCoordination, message);
+            }
+            message = null;
+        }));
         
         
         AddChild(_baseSequence);
+        _baseSequence.AddChild(_messengerSelector);
         _baseSequence.AddChild(_alliesAvailable);
         _baseSequence.AddChild(_messengerSelector);
+        _baseSequence.AddChild(_pendingMessage);
         
         _messengerSelector.AddChild(_flankSequence);
         _messengerSelector.AddChild(_groupUpSequence);
@@ -67,23 +98,25 @@ public class MessengerTree : BehaviourTree
         _messengerSelector.AddChild(_surroundSequence);
         
         _flankSequence.AddChild(_flankViable);
+        _flankSequence.AddChild(_flankCreate);
         _flankSequence.AddChild(_flankMessage);
-        _flankSequence.AddChild(_flankModified);
+        //_flankSequence.AddChild(_flankModified);
         
         _groupUpSequence.AddChild(_groupUpViable);
         _groupUpSequence.AddChild(_groupUpMessage);
-        _groupUpSequence.AddChild(_groupUpModified);
+        //_groupUpSequence.AddChild(_groupUpModified);
         
         _retreatSequence.AddChild(_retreatViable);
         _retreatSequence.AddChild(_retreatMessage);
-        _retreatSequence.AddChild(_retreatModified);
+        //_retreatSequence.AddChild(_retreatModified);
         
         _backUpSequence.AddChild(_backUpViable);
         _backUpSequence.AddChild(_backUpMessage);
         
         _surroundSequence.AddChild(_surroundViable);
+        _surroundSequence.AddChild(_surroundCreate);
         _surroundSequence.AddChild(_surroundMessage);
-        _surroundSequence.AddChild(_surroundModified);
+        //_surroundSequence.AddChild(_surroundModified);
     }
 
     private GameObject targetAlly() {
@@ -95,7 +128,7 @@ public class MessengerTree : BehaviourTree
     private ComMessage flankMessage() {
         if (!blackboard.TryGetValue(CommonKeys.TargetAlly, out GameObject _ally) || !_ally) return null;
         if(!_ally.TryGetComponent(out EnemyController _allyAgent) || !_allyAgent) return null;
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || _enemy) return null;
+        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy) return null;
         
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
@@ -110,7 +143,11 @@ public class MessengerTree : BehaviourTree
     private ComMessage groupUpMessage() {
         if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies) || _allies.Count <= 0) return null;
         List<GameObject> _allyList = new List<GameObject>();
-        _allyList.AddRange(_allies); 
+        foreach (GameObject _ally in _allies) {
+            if(!_ally || !_ally.TryGetComponent(out Character _allyChar) || !_allyChar) continue;
+            if(_allyChar.GetCharacterInfo().UnitType == UnitType.Healer) continue;
+            _allyList.Add(_ally); 
+        }
         _allyList.Add(agent.gameObject);
         Dictionary<MessageInfoType, object> _payload = new Dictionary<MessageInfoType, object>
         {
@@ -151,7 +188,11 @@ public class MessengerTree : BehaviourTree
         if (!blackboard.TryGetValue(CommonKeys.VisibleAllies, out List<GameObject> _allies) || _allies.Count <=0) return null;
         if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy) || !_enemy) return null;
         List<GameObject> _allyList = new List<GameObject>();
-        _allyList.AddRange(_allies); 
+        foreach (GameObject _ally in _allies) {
+            if(!_ally || !_ally.TryGetComponent(out Character _allyChar) || !_allyChar) continue;
+            if(_allyChar.GetCharacterInfo().UnitType == UnitType.Healer) continue;
+            _allyList.Add(_ally); 
+        }
         _allyList.Add(agent.gameObject);
         
         float _faceAngle = RadialHelper.CartesianToPol((_enemy.transform.position - agent.transform.position).normalized).y;

@@ -5,11 +5,13 @@ public class AttackTree : BehaviourTree
 {
     EnemyBlackboard blackboard;
     private EnemyController agent;
+    private float attackRange;
 
     public AttackTree(EnemyBlackboard pBlackboard, EnemyController pAgent, int pPriority = 0) : base("DoAttack", pPriority)
     {
         blackboard = pBlackboard;
         agent = pAgent;
+        attackRange = getAttackRange() + agent.GetWeaponRange();
         
         setup();
     }
@@ -21,8 +23,7 @@ public class AttackTree : BehaviourTree
         {
             Vector3 delta = getTarget().transform.position - agent.transform.position;
             delta.y = 0;
-            Debug.Log($"attack range check delta: {delta}");
-            return delta.magnitude < agent.GetWeaponRange();
+            return delta.magnitude < attackRange;
         }));
         Sequence _sequence = new("Attack///AttackSequence", 2);
         Leaf _executeAttack = new("ExecuteAttack", new ActionStrategy(()=>
@@ -47,7 +48,7 @@ public class AttackTree : BehaviourTree
         }));
         Leaf _adjustPosition = new("DoAttack//RandSelector/AdjustPosition", new ActionStrategy(() =>
         {
-            Vector3 _weaponTipPosition = MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(agent.GetWeaponAngle(), agent.GetWeaponRange()));
+            Vector3 _weaponTipPosition = MiscHelper.Vec2ToVec3Pos(RadialHelper.PolarToCart(agent.GetWeaponAngle(), attackRange));
             blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
             Vector3 positionOffset = (target.transform.position - agent.transform.position) - _weaponTipPosition;
             blackboard.SetKeyValue(CommonKeys.TargetPosition, agent.transform.position + positionOffset);
@@ -102,5 +103,15 @@ public class AttackTree : BehaviourTree
         blackboard.TryGetValue(CommonKeys.AttackActions, out Dictionary<ActionType, CombatStateData> _actions);
         float _attackAngle = _actions[_attackType].IdealAttackAngle;
         return _attackAngle;
+    }
+    
+    private float getAttackRange() {
+        List<AttackInputEntry> attackList = agent.gameObject.GetComponent<Character>().Weapon.GetWeaponData().AttackInputMap;
+        
+        float shortest = float.MaxValue;
+        foreach (AttackInputEntry attack in attackList) {
+            if (shortest > attack.ActionData.AttackRange) shortest = attack.ActionData.AttackRange;
+        }
+        return shortest;
     }
 }

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: EnemyValues
   m_EditorClassIdentifier: 
   Messenger:
-    FlankWeight: 10
+    FlankWeight: 46
     FlankMod: 10
     IsFlankModified: 0
     GroupUpWeight: 10
@@ -25,12 +25,12 @@ MonoBehaviour:
     BackUpWeight: 10
     BackUpMod: 10
     IsBackUpModified: 0
-    SurroundWeight: 10
+    SurroundWeight: 38
     SurroundMod: 10
     IsSurroundModified: 0
   Health:
-    LowHealthWeight: 10
-    LowHealthThreshold: 0.1
+    LowHealthWeight: 30
+    LowHealthThreshold: 0.5
     IsLowHealth: 0
   Decider:
     CombatWeight: 30
@@ -71,13 +71,13 @@ MonoBehaviour:
     RetreatWeight: 10
   Movement:
     AlignAttackForce: 4
-    EnterRangeForce: 5
+    EnterRangeForce: 7
     ChooseObjectForce: 0.1
-    DistanceSelfForce: -2
+    DistanceSelfForce: -1
     AvoidObjectForce: -2
     FlankForce: 3
     GroupUpForce: 3
-    TargetAllyForce: 0
+    TargetAllyForce: 1
     RetreatForce: -2
     SurroundForce: 3
   Miscellaneous:

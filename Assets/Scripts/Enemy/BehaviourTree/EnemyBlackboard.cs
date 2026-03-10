@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class EnemyBlackboard : Blackboard
 {
@@ -30,14 +31,13 @@ public class EnemyBlackboard : Blackboard
     }
 
     public void AddWeaponData(WeaponData pData) {
-        Dictionary<ActionType, CombatStateData> _actionDictionary = new(){
-            { ActionType.Jab, pData.JabState },
-            { ActionType.Thrust, pData.ThrustState },
-            { ActionType.Swipe, pData.SwipeState },
-            { ActionType.Swing, pData.SwingState },
-        };
+        
+        Dictionary<ActionType, CombatStateData> _actionDictionary = new(){};
+        foreach (AttackInputEntry attackInput in pData.AttackInputMap) {
+            _actionDictionary.Add(attackInput.ActionData.ActionType, attackInput.ActionData);
+        }
+        
         SetKeyValue(CommonKeys.AttackActions, _actionDictionary);
-
     }
 
     public TargetType GetActiveTargetType() {
@@ -88,6 +88,7 @@ public class EnemyBlackboard : Blackboard
         Vector3 result = Vector3.zero;
         foreach (var force in MovementForces)
         {
+            //UnityEngine.Debug.Log($"{force.Name}, {force.Direction}, {force.Force}");
             result += force.Direction * force.Force;
         }
         return result.normalized;
@@ -102,7 +103,7 @@ public class EnemyBlackboard : Blackboard
 
 public enum CommonKeys
 {
-    Error,
+    Error =0,
     AttackActions,
     AttackTolerance,
     MovementActions,
@@ -124,18 +125,21 @@ public enum CommonKeys
     GroupUpFlag,
     GroupUpAllies,
     GroupUpPosition,
+    IncomingCoordination,
     KnownAllies,
     KnownEnemies,
     KnownTargets,
     LastAllyPosition,
     LastPatrolTime,
     LinearAttackZone,
+    LowestHealthAlly,
     MaxHealth,
     MaxRotationSpeed,
     MessageInbox,
     PatrolFlag,
     PatrolCoolDown,
     PatrolPoints,
+    PendingCoordination,
     RotationSpeed,
     RetreatFlag,
     RetreatDistance,
@@ -151,6 +155,7 @@ public enum CommonKeys
     TargetObject,
     TargetPosition,
     TeamSelf,
+    UnitType,
     VisibleAllies,
     VisibleEnemies,
     VisibleTargets,

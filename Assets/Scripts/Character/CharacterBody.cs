@@ -64,6 +64,9 @@ public class CharacterBody : MonoBehaviour
         float _distanceThisFrame = _normalizedMagnitude * pStepLength - Vector3.Magnitude(Velocity);
         _distanceThisFrame = Mathf.Max(_distanceThisFrame, 0f);
         Velocity = pDir.normalized * _distanceThisFrame;
+
+        if(Velocity.magnitude > 0) transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.LookRotation(Velocity, Vector3.up), _t);
+        
         return Velocity;
         
         Velocity = pDir.normalized * _dynamicMagnitude;
