@@ -34,35 +34,7 @@ public class ArcherTargetTree : BehaviourTree
             _delta.y = 0;
             return _delta.magnitude < attackRange;
         })));
-        AddChild(new Leaf("ArcherAttack/LOSCheck", new ConditionStrategy(() =>
-        {
-            blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
-            if (target == null) return false;
-
-            Vector3 weaponPosition = agent.gameObject.GetComponent<Character>().Weapon.GetTipPosition();
-
-            Vector3 origin = agent.transform.position;
-            Vector3 direction = (target.transform.position - origin).normalized;
-            Vector3 weaponDirection = (target.transform.position - weaponPosition).normalized;
-            direction.y = 0;
-            weaponDirection.y = 0;
-            float distance = Vector3.Distance(origin, target.transform.position);
-
-            int mask = LayerMask.GetMask("Body");
-            DrawLines.DrawLine(agent.transform.position, agent.transform.position + direction * attackRange,Color.magenta);
-            if (!Physics.Raycast(origin, direction, out RaycastHit bodyHit, attackRange, mask)) return false;
-            //DrawLines.DrawLine(agent.transform.position, agent.transform.position + weaponDirection * attackRange, Color.black);
-            //if (!Physics.Raycast(origin, weaponDirection, out RaycastHit weaponHit, attackRange, mask)) return false;
-
-            Character hitChar = bodyHit.collider.GetComponentInParent<Character>();
-            if (!hitChar) return false;
-            
-            //Character hitWeaponChar = weaponHit.collider.GetComponentInParent<Character>();
-            //if (!hitWeaponChar) return false;
-
-            if (!blackboard.TryGetValue(CommonKeys.TeamSelf, out CharacterTeam team)) return false;
-            return hitChar.GetCharacterInfo().Team != team;// && hitWeaponChar.GetCharacterInfo().Team != team;
-        })));
+        //AddChild(new Leaf("ArcherLOS", new LineOfSightStrategy(blackboard, attackRange)));
         RandomSelector randomSelector = new RandomSelector("ArcherAttackSelect");
         randomSelector.AddChild(new Leaf("ArcherWeakArrow", new ActionStrategy(() => chooseAttack(ActionType.Arrow)), ()=> agent.TreeValues.CombatAttack.WeakStabWeight));
         randomSelector.AddChild(new Leaf("ArcherStrongArrow", new ActionStrategy(() => chooseAttack(ActionType.StrongArrow)), ()=> agent.TreeValues.CombatAttack.StrongStabWeight));

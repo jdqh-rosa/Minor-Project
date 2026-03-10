@@ -914,6 +914,48 @@ public class GroupUpStrategy : IStrategy
         return new Vector3(pCenter.x + xOffset, pCenter.y, pCenter.z + zOffset);
     }
 }
+
+public class LineOfSightStrategy : IStrategy
+{
+    private EnemyBlackboard blackboard;
+    private EnemyController agent;
+    private float attackRange = 0.5f;
+
+    public LineOfSightStrategy(EnemyBlackboard pBlackboard, float pAttackRange) {
+        blackboard = pBlackboard;
+        blackboard.TryGetValue(CommonKeys.AgentSelf, out agent);
+        attackRange = pAttackRange;
+    }
+
+    public Node.NodeStatus Process() {
+        blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject target);
+        if (target == null) return Node.NodeStatus.Failure;
+
+        Vector3 weaponPosition = agent.gameObject.GetComponent<Character>().Weapon.GetTipPosition();
+
+        Vector3 origin = agent.transform.position;
+        Vector3 direction = (target.transform.position - origin).normalized;
+        Vector3 weaponDirection = (target.transform.position - weaponPosition).normalized;
+        direction.y = 0;
+        weaponDirection.y = 0;
+        float distance = Vector3.Distance(origin, target.transform.position);
+
+        int mask = LayerMask.GetMask("Body");
+        if (!Physics.Raycast(origin, direction, out RaycastHit bodyHit, attackRange, mask)) return Node.NodeStatus.Failure;
+        //if (!Physics.Raycast(origin, weaponDirection, out RaycastHit weaponHit, attackRange, mask)) return false;
+
+        Character hitChar = bodyHit.collider.GetComponentInParent<Character>();
+        if (!hitChar) return Node.NodeStatus.Failure;
+            
+        //Character hitWeaponChar = weaponHit.collider.GetComponentInParent<Character>();
+        //if (!hitWeaponChar) return false;
+
+        if (!blackboard.TryGetValue(CommonKeys.TeamSelf, out CharacterTeam team)) return Node.NodeStatus.Failure;
+        bool check = hitChar.GetCharacterInfo().Team != team;// && hitWeaponChar.GetCharacterInfo().Team != team;
+        return Node.NodeStatus.Success;
+    }
+}
+
 public class ModifyWeightStrategy : IStrategy
 {
     private EnemyBlackboard blackboard;
