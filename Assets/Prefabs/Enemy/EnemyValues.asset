@@ -73,11 +73,11 @@ MonoBehaviour:
     AlignAttackForce: 4
     EnterRangeForce: 7
     ChooseObjectForce: 0.1
-    DistanceSelfForce: -1
-    AvoidObjectForce: -2
+    DistanceSelfForce: -5
+    AvoidObjectForce: -5
     FlankForce: 3
     GroupUpForce: 3
-    TargetAllyForce: 1
+    TargetAllyForce: -1
     RetreatForce: -2
     SurroundForce: 3
   Miscellaneous:

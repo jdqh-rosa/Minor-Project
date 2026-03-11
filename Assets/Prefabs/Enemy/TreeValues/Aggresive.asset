@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Aggresive
   m_EditorClassIdentifier: 
   Messenger:
-    FlankWeight: 50
+    FlankWeight: 10
     FlankMod: 10
     IsFlankModified: 0
     GroupUpWeight: 10
@@ -22,21 +22,21 @@ MonoBehaviour:
     RetreatWeight: 10
     RetreatMod: 10
     IsRetreatModified: 0
-    BackUpWeight: 30
-    BackUpMod: 30
+    BackUpWeight: 10
+    BackUpMod: 10
     IsBackUpModified: 0
-    SurroundWeight: 50
+    SurroundWeight: 10
     SurroundMod: 10
     IsSurroundModified: 0
   Health:
-    LowHealthWeight: 20
+    LowHealthWeight: 11
     LowHealthThreshold: 0.1
     IsLowHealth: 0
   Decider:
     CombatWeight: 30
-    PatrolWeight: 25
+    PatrolWeight: 15
     AssembleWeight: 15
-    AssembleMod: 20
+    AssembleMod: 15
     IsAssembleModified: 0
     IdleWeight: 10
   CombatTactic:
@@ -53,7 +53,7 @@ MonoBehaviour:
     DefendSelfMod: 10
     IsDefendSelfModified: 0
     RetreatWeight: 5
-    RetreatMod: 40
+    RetreatMod: 50
     IsRetreatModified: 0
     RetreatSelfWeight: 100
     RetreatGroupWeight: 40
@@ -66,18 +66,18 @@ MonoBehaviour:
     WeakSwingWeight: 30
   Defense:
     EvadeWeight: 10
-    ParryWeight: 10
+    ParryWeight: 20
     BlockWeight: 10
     RetreatWeight: 10
   Movement:
-    AlignAttackForce: 4
+    AlignAttackForce: 7
     EnterRangeForce: 7
     ChooseObjectForce: 0.1
-    DistanceSelfForce: -1
-    AvoidObjectForce: -1
+    DistanceSelfForce: -2
+    AvoidObjectForce: -2
     FlankForce: 3
     GroupUpForce: 3
-    TargetAllyForce: 1
+    TargetAllyForce: -1
     RetreatForce: -1
     SurroundForce: 3
   Miscellaneous:

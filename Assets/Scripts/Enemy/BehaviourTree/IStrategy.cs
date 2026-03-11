@@ -843,8 +843,11 @@ public class GetLowestAllyStrategy : IStrategy
         foreach (GameObject ally in allies) {
             if(!ally) continue;
             if (!ally.TryGetComponent(out Character _allyChar)) continue;
-            if(_allyChar.GetCharacterInfo().Health > _lowestHealth) continue;
+
+            float healthFactor = _allyChar.GetHealthFactor();
+            if(healthFactor > _lowestHealth) continue;
             _lowestAlly = ally;
+            _lowestHealth = healthFactor;
         }
         
         blackboard.SetKeyValue(CommonKeys.LowestHealthAlly, _lowestAlly);

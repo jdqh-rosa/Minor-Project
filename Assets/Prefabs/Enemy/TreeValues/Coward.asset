@@ -19,8 +19,8 @@ MonoBehaviour:
     GroupUpWeight: 10
     GroupUpMod: 10
     IsGroupUpModified: 0
-    RetreatWeight: 10
-    RetreatMod: 10
+    RetreatWeight: 20
+    RetreatMod: 40
     IsRetreatModified: 0
     BackUpWeight: 30
     BackUpMod: 10
@@ -34,8 +34,8 @@ MonoBehaviour:
     IsLowHealth: 0
   Decider:
     CombatWeight: 30
-    PatrolWeight: 25
-    AssembleWeight: 15
+    PatrolWeight: 0
+    AssembleWeight: 20
     AssembleMod: 20
     IsAssembleModified: 0
     IdleWeight: 10
@@ -46,10 +46,10 @@ MonoBehaviour:
     FlankWeight: 20
     FlankMod: 30
     IsFlankModified: 0
-    AttackTargetWeight: 10
+    AttackTargetWeight: 15
     AttackTargetMod: 10
     IsAttackTargetModified: 0
-    DefendSelfWeight: 10
+    DefendSelfWeight: 15
     DefendSelfMod: 10
     IsDefendSelfModified: 0
     RetreatWeight: 30
@@ -71,15 +71,15 @@ MonoBehaviour:
     RetreatWeight: 10
   Movement:
     AlignAttackForce: 4
-    EnterRangeForce: 5
+    EnterRangeForce: 8
     ChooseObjectForce: 0.1
-    DistanceSelfForce: -1
-    AvoidObjectForce: -1
-    FlankForce: 7
-    GroupUpForce: 7
-    TargetAllyForce: 5
+    DistanceSelfForce: -8
+    AvoidObjectForce: -8
+    FlankForce: 2
+    GroupUpForce: 2
+    TargetAllyForce: -0.5
     RetreatForce: -9
-    SurroundForce: 7
+    SurroundForce: 2
   Miscellaneous:
     FindRange: 50
     RetreatDistance: 30

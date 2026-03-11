@@ -6,7 +6,7 @@ public class FollowObjectAtHeight : MonoBehaviour
     [SerializeField] private float height;
     void Update()
     {
-        if(!target) return;
+        if(!target || !target.activeSelf) return;
         transform.position = target.transform.position + Vector3.up * height;
     }
 }

@@ -40,7 +40,7 @@ MonoBehaviour:
     IsAssembleModified: 0
     IdleWeight: 10
   CombatTactic:
-    SurroundWeight: 40
+    SurroundWeight: 20
     SurroundMod: 5
     IsSurroundModified: 0
     FlankWeight: 50
@@ -70,14 +70,14 @@ MonoBehaviour:
     BlockWeight: 10
     RetreatWeight: 10
   Movement:
-    AlignAttackForce: 2
-    EnterRangeForce: 3
+    AlignAttackForce: 4
+    EnterRangeForce: 7
     ChooseObjectForce: 0.1
-    DistanceSelfForce: -3
-    AvoidObjectForce: -5
+    DistanceSelfForce: -4
+    AvoidObjectForce: -4
     FlankForce: 7
     GroupUpForce: 3
-    TargetAllyForce: 0
+    TargetAllyForce: -2
     RetreatForce: -1
     SurroundForce: 3
   Miscellaneous:

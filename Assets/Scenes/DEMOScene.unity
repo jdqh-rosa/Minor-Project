@@ -281,7 +281,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: d8fe955b151bd114392677d9bd052241, type: 2}
+  - {fileID: 2100000, guid: ff7bfa730cac8a8449cb50115978d7bf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -389,12 +389,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportWait: 3
   teleportArea: {x: 15, y: 15}
-  rigidbody: {fileID: 375600774}
---- !u!54 &375600774 stripped
-Rigidbody:
-  m_CorrespondingSourceObject: {fileID: 144821258007444972, guid: d471f02492ea80e40a4ab6eabc0633df, type: 3}
-  m_PrefabInstance: {fileID: 1271312590}
-  m_PrefabAsset: {fileID: 0}
+  rb: {fileID: 0}
 --- !u!1 &468420351 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3915197369426287010, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
@@ -414,7 +409,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportWait: 5
   teleportArea: {x: 10, y: 10}
-  rigidbody: {fileID: 0}
+  rb: {fileID: 0}
 --- !u!1001 &494436502
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -940,15 +935,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 737352723557792849, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_AnchorMin.x
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3198113271263820664, guid: c14ade4e5aa0043488941759d51ea72b, type: 3}
       propertyPath: m_Constraints

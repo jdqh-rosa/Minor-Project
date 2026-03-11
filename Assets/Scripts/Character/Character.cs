@@ -245,6 +245,12 @@ public class Character : MonoBehaviour
         return GetCharacterInfo().Health;
     }
 
+    public float GetHealthFactor()
+    {
+        charInfo ??= GetCharacterInfo();
+        return charInfo.Health / charInfo.MaxHealth;
+    }
+
     public bool IsAttacking() {
         return isAttacking;
     }

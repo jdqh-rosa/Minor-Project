@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class ArcherTargetTree : BehaviourTree
@@ -50,14 +49,6 @@ public class ArcherTargetTree : BehaviourTree
     private GameObject targetEnemy() {
         blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _enemy);
         return !_enemy ? null : _enemy;
-    }
-    
-    void pointWeapon()
-    {
-        if(!blackboard.TryGetValue(CommonKeys.TargetEnemy, out GameObject _target) || !_target) return;
-        
-        Vector3 _difVector = _target.transform.position - agent.transform.position;
-        blackboard.SetKeyValue(CommonKeys.ChosenWeaponAngle, RadialHelper.CartesianToPol(new Vector2(_difVector.x, _difVector.z)).y);
     }
     
     bool HasValidTarget()
